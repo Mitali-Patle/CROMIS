@@ -139,11 +139,11 @@ npx prettier --write .
 
 This will automatically format:
 
-* JavaScript files
-* JSON files
-* Markdown files
-* YAML files
-* CSS files (optional)
+- JavaScript files
+- JSON files
+- Markdown files
+- YAML files
+- CSS files (optional)
 
 After formatting, commit the changes:
 
@@ -154,6 +154,3 @@ git push
 ```
 
 ---
-
-
-

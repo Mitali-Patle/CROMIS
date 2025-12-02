@@ -14,18 +14,18 @@ This workflow runs the official **GitHub Super Linter** to validate basic files 
 
 ### ✔ What it validates:
 
-* JSON files
-* YAML files
-* `.env` files
+- JSON files
+- YAML files
+- `.env` files
 
 ### What is disabled:
 
 Super Linter linters that conflict with Next.js & Tailwind were turned off:
 
-* CSS linting
-* Markdown linting
-* JavaScript Standard linting
-* TypeScript linting
+- CSS linting
+- Markdown linting
+- JavaScript Standard linting
+- TypeScript linting
 
 ### Why?
 
@@ -41,10 +41,10 @@ This workflow checks the **Node.js backend** to ensure it installs and runs with
 
 ### ✔ What it does:
 
-* Installs backend dependencies
-* Uses Node.js 18
-* Runs the backend using `node server.js`
-* Ensures there are no crashes
+- Installs backend dependencies
+- Uses Node.js 18
+- Runs the backend using `node server.js`
+- Ensures there are no crashes
 
 ### Purpose:
 
@@ -60,10 +60,10 @@ This workflow builds the **Next.js frontend** using the correct Node version.
 
 ### ✔ What it does:
 
-* Installs frontend dependencies
-* Uses **Node.js 20.10.0** (required for Next.js 16)
-* Runs `npm run build`
-* Ensures there are no build errors
+- Installs frontend dependencies
+- Uses **Node.js 20.10.0** (required for Next.js 16)
+- Runs `npm run build`
+- Ensures there are no build errors
 
 ### Why Node 20?
 
@@ -85,18 +85,18 @@ npx prettier --write .
 
 This formats:
 
-* JavaScript
-* JSON
-* Markdown
-* YAML
+- JavaScript
+- JSON
+- Markdown
+- YAML
 
 ### ✔ Why?
 
 Proper formatting ensures:
 
-* Fewer merge conflicts
-* No Super Linter formatting errors
-* Consistent codebase
+- Fewer merge conflicts
+- No Super Linter formatting errors
+- Consistent codebase
 
 ---
 
@@ -115,7 +115,7 @@ Proper formatting ensures:
 
 These CI/CD pipelines ensure:
 
-* Every commit is clean
-* The backend runs without crashing
-* The frontend builds successfully
-* The repository maintains professional standard practices
+- Every commit is clean
+- The backend runs without crashing
+- The frontend builds successfully
+- The repository maintains professional standard practices
