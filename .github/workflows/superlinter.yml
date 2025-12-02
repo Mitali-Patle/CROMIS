@@ -17,24 +17,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Run GitHub Super Linter
+      - name: Run Super Linter
         uses: github/super-linter@v5
         env:
-          DEFAULT_BRANCH: main
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEFAULT_BRANCH: main
 
-          # Enable main linters
-          VALIDATE_JAVASCRIPT_ES: true
-          VALIDATE_JSON: true
-          VALIDATE_YAML: true
-          VALIDATE_MARKDOWN: true
-          VALIDATE_ENV: true
-
-          # Disable unused linters (avoid conflicts)
-          VALIDATE_TYPESCRIPT_ES: false
-          VALIDATE_TSX: false
-          VALIDATE_TS: false
-          VALIDATE_DOCKERFILE: false
-
-          # Ignore builds and node_modules
-          FILTER_REGEX_EXCLUDE: "node_modules/|.next/"
+          # Ignore build folders
+          FILTER_REGEX_EXCLUDE: "node_modules/|.next/|dist/"
