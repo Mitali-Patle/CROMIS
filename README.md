@@ -123,7 +123,7 @@ npm install
 Create `frontend/.env.local`:
 
 ```
-NEXT_PUBLIC_API_URL=http://localhost:4000/api
+NEXT_PUBLIC_API_URL=http://localhost:5000/api
 ```
 
 ### 3️⃣ Run development server
