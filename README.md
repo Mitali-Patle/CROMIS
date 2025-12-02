@@ -2,9 +2,9 @@
 
 A full-stack web application built using **Next.js (frontend)** and **Node.js + Express (backend)** with a **MongoDB database**, containerized using **Docker**, deployed via **Vercel** (frontend) and **Render/Railway** (backend).
 
-# **Tech Stack**
+## **Tech Stack**
 
-## **Frontend (Client)**
+### **Frontend (Client)**
 
 - Next.js 15 (App Router)
 - React
@@ -12,7 +12,7 @@ A full-stack web application built using **Next.js (frontend)** and **Node.js + 
 - Axios (API calls)
 - Vercel Deployment
 
-## **DevOps & Deployment**
+### **DevOps & Deployment**
 
 - Git & GitHub
 - GitHub Actions (CI)
@@ -22,7 +22,7 @@ A full-stack web application built using **Next.js (frontend)** and **Node.js + 
 
 ---
 
-# **Project Folder Structure**
+## **Project Folder Structure**
 
 ```
 SE-2025/
@@ -67,7 +67,7 @@ SE-2025/
 
 ---
 
-# ⚙️ **Backend – How to Run**
+## **Backend – How to Run**
 
 Inside the `backend/` folder:
 
@@ -99,7 +99,7 @@ Production:
 npm start
 ```
 
-# 🖥️ **Frontend – How to Run**
+## **Frontend – How to Run**
 
 Inside the `frontend/` folder:
 
@@ -128,3 +128,32 @@ Frontend will run on:
 **[http://localhost:3000](http://localhost:3000)**
 
 ---
+
+## Code Formatting (Important — run before committing)
+
+To avoid Super Linter errors and maintain clean, consistent code formatting across the project, **run Prettier before every commit**:
+
+```bash
+npx prettier --write .
+```
+
+This will automatically format:
+
+* JavaScript files
+* JSON files
+* Markdown files
+* YAML files
+* CSS files (optional)
+
+After formatting, commit the changes:
+
+```bash
+git add .
+git commit -m "style: auto format with Prettier"
+git push
+```
+
+---
+
+
+
