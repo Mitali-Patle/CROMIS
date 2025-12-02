@@ -23,14 +23,18 @@ jobs:
           DEFAULT_BRANCH: main
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-          # YOU WANT THESE FOR JS FULL-STACK
+          # Enable main linters
           VALIDATE_JAVASCRIPT_ES: true
-          VALIDATE_TYPESCRIPT_ES: false
-          VALIDATE_MARKDOWN: true
-          VALIDATE_YAML: true
           VALIDATE_JSON: true
+          VALIDATE_YAML: true
+          VALIDATE_MARKDOWN: true
           VALIDATE_ENV: true
-          VALIDATE_DOCKERFILE: true
 
-          # OPTIONAL: skip Next.js build output
-          FILTER_REGEX_EXCLUDE: ".next/|node_modules/"
+          # Disable unused linters (avoid conflicts)
+          VALIDATE_TYPESCRIPT_ES: false
+          VALIDATE_TSX: false
+          VALIDATE_TS: false
+          VALIDATE_DOCKERFILE: false
+
+          # Ignore builds and node_modules
+          FILTER_REGEX_EXCLUDE: "node_modules/|.next/"
