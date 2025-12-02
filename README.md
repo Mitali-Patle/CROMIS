@@ -180,7 +180,7 @@ SE-2025/
 
 ---
 
-## 🐳 Build & Run with Docker Compose**
+## 🐳 Build & Run with Docker Compose\*\*
 
 Move into the `infra/` directory:
 
@@ -196,11 +196,11 @@ docker compose up --build
 
 This will:
 
-* Build **two images**
+- Build **two images**
+  - `frontend` (Next.js)
+  - `backend` (Express + Node)
 
-  * `frontend` (Next.js)
-  * `backend`  (Express + Node)
-* Start **two containers**
-* Create a shared Docker network
+- Start **two containers**
+- Create a shared Docker network
 
 ---
