@@ -28,31 +28,36 @@ A full-stack web application built using **Next.js (frontend)** and **Node.js + 
 SE-2025/
 │
 ├── backend/
-│   ├── server.js               # Backend entry point
+│   ├── Dockerfile               # Backend Dockerfile (NEW)
+│   ├── .dockerignore
+│   ├── .gitignore
+│   ├── server.js                # Backend entry point
 │   ├── package.json
 │   ├── .env.example
 │   │
 │   └── src/
-│       ├── app.js              # Express app config
+│       ├── app.js               # Express app config
 │       │
-│       ├── routes/             # API Routes
+│       ├── routes/              # API Routes
 │       │   └── index.js
 │       │
-│       ├── controllers/        # Controller functions
+│       ├── controllers/         # Controller functions
 │       │   └── sampleController.js
 │       │
-│       ├── models/             # Mongoose models (User, Appointment, etc.)
+│       ├── models/              # Mongoose models (User, etc.)
 │       │   └── User.js
 │       │
-│       └── config/             # DB configuration
+│       └── config/              # DB configuration
 │           └── db.js
 │
 │
 ├── frontend/
-│   ├── app/                    # Next.js App Router pages
-│   ├── public/                 # Static assets
+│   ├── Dockerfile               # Frontend Dockerfile (NEW)
+│   ├── .dockerignore
+│   ├── app/                     # Next.js App Router
+│   ├── public/                  # Static assets
 │   ├── node_modules/
-│   ├── .next/                  # Build output
+│   ├── .next/                   # Build output
 │   │
 │   ├── package.json
 │   ├── jsconfig.json
@@ -62,7 +67,11 @@ SE-2025/
 │   └── .gitignore
 │
 │
-└── README.md                  # Project documentation
+├── infra/
+│   └── docker-compose.yml       # Combined Docker setup (NEW)
+│
+│
+└── README.md                    # Project documentation
 ```
 
 ---
@@ -152,5 +161,46 @@ git add .
 git commit -m "style: auto format with Prettier"
 git push
 ```
+
+---
+
+## **Docker Setup (Frontend + Backend)**
+
+This project includes full **Docker containerization** for both the **Node.js backend** and **Next.js frontend**, managed via **Docker Compose** inside the `infra/` folder.
+
+## Folder Structure (Docker Related)
+
+```
+SE-2025/
+├── backend/           # Backend source + Dockerfile
+├── frontend/          # Frontend source + Dockerfile
+└── infra/
+    └── docker-compose.yml
+```
+
+---
+
+# 🐳 Build & Run with Docker Compose**
+
+Move into the `infra/` directory:
+
+```bash
+cd infra
+```
+
+### **Run the entire project (frontend + backend):**
+
+```bash
+docker compose up --build
+```
+
+This will:
+
+* Build **two images**
+
+  * `frontend` (Next.js)
+  * `backend`  (Express + Node)
+* Start **two containers**
+* Create a shared Docker network
 
 ---
