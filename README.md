@@ -6,19 +6,19 @@ A full-stack web application built using **Next.js (frontend)** and **Node.js + 
 
 ## **Frontend (Client)**
 
-* Next.js 15 (App Router)
-* React
-* Tailwind CSS
-* Axios (API calls)
-* Vercel Deployment
+- Next.js 15 (App Router)
+- React
+- Tailwind CSS
+- Axios (API calls)
+- Vercel Deployment
 
 ## **DevOps & Deployment**
 
-* Git & GitHub
-* GitHub Actions (CI)
-* Docker containerization (backend)
-* Vercel (frontend hosting)
-* Render / Railway (backend hosting)
+- Git & GitHub
+- GitHub Actions (CI)
+- Docker containerization (backend)
+- Vercel (frontend hosting)
+- Render / Railway (backend hosting)
 
 ---
 
@@ -99,7 +99,6 @@ Production:
 npm start
 ```
 
-
 # 🖥️ **Frontend – How to Run**
 
 Inside the `frontend/` folder:
@@ -129,5 +128,3 @@ Frontend will run on:
 **[http://localhost:3000](http://localhost:3000)**
 
 ---
-
-
