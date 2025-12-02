@@ -1,4 +1,4 @@
-# 📘 **SE Project 2025**
+# **SE Project 2025**
 
 A full-stack web application built using **Next.js (frontend)** and **Node.js + Express (backend)** with a **MongoDB database**, containerized using **Docker**, deployed via **Vercel** (frontend) and **Render/Railway** (backend).
 
@@ -22,7 +22,7 @@ A full-stack web application built using **Next.js (frontend)** and **Node.js + 
 
 ---
 
-# 📁 **Project Folder Structure**
+# **Project Folder Structure**
 
 ```
 SE-2025/
@@ -126,7 +126,8 @@ npm run dev
 
 Frontend will run on:
 
-👉 **[http://localhost:3000](http://localhost:3000)**
+**[http://localhost:3000](http://localhost:3000)**
 
 ---
+
 
