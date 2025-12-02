@@ -108,7 +108,7 @@ Proper formatting ensures:
 
 ---
 
-# **Final Notes**
+## **Final Notes**
 
 These CI/CD pipelines ensure:
 
@@ -116,3 +116,7 @@ These CI/CD pipelines ensure:
 - The backend runs without crashing
 - The frontend builds successfully
 - The repository maintains professional standard practices
+
+## Project CI Pipeline – GitHub Actions Overview
+<img width="1919" height="771" alt="image" src="https://github.com/user-attachments/assets/a5eadaed-c8e9-403f-a4f4-5470e9038e3b" />
+
