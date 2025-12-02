@@ -1,19 +1,16 @@
 ---
-name: Super Linter
+name: Super-Linter
 
 on:
   push:
-    branches:
-      - main
-  pull_request:
 
 jobs:
   super-lint:
-    name: Lint Project (Basic Only)
+    name: Lint code base
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
+      - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -21,22 +18,17 @@ jobs:
       - name: Run Super-Linter
         uses: github/super-linter@v5
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DEFAULT_BRANCH: main
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-          # Ignore unnecessary folders
-          FILTER_REGEX_EXCLUDE: "node_modules/|.next/|dist/|build/"
+          # Ignore noisy frameworks
+          FILTER_REGEX_EXCLUDE: "node_modules/|.next/|dist/"
 
-          # Disable ALL JavaScript linters
-          VALIDATE_JAVASCRIPT_ES: false
+          # Disable standard JS (conflicts with Next.js style)
           VALIDATE_JAVASCRIPT_STANDARD: false
-          VALIDATE_TYPESCRIPT_ES: false
 
-          # Disable CSS & Markdown (Tailwind + README issues)
-          VALIDATE_CSS: false
+          # Disable markdown errors
           VALIDATE_MARKDOWN: false
 
-          # Enable ONLY safe linters
-          VALIDATE_JSON: true
-          VALIDATE_YAML: true
-          VALIDATE_ENV: true
+          # Disable CSS linting for Tailwind’s @rules
+          VALIDATE_CSS: false
