@@ -164,7 +164,7 @@ git push
 
 ---
 
-## **Docker Setup (Frontend + Backend)**
+# **Docker Setup (Frontend + Backend)**
 
 This project includes full **Docker containerization** for both the **Node.js backend** and **Next.js frontend**, managed via **Docker Compose** inside the `infra/` folder.
 
@@ -180,7 +180,7 @@ SE-2025/
 
 ---
 
-# 🐳 Build & Run with Docker Compose**
+## 🐳 Build & Run with Docker Compose**
 
 Move into the `infra/` directory:
 
