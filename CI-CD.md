@@ -16,7 +16,6 @@ This workflow runs the official **GitHub Super Linter** to validate basic files 
 
 - JSON files
 - YAML files
-- `.env` files
 
 ### What is disabled:
 
@@ -24,8 +23,6 @@ Super Linter linters that conflict with Next.js & Tailwind were turned off:
 
 - CSS linting
 - Markdown linting
-- JavaScript Standard linting
-- TypeScript linting
 
 ### Why?
 
