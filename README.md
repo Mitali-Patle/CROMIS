@@ -4,7 +4,6 @@ A full-stack web application built using **Next.js (frontend)** and **Node.js + 
 
 ## **Tech Stack**
 
-
 ### **Frontend (Client)**
 
 - Next.js 15 (App Router)
