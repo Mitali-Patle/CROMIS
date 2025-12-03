@@ -1,9 +1,7 @@
 name: Build & Push Docker Images to GHCR
 
 on:
-  push:
-    branches: ["main"]
-  pull_request:
+  workflow_dispatch:
 
 jobs:
   build-and-push:
@@ -18,7 +16,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Convert username to lowercase (required for GHCR)
       - name: Set lowercase actor
         id: vars
         run: echo "actor_lowercase=$(echo '${{ github.actor }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
@@ -32,18 +29,14 @@ jobs:
 
       # FRONTEND
       - name: Build Frontend image
-        run: |
-          docker build -t ghcr.io/${{ steps.vars.outputs.actor_lowercase }}/se-frontend:latest ./frontend
+        run: docker build -t ghcr.io/${{ steps.vars.outputs.actor_lowercase }}/se-frontend:latest ./frontend
 
       - name: Push Frontend image
-        run: |
-          docker push ghcr.io/${{ steps.vars.outputs.actor_lowercase }}/se-frontend:latest
+        run: docker push ghcr.io/${{ steps.vars.outputs.actor_lowercase }}/se-frontend:latest
 
       # BACKEND
       - name: Build Backend image
-        run: |
-          docker build -t ghcr.io/${{ steps.vars.outputs.actor_lowercase }}/se-backend:latest ./backend
+        run: docker build -t ghcr.io/${{ steps.vars.outputs.actor_lowercase }}/se-backend:latest ./backend
 
       - name: Push Backend image
-        run: |
-          docker push ghcr.io/${{ steps.vars.outputs.actor_lowercase }}/se-backend:latest
+        run: docker push ghcr.io/${{ steps.vars.outputs.actor_lowercase }}/se-backend:latest
