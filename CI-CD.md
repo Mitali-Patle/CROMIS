@@ -1,32 +1,33 @@
 # **CI/CD Pipeline Documentation**
 
-This project uses **Continuous Integration (CI)** to automatically check code quality, build the application, and ensure everything runs correctly before merging or deployment.
+This project uses a modular **Continuous Integration (CI)** and optional **Continuous Deployment (CD)** system using **GitHub Actions**.
+Each workflow focuses on a single responsibility, ensuring fast, reliable, and clean builds.
 
-The CI/CD system is implemented using **GitHub Actions** and includes three major workflows:
+The CI/CD system contains **four workflows**:
 
 ---
 
 ## **1. Super Linter Workflow**
 
-**File:** `.github/workflows/superlinter.yml`
+**File:** `.github/workflows/super-linter.yml`
 
-This workflow runs the official **GitHub Super Linter** to validate basic files in the project.
+This workflow runs the official GitHub **Super Linter** to validate general project files.
 
-### ✔ What it validates:
+### ✔ Validates:
 
-- JSON files
-- YAML files
+* JSON
+* YAML
 
-### What is disabled:
+### Disabled linters:
 
-Super Linter linters that conflict with Next.js & Tailwind were turned off:
+These were disabled because they conflict with TailwindCSS & Next.js formatting, causing false errors:
 
-- CSS linting
-- Markdown linting
+* CSS linting
+* Markdown linting
 
-### Why?
+### Purpose:
 
-Because Tailwind CSS, Next.js JSX, and default README formatting create false errors.
+Ensures core config files are always valid.
 
 ---
 
@@ -34,18 +35,17 @@ Because Tailwind CSS, Next.js JSX, and default README formatting create false er
 
 **File:** `.github/workflows/backend-ci.yml`
 
-This workflow checks the **Node.js backend** to ensure it installs and runs without issues.
+This workflow validates the **Node.js backend** before merging changes.
 
 ### ✔ What it does:
 
-- Installs backend dependencies
-- Uses Node.js 18
-- Runs the backend using `node server.js`
-- Ensures there are no crashes
+* Installs backend dependencies (`npm install`)
+* Uses Node.js **18**
+* Runs backend (`node server.js`) to confirm it starts without crashing
 
 ### Purpose:
 
-To confirm the backend is always in a runnable state after every commit.
+Guarantees backend code is always in a stable, runnable state.
 
 ---
 
@@ -53,70 +53,114 @@ To confirm the backend is always in a runnable state after every commit.
 
 **File:** `.github/workflows/frontend-ci.yml`
 
-This workflow builds the **Next.js frontend** using the correct Node version.
+This pipeline builds the **Next.js frontend** to ensure it compiles successfully.
 
 ### ✔ What it does:
 
-- Installs frontend dependencies
-- Uses **Node.js 20.10.0** (required for Next.js 16)
-- Runs `npm run build`
-- Ensures there are no build errors
+* Installs frontend dependencies
+* Uses **Node.js 20.10.0** (required for Next.js 16)
+* Executes `npm run build`
 
 ### Why Node 20?
 
-Next.js 16 requires Node.js **version ≥ 20.9.0**.
+Next.js 16 requires:
+
+```
+Node >= 20.9.0
+```
+
+### Purpose:
+
+Prevents broken builds from reaching `main`.
 
 ---
 
-## **4. Prettier – Code Formatting**
+## **4. GHCR Docker Image Workflow (Manual Deploy)**
 
-To avoid formatting-related CI issues, Prettier is used.
+**File:** `.github/workflows/ghcr-deploy.yml`
 
-### ✔ How to format code:
+This workflow builds **Docker images** for both:
 
-Run this before every commit:
+* Frontend (`se-frontend`)
+* Backend (`se-backend`)
+
+…and pushes them to **GitHub Container Registry (GHCR)**.
+
+### Trigger Type: **Manual Only**
+
+The workflow runs **only when manually triggered**:
+
+```yaml
+on:
+  workflow_dispatch:
+```
+
+This prevents:
+
+* Slow CI during development
+* GHCR storage spam
+* Permission errors
+* Unnecessary builds on every PR
+
+### ✔ What it does:
+
+* Builds Docker images for:
+
+  * Frontend
+  * Backend
+* Logs in to GHCR
+* Pushes both images with tag `latest`
+
+### Purpose:
+
+Used for deployment **only when needed**, not during everyday development.
+
+---
+
+## **5. Prettier – Code Formatting**
+
+Before committing, format the code using:
 
 ```bash
 npx prettier --write .
 ```
 
-This formats:
+This ensures:
 
-- JavaScript
-- JSON
-- Markdown
-- YAML
-
-### ✔ Why?
-
-Proper formatting ensures:
-
-- Fewer merge conflicts
-- No Super Linter formatting errors
-- Consistent codebase
+* No formatting issues in CI
+* Consistent codebase
+* Fewer merge conflicts
+* Cleaner PRs
 
 ---
 
-## **Workflow Summary**
+# **Workflow Summary Table**
 
-| Workflow         | Purpose                         | Status        |
-| ---------------- | ------------------------------- | ------------- |
-| **Super Linter** | Validates JSON, YAML, ENV       | ✔ Configured  |
-| **Backend CI**   | Installs & runs Node.js backend | ✔ Working     |
-| **Frontend CI**  | Builds Next.js using Node 20    | ✔ Working     |
-| **Prettier**     | Formats code before commit      | ✔ Recommended |
+| Workflow         | Purpose                       | Trigger             | Status        |
+| ---------------- | ----------------------------- | ------------------- | ------------- |
+| **Super Linter** | Validates JSON/YAML/ENV       | On PR/Push          | ✔ Active      |
+| **Backend CI**   | Installs & runs Node backend  | On PR/Push          | ✔ Active      |
+| **Frontend CI**  | Builds Next.js app            | On PR/Push          | ✔ Active      |
+| **GHCR Deploy**  | Builds & pushes Docker images | Manual (`dispatch`) | ✔ Ready       |
+| **Prettier**     | Formats all project files     | Before commits      | ✔ Recommended |
 
 ---
 
-## **Final Notes**
+# **Pipeline Architecture (Diagram)**
 
-These CI/CD pipelines ensure:
-
-- Every commit is clean
-- The backend runs without crashing
-- The frontend builds successfully
-- The repository maintains professional standard practices
-
-## Project CI Pipeline – GitHub Actions Overview
 <img width="1919" height="771" alt="image" src="https://github.com/user-attachments/assets/a5eadaed-c8e9-403f-a4f4-5470e9038e3b" />
 
+---
+
+# **Final Notes**
+
+Your CI/CD setup ensures:
+
+* Every commit is validated
+* Backend always runs successfully
+* Frontend always builds cleanly
+* Code formatting remains consistent
+* Docker images can be deployed **on demand**
+* Development remains fast and stable
+
+This structured CI system keeps your repository professional and ready for production scaling.
