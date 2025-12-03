@@ -12,6 +12,7 @@ A full-stack web application built using **Next.js (frontend)** and **Node.js + 
 - Axios (API calls)
 - Vercel Deployment
 
+
 ### **DevOps & Deployment**
 
 - Git & GitHub
