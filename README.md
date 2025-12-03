@@ -71,8 +71,6 @@ SE-2025/
 ├── infra/
 │   └── docker-compose.yml       # Combined Docker setup (NEW)
 │
-├── .super-linter.ignore
-├── CI-CD.md
 └── README.md                    # Project documentation
 ```
 
