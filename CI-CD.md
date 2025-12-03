@@ -134,7 +134,7 @@ This ensures:
 
 ---
 
-# **Workflow Summary Table**
+## **Workflow Summary Table**
 
 | Workflow         | Purpose                       | Trigger             | Status        |
 | ---------------- | ----------------------------- | ------------------- | ------------- |
@@ -146,13 +146,13 @@ This ensures:
 
 ---
 
-# **Pipeline Architecture (Diagram)**
+## **Pipeline Architecture (Diagram)**
 
 <img width="1919" height="771" alt="image" src="https://github.com/user-attachments/assets/a5eadaed-c8e9-403f-a4f4-5470e9038e3b" />
 
 ---
 
-# **Final Notes**
+## **Final Notes**
 
 Your CI/CD setup ensures:
 
