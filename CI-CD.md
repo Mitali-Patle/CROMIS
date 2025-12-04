@@ -15,15 +15,15 @@ This workflow runs the official GitHub **Super Linter** to validate general proj
 
 ### ✔ Validates:
 
-* JSON
-* YAML
+- JSON
+- YAML
 
 ### Disabled linters:
 
 These were disabled because they conflict with TailwindCSS & Next.js formatting, causing false errors:
 
-* CSS linting
-* Markdown linting
+- CSS linting
+- Markdown linting
 
 ### Purpose:
 
@@ -39,9 +39,9 @@ This workflow validates the **Node.js backend** before merging changes.
 
 ### ✔ What it does:
 
-* Installs backend dependencies (`npm install`)
-* Uses Node.js **18**
-* Runs backend (`node server.js`) to confirm it starts without crashing
+- Installs backend dependencies (`npm install`)
+- Uses Node.js **18**
+- Runs backend (`node server.js`) to confirm it starts without crashing
 
 ### Purpose:
 
@@ -57,9 +57,9 @@ This pipeline builds the **Next.js frontend** to ensure it compiles successfully
 
 ### ✔ What it does:
 
-* Installs frontend dependencies
-* Uses **Node.js 20.10.0** (required for Next.js 16)
-* Executes `npm run build`
+- Installs frontend dependencies
+- Uses **Node.js 20.10.0** (required for Next.js 16)
+- Executes `npm run build`
 
 ### Why Node 20?
 
@@ -81,8 +81,8 @@ Prevents broken builds from reaching `main`.
 
 This workflow builds **Docker images** for both:
 
-* Frontend (`se-frontend`)
-* Backend (`se-backend`)
+- Frontend (`se-frontend`)
+- Backend (`se-backend`)
 
 …and pushes them to **GitHub Container Registry (GHCR)**.
 
@@ -97,19 +97,19 @@ on:
 
 This prevents:
 
-* Slow CI during development
-* GHCR storage spam
-* Permission errors
-* Unnecessary builds on every PR
+- Slow CI during development
+- GHCR storage spam
+- Permission errors
+- Unnecessary builds on every PR
 
 ### ✔ What it does:
 
-* Builds Docker images for:
+- Builds Docker images for:
+  - Frontend
+  - Backend
 
-  * Frontend
-  * Backend
-* Logs in to GHCR
-* Pushes both images with tag `latest`
+- Logs in to GHCR
+- Pushes both images with tag `latest`
 
 ### Purpose:
 
@@ -127,10 +127,10 @@ npx prettier --write .
 
 This ensures:
 
-* No formatting issues in CI
-* Consistent codebase
-* Fewer merge conflicts
-* Cleaner PRs
+- No formatting issues in CI
+- Consistent codebase
+- Fewer merge conflicts
+- Cleaner PRs
 
 ---
 
@@ -156,11 +156,11 @@ This ensures:
 
 Your CI/CD setup ensures:
 
-* Every commit is validated
-* Backend always runs successfully
-* Frontend always builds cleanly
-* Code formatting remains consistent
-* Docker images can be deployed **on demand**
-* Development remains fast and stable
+- Every commit is validated
+- Backend always runs successfully
+- Frontend always builds cleanly
+- Code formatting remains consistent
+- Docker images can be deployed **on demand**
+- Development remains fast and stable
 
 This structured CI system keeps your repository professional and ready for production scaling.

@@ -12,7 +12,6 @@ A full-stack web application built using **Next.js (frontend)** and **Node.js + 
 - Axios (API calls)
 - Vercel Deployment
 
-
 ### **DevOps & Deployment**
 
 - Git & GitHub
@@ -133,9 +132,11 @@ npm run dev
 ```
 
 Frontend will run on:
+
 ```
 http://localhost:3000
 ```
+
 ---
 
 ## Code Formatting (Important — run before committing)
@@ -204,6 +205,7 @@ This will:
 - Create a shared Docker network
 
 ---
+
 Here’s a **short and simple README addition**:
 
 ---
@@ -222,4 +224,5 @@ Pull and run with Podman:
 podman pull ghcr.io/sudharsansaravanan/se-frontend:latest
 podman run -p 3000:3000 ghcr.io/sudharsansaravanan/se-frontend:latest
 ```
+
 ---

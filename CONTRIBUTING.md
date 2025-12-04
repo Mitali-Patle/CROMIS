@@ -1,4 +1,5 @@
 # Contributing Guide
+
 Please follow the steps below to ensure a clean and consistent workflow.
 
 ---
@@ -61,11 +62,11 @@ git commit -m "feat: add new UI component"  # example
 
 Follow conventional commit guidelines:
 
-* `feat:` – new feature
-* `fix:` – bug fix
-* `docs:` – documentation
-* `refactor:` – code improvement
-* `style:` – formatting
+- `feat:` – new feature
+- `fix:` – bug fix
+- `docs:` – documentation
+- `refactor:` – code improvement
+- `style:` – formatting
 
 ---
 
@@ -82,10 +83,10 @@ git push origin feature/auth-ui
 1. Go to your fork on GitHub.
 2. Click **Compare & pull request**.
 3. Ensure:
+   - Base repo → `SudharsanSaravanan/se-project-2025`
+   - Base branch → `main`
+   - Your branch → e.g., `feature/auth-ui`
 
-   * Base repo → `SudharsanSaravanan/se-project-2025`
-   * Base branch → `main`
-   * Your branch → e.g., `feature/auth-ui`
 4. Add a clear PR title and description.
 5. If your PR includes frontend changes, please attach UI screenshots:
    - Before: previous UI
@@ -101,6 +102,7 @@ git checkout main
 git pull upstream main
 git push origin main
 ```
+
 ---
 
 ## Questions?
