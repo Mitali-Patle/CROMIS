@@ -133,9 +133,9 @@ npm run dev
 ```
 
 Frontend will run on:
-
-**[http://localhost:3000](http://localhost:3000)**
-
+```
+http://localhost:3000
+```
 ---
 
 ## Code Formatting (Important — run before committing)
@@ -203,4 +203,23 @@ This will:
 - Start **two containers**
 - Create a shared Docker network
 
+---
+Here’s a **short and simple README addition**:
+
+---
+
+### ▶️ Run from GHCR (Podman)
+
+A pre-built frontend image is available on GHCR:
+
+```
+ghcr.io/sudharsansaravanan/se-frontend:latest
+```
+
+Pull and run with Podman:
+
+```bash
+podman pull ghcr.io/sudharsansaravanan/se-frontend:latest
+podman run -p 3000:3000 ghcr.io/sudharsansaravanan/se-frontend:latest
+```
 ---
