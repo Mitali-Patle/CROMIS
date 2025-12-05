@@ -148,7 +148,7 @@ This ensures:
 
 ## **Pipeline Architecture (Diagram)**
 
-<img width="1919" height="771" alt="image" src="https://github.com/user-attachments/assets/a5eadaed-c8e9-403f-a4f4-5470e9038e3b" />
+<img width="1919" height="771" alt="image" src="https://github.com/user-attachments/assets/5e19f9a5-cbc4-417f-a5a3-809d011d4808" />
 
 ---
 
