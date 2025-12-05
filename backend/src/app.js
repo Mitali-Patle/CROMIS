@@ -1,18 +1,12 @@
 import express from "express";
-import cors from "cors";
-import routes from "./routes/index.js";
+import sampleRoutes from "./routes/index.js";
 
 const app = express();
 
-app.use(cors());
+// Parse JSON
 app.use(express.json());
 
-// Dummy health check
-app.get("/", (req, res) => {
-  res.json({ message: "Backend is running..." });
-});
-
-// API routes
-app.use("/api", routes);
+// Routes
+app.use("/api/sample", sampleRoutes);
 
 export default app;
