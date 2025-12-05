@@ -5,10 +5,10 @@ FROM node:20-alpine
 WORKDIR /app
 
 # Copy only package.json first
-COPY package.json ./
+COPY package.json .
 
 # Install dependencies
-RUN npm install
+RUN npm install --production
 
 # Copy backend code
 COPY . .
@@ -16,5 +16,5 @@ COPY . .
 # Expose backend port
 EXPOSE 5000
 
-# Start backend server
-CMD ["npm", "run", "start"]
+# Start backend server directly (no npm)
+CMD ["node", "server.js"]
