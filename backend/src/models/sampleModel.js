@@ -3,16 +3,16 @@ import mongoose from "mongoose";
 const sampleSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: true
+    required: true,
   },
   age: {
     type: Number,
-    required: true
+    required: true,
   },
   createdAt: {
     type: Date,
-    default: Date.now
-  }
+    default: Date.now,
+  },
 });
 
 export default mongoose.model("Sample", sampleSchema);
