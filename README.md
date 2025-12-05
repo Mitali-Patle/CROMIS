@@ -1,6 +1,6 @@
 # **SE Project 2025**
 
-A full-stack web application built using **Next.js (frontend)** and **Node.js + Express (backend)** with a **MongoDB database**, containerized using **Docker**, deployed via **Vercel** (frontend) and **Render/Railway** (backend).
+A full-stack web application built using **Next.js (frontend)** and **Node.js + Express (backend)** with a **MongoDB database**, containerized using **Docker**.
 
 ## **Tech Stack**
 
@@ -9,23 +9,21 @@ A full-stack web application built using **Next.js (frontend)** and **Node.js + 
 - Next.js 15 (App Router)
 - React
 - Tailwind CSS
-- Axios (API calls)
-- Vercel Deployment
 
 ### **DevOps & Deployment**
 
-- Git & GitHub
-- GitHub Actions (CI)
-- Docker containerization (backend)
-- Vercel (frontend hosting)
-- Render / Railway (backend hosting)
+- Git & GitHub (version control + remote code hosting)
+- GitHub Actions (CI) (automated testing/building on every push)
+- GHCR (GitHub Container Registry) (stores & hosts Docker images built from your repo)
+- Docker (containerization) (packages the app + dependencies into portable containers)
+- Podman (container engine) (Docker-compatible, daemonless alternative for running containers)
 
 ---
 
 ## **Project Folder Structure**
 
 ```
-SE-2025/
+SEP-2025/
 │
 ├── backend/
 │   ├── Dockerfile               # Backend Dockerfile (NEW)
@@ -52,12 +50,13 @@ SE-2025/
 │
 │
 ├── frontend/
+│   ├── public/                  # Static assets
+│   ├── app/                     # Next.js App Router
+│   ├── lib/
+│   │   └── api.js
 │   ├── Dockerfile               # Frontend Dockerfile (NEW)
 │   ├── .dockerignore
-│   ├── app/                     # Next.js App Router
-│   ├── public/                  # Static assets
-│   ├── node_modules/
-│   ├── .next/                   # Build output
+│   ├── .env.example
 │   │
 │   ├── package.json
 │   ├── jsconfig.json
@@ -122,7 +121,7 @@ npm install
 Create `frontend/.env.local`:
 
 ```
-NEXT_PUBLIC_API_URL=http://localhost:5000/api
+NEXT_PUBLIC_BACKEND_URL=http://localhost:5000
 ```
 
 ### 3️⃣ Run development server
