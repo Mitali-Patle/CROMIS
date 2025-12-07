@@ -1,6 +1,6 @@
 # **CI/CD Pipeline Documentation**
 
-This project uses a modular **Continuous Integration (CI)** and optional **Continuous Deployment (CD)** system using **GitHub Actions**.
+This project uses a modular **Continuous Integration (CI)** and **Continuous Deployment (CD)** system using **GitHub Actions**.
 Each workflow focuses on a single responsibility, ensuring fast, reliable, and clean builds.
 
 The CI/CD system contains **four workflows**:
