@@ -1,4 +1,4 @@
-# **SE Project 2025**
+# **CROMIS - Campus Reservation & Optimization Management Intelligence System**
 
 A full-stack web application built using **Next.js (frontend)** and **Node.js + Express (backend)** with a **MongoDB database**, containerized using **Docker**.
 
