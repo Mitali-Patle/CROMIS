@@ -227,4 +227,5 @@ podman run -p 3000:3000 ghcr.io/sudharsansaravanan/se-frontend:latest
 ---
 
 ### Devops Architecture:
+
 <img width="1408" height="768" alt="devops_pipeline_complete_white (1)" src="https://github.com/user-attachments/assets/bce27dae-d268-4c25-9905-e5db5d4bcadd" />

@@ -1,16 +1,23 @@
-export const API_BASE =
-  process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
+export const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
-export async function createUser(data) {
-  const res = await fetch(`${API_BASE}/api/sample`, {
-    method: "POST",
+export async function apiRequest(endpoint, method = "GET", body = null) {
+  const res = await fetch(`${API_BASE_URL}${endpoint}`, {
+    method,
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
+    body: body ? JSON.stringify(body) : null,
   });
-  return res.json();
-}
 
-export async function getUsers() {
-  const res = await fetch(`${API_BASE}/api/sample`);
-  return res.json();
+  let data;
+  try {
+    data = await res.json();
+  } catch (err) {
+    throw new Error("Backend did not return JSON. Check API URL.");
+  }
+
+  if (!res.ok) {
+    throw new Error(data.message || "Request failed");
+  }
+
+  return data;
 }
