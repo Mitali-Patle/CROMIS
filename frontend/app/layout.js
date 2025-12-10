@@ -12,8 +12,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Software Engineering Project 2025",
-  description: "sep-2025",
+  title: "CROMIS",
+  description:
+    "Campus Reservation & Optimization Management Intelligence System",
 };
 
 export default function RootLayout({ children }) {
