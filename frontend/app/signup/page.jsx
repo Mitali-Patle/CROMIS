@@ -1,7 +1,24 @@
 "use client";
 
 import React, { useState } from "react";
-import { ArrowRight, Mail, User, Lock } from "lucide-react";
+import dynamic from "next/dynamic";
+import {
+  ArrowRight,
+  Mail,
+  User,
+  Lock,
+  Eye,
+  EyeOff,
+  ArrowLeft,
+} from "lucide-react";
+
+// Dynamic import for LiquidEther to avoid SSR issues
+const LiquidEther = dynamic(() => import("@/components/ui/LiquidEther"), {
+  ssr: false,
+  loading: () => (
+    <div className="absolute inset-0 bg-gradient-to-b from-gray-900/20 to-black" />
+  ),
+});
 
 const SignupPage = () => {
   const [formData, setFormData] = useState({
@@ -10,6 +27,8 @@ const SignupPage = () => {
     password: "",
     confirmPassword: "",
   });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleChange = (e) => {
     setFormData({
@@ -28,10 +47,32 @@ const SignupPage = () => {
     <div className="bg-black text-white min-h-screen overflow-x-hidden">
       {/* Signup Section */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden py-20">
-        <div className="absolute inset-0 bg-gradient-to-b from-gray-900/20 to-black pointer-events-none" />
+        {/* Back to Home Button */}
+        <div className="absolute top-8 left-8 z-30">
+          <a
+            href="/"
+            className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors font-medium"
+          >
+            <ArrowLeft className="w-5 h-5 mt-[-1px]" />
+            Back to Home
+          </a>
+        </div>
+
+        {/* LiquidEther Background */}
+        <div className="absolute inset-0 z-0">
+          <LiquidEther
+            colors={["#ffffffff", "#ffffffff", "#ffffffff"]} // Purple/pink theme to complement the dark UI
+            autoDemo={true}
+            resolution={0.5}
+            mouseForce={20}
+            autoIntensity={2.2}
+          />
+        </div>
+
+        <div className="absolute inset-0 bg-gradient-to-b from-gray-900/20 to-black pointer-events-none z-5" />
 
         {/* Animated grid background */}
-        <div className="absolute inset-0 opacity-20">
+        <div className="absolute inset-0 opacity-20 z-10">
           <div
             className="absolute inset-0"
             style={{
@@ -42,12 +83,12 @@ const SignupPage = () => {
           />
         </div>
 
-        <div className="relative z-10 w-full max-w-md mx-auto px-6">
+        <div className="relative z-20 w-full max-w-md mx-auto px-6">
           <div className="text-center mb-12">
-            <h1 className="text-5xl md:text-7xl font-bold mb-6 tracking-wider leading-none">
+            <h1 className="text-4xl md:text-6xl font-bold mb-6 tracking-wider leading-none">
               Sign Up
             </h1>
-            <p className="text-xl text-gray-400 tracking-wide font-light">
+            <p className="text-lg text-gray-400 tracking-wide font-light">
               Create your CROMIS account
             </p>
           </div>
@@ -90,15 +131,28 @@ const SignupPage = () => {
                 <Lock className="w-4 h-4" />
                 Password
               </label>
-              <input
-                type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                required
-                className="w-full px-4 py-3 bg-transparent border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-gray-500 transition-colors"
-                placeholder="Create a password"
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  required
+                  className="w-full pr-12 px-4 py-3 bg-transparent border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-gray-500 transition-colors"
+                  placeholder="Create a password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors"
+                >
+                  {showPassword ? (
+                    <EyeOff className="w-5 h-5" />
+                  ) : (
+                    <Eye className="w-5 h-5" />
+                  )}
+                </button>
+              </div>
             </div>
 
             <div>
@@ -106,15 +160,28 @@ const SignupPage = () => {
                 <Lock className="w-4 h-4" />
                 Confirm Password
               </label>
-              <input
-                type="password"
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                required
-                className="w-full px-4 py-3 bg-transparent border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-gray-500 transition-colors"
-                placeholder="Confirm your password"
-              />
+              <div className="relative">
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  required
+                  className="w-full pr-12 px-4 py-3 bg-transparent border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-gray-500 transition-colors"
+                  placeholder="Confirm your password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors"
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff className="w-5 h-5" />
+                  ) : (
+                    <Eye className="w-5 h-5" />
+                  )}
+                </button>
+              </div>
             </div>
 
             <button
