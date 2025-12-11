@@ -7,11 +7,12 @@ const AboutSection = () => {
         <div className="text-center mb-20">
           <h2 className="text-4xl md:text-5xl font-bold mb-6">About CROMIS</h2>
           <p className="text-gray-500 text-lg max-w-3xl mx-auto">
-            CROMIS is a revolutionary platform designed to streamline campus
-            operations for educational institutions worldwide. Founded on
-            cutting-edge AI and data analytics, we empower administrators,
-            faculty, and students with intuitive tools for efficient resource
-            management.
+            CROMIS is an advanced Campus Resource Reservation and Utilization
+            Optimization System designed to transform institutional facility
+            management. By leveraging AI-driven forecasting and analytics, it
+            enables structured bookings for seminar halls, labs, sports
+            facilities, and equipment while ensuring equitable access and
+            operational efficiency.
           </p>
         </div>
 
@@ -19,20 +20,25 @@ const AboutSection = () => {
           <div>
             <h3 className="text-3xl font-bold mb-6 text-white">Our Mission</h3>
             <p className="text-gray-400 leading-relaxed mb-6">
-              To eliminate scheduling conflicts and optimize space utilization,
-              saving time and reducing costs for universities and colleges. With
-              CROMIS, every reservation is intelligent, every insight
-              actionable.
+              To address real institutional challenges in resource allocation by
+              preventing monopolization, detecting conflicts, and providing
+              real-time visibility into occupancy. Guided by sustainable and
+              ethical principles, CROMIS promotes fair usage, minimizes waste of
+              underutilized spaces, and fosters transparent policies for
+              improved efficiency and equity.
             </p>
             <ul className="space-y-4 text-gray-500">
               <li className="flex items-center gap-3">
-                • Innovative AI algorithms for predictive booking
+                • AI-based demand forecasting to optimize allocations and
+                prevent overbooking
               </li>
               <li className="flex items-center gap-3">
-                • Scalable solutions for campuses of all sizes
+                • Analytics-driven insights for monitoring utilization and
+                identifying inefficiencies
               </li>
               <li className="flex items-center gap-3">
-                • 24/7 support and continuous updates
+                • Automated workflows for approvals, conflict resolution, and
+                equitable access
               </li>
             </ul>
           </div>

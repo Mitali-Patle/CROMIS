@@ -39,6 +39,7 @@ export default function Header() {
   };
 
   const performLogout = () => {
+    setShowConfirm(false);
     // Clear cookies
     document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     document.cookie = "role=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";

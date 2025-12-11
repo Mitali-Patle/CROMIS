@@ -1,31 +1,85 @@
 "use client";
 
-import React from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { ArrowRight } from "lucide-react";
-
 // Dynamic import for LiquidEther to avoid SSR issues
-const LiquidEther = dynamic(() => import("@/components/ui/LiquidEther"), {
-  ssr: false,
-  loading: () => (
-    <div className="absolute inset-0 bg-gradient-to-b from-gray-900/20 to-black" />
-  ),
-});
+// const LiquidEther = dynamic(() => import("@/components/ui/LiquidEther"), {
+//   ssr: false,
+//   loading: () => (
+//     <div className="absolute inset-0 bg-gradient-to-b from-gray-900/20 to-black" />
+//   ),
+// });
 
 const HeroSection = () => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [role, setRole] = useState("");
+
+  useEffect(() => {
+    const getCookie = (name) => {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop().split(";").shift();
+      return null;
+    };
+
+    const token = getCookie("token");
+    const userRole = getCookie("role");
+
+    if (token) {
+      setIsLoggedIn(true);
+      setRole(userRole || "");
+    }
+  }, []);
+
+  const buttons = useMemo(() => {
+    if (isLoggedIn && role) {
+      return (
+        <div className="flex flex-row gap-3 justify-center">
+          <Link href="/signup">
+            <button className="group px-6 py-3 md:px-8 md:py-4 bg-white text-black rounded-full font-medium hover:bg-gray-200 transition-all flex items-center justify-center gap-2 text-sm md:text-base">
+              Get Started
+              <ArrowRight className="w-4 h-4 md:w-5 md:h-5 group-hover:translate-x-1 transition-transform" />
+            </button>
+          </Link>
+          <Link href={`/${role}`}>
+            <button className="px-6 py-3 md:px-8 md:py-4 bg-transparent border border-gray-700 rounded-full font-medium hover:bg-gray-900 transition-all text-sm md:text-base">
+              Dashboard
+            </button>
+          </Link>
+        </div>
+      );
+    }
+    return (
+      <div className="flex flex-row gap-3 justify-center">
+        <Link href="/signup">
+          <button className="group px-6 py-3 md:px-8 md:py-4 bg-white text-black rounded-full font-medium hover:bg-gray-200 transition-all flex items-center justify-center gap-2 text-sm md:text-base">
+            Get Started
+            <ArrowRight className="w-4 h-4 md:w-5 md:h-5 group-hover:translate-x-1 transition-transform" />
+          </button>
+        </Link>
+        <Link href="/login">
+          <button className="px-6 py-3 md:px-8 md:py-4 bg-transparent border border-gray-700 rounded-full font-medium hover:bg-gray-900 transition-all text-sm md:text-base">
+            Login
+          </button>
+        </Link>
+      </div>
+    );
+  }, [isLoggedIn, role]);
+
   return (
     <section className="relative h-screen flex items-center justify-center overflow-hidden">
       {/* LiquidEther Background */}
-      <div className="absolute inset-0 z-0">
+      {/* <div className="absolute inset-0 z-0">
         <LiquidEther
-          colors={["#ffffffff", "#ffffffff", "#ffffffff"]}
+          colors={["#ffffff", "#ffffff", "#ffffff"]}
           autoDemo={true}
           resolution={0.5}
-          mouseForce={20}
+          mouseForce={20}     
           autoIntensity={2.2}
         />
-      </div>
+      </div> */}
 
       <div className="absolute inset-0 bg-gradient-to-b from-gray-900/20 to-black pointer-events-none z-5" />
 
@@ -55,19 +109,7 @@ const HeroSection = () => {
           analytics, and seamless resource management.
         </p>
 
-        <div className="flex flex-row gap-3 justify-center">
-          <Link href="/signup">
-            <button className="group px-6 py-3 md:px-8 md:py-4 bg-white text-black rounded-full font-medium hover:bg-gray-200 transition-all flex items-center justify-center gap-2 text-sm md:text-base">
-              Get Started
-              <ArrowRight className="w-4 h-4 md:w-5 md:h-5 group-hover:translate-x-1 transition-transform" />
-            </button>
-          </Link>
-          <Link href="/login">
-            <button className="px-6 py-3 md:px-8 md:py-4 bg-transparent border border-gray-700 rounded-full font-medium hover:bg-gray-900 transition-all text-sm md:text-base">
-              Login
-            </button>
-          </Link>
-        </div>
+        {buttons}
       </div>
     </section>
   );

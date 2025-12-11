@@ -1,37 +1,37 @@
 import React from "react";
-import { Calendar, BarChart3, Users, Lock, Zap } from "lucide-react";
+import { Calendar, BarChart3, Users, Lock, Zap, Eye } from "lucide-react";
 
 const FeaturesSection = () => {
   const features = [
     {
       icon: <Calendar className="w-8 h-8" />,
-      title: "Smart Scheduling",
-      desc: "AI-powered reservation system that optimizes room and resource allocation automatically.",
+      title: "Structured Resource Booking",
+      desc: "Seamless reservations for seminar halls, labs, sports facilities, and specialized equipment with intuitive interface.",
     },
     {
       icon: <BarChart3 className="w-8 h-8" />,
-      title: "Real-time Analytics",
-      desc: "Comprehensive insights into campus utilization with interactive dashboards and reports.",
-    },
-    {
-      icon: <Users className="w-8 h-8" />,
-      title: "User Management",
-      desc: "Role-based access control with seamless integration for students, faculty, and staff.",
-    },
-    {
-      icon: <Lock className="w-8 h-8" />,
-      title: "Secure & Compliant",
-      desc: "Enterprise-grade security with full GDPR compliance and data encryption.",
+      title: "Utilization Analytics",
+      desc: "Data-driven insights into resource occupancy, usage patterns, and efficiency metrics to inform institutional decisions.",
     },
     {
       icon: <Zap className="w-8 h-8" />,
-      title: "Lightning Fast",
-      desc: "Optimized performance ensuring instant booking confirmations and updates.",
+      title: "AI Demand Forecasting",
+      desc: "Predictive optimization to allocate resources equitably, prevent monopolization, and maximize availability.",
     },
     {
-      icon: <Calendar className="w-8 h-8" />,
-      title: "Mobile Ready",
-      desc: "Fully responsive design with native mobile apps for iOS and Android.",
+      icon: <Users className="w-8 h-8" />,
+      title: "Equitable Access Controls",
+      desc: "Role-based permissions and fair usage policies promoting transparency and preventing overbooking.",
+    },
+    {
+      icon: <Lock className="w-8 h-8" />,
+      title: "Approval Workflows",
+      desc: "Automated conflict detection, real-time notifications, and streamlined approval processes for secure bookings.",
+    },
+    {
+      icon: <Eye className="w-8 h-8" />,
+      title: "Real-Time Occupancy Visibility",
+      desc: "Live monitoring of resource status with sustainable practices to reduce waste and enhance operational fairness.",
     },
   ];
 
@@ -39,12 +39,10 @@ const FeaturesSection = () => {
     <section id="features" className="py-32">
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-20">
-          <h2 className="text-4xl md:text-5xl font-bold mb-6">
-            Powerful Features
-          </h2>
+          <h2 className="text-4xl md:text-5xl font-bold mb-6">Core Features</h2>
           <p className="text-gray-500 text-lg max-w-2xl mx-auto">
-            Everything you need to manage campus resources efficiently and
-            intelligently
+            Optimizing campus resource management with AI insights, equitable
+            access, and sustainable efficiency
           </p>
         </div>
 
