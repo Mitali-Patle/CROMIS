@@ -1,20 +1,124 @@
 "use client";
-
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, Menu, X } from "lucide-react";
+import Toast from "../ui/Toast";
 
 export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const navLinks = useMemo(
-    () => [
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [role, setRole] = useState("");
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+  const [toastType, setToastType] = useState("success");
+  const [showConfirm, setShowConfirm] = useState(false);
+
+  useEffect(() => {
+    const getCookie = (name) => {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop().split(";").shift();
+      return null;
+    };
+
+    const token = getCookie("token");
+    const userRole = getCookie("role");
+
+    if (token) {
+      setIsLoggedIn(true);
+      setRole(userRole || "");
+    }
+  }, []);
+
+  const showToastMessage = (msg, type = "success") => {
+    setToastMessage(msg);
+    setToastType(type);
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 3000);
+  };
+
+  const performLogout = () => {
+    // Clear cookies
+    document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    document.cookie = "role=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    // Show toast
+    showToastMessage("Logged out successfully", "success");
+    // Redirect after toast delay
+    setTimeout(() => {
+      window.location.href = "/login";
+    }, 2000);
+  };
+
+  const handleLogout = () => {
+    setShowConfirm(true);
+  };
+
+  const navLinks = useMemo(() => {
+    if (isLoggedIn && role) {
+      return [
+        { name: "Features", href: "#features" },
+        { name: "About", href: "#about" },
+        { name: "Dashboard", href: `/${role}` },
+      ];
+    }
+    return [
       { name: "Features", href: "#features" },
       { name: "About", href: "#about" },
       { name: "Login", href: "/login" },
-    ],
-    [],
-  );
+    ];
+  }, [isLoggedIn, role]);
+
+  const actionButton = useMemo(() => {
+    if (isLoggedIn) {
+      return (
+        <button
+          onClick={handleLogout}
+          className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm text-white bg-transparent hover:bg-white/10 transition-colors duration-200"
+        >
+          Logout
+          <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
+        </button>
+      );
+    }
+    return (
+      <Link
+        href="/signup"
+        className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm text-black bg-white hover:bg-gray-100 transition-colors duration-200"
+      >
+        Get Started
+        <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
+      </Link>
+    );
+  }, [isLoggedIn]);
+
+  const mobileActionButton = useMemo(() => {
+    if (isLoggedIn) {
+      return (
+        <button
+          onClick={() => {
+            handleLogout();
+            setMobileOpen(false);
+          }}
+          className="w-full inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-white bg-transparent hover:bg-white/10 transition-colors duration-200"
+        >
+          Logout
+          <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
+        </button>
+      );
+    }
+    return (
+      <Link
+        href="/signup"
+        onClick={() => setMobileOpen(false)}
+        className="w-full inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-black bg-white hover:bg-gray-100 transition-colors duration-200"
+      >
+        Get Started
+        <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
+      </Link>
+    );
+  }, [isLoggedIn]);
+
   return (
     <>
       {/* Floating Header */}
@@ -52,14 +156,8 @@ export default function Header() {
                     <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-white group-hover:w-full transition-all duration-300"></span>
                   </Link>
                 ))}
-                {/* Simple Get Started Button - Desktop */}
-                <Link
-                  href="/signup"
-                  className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm text-black bg-white hover:bg-gray-100 transition-colors duration-200"
-                >
-                  Get Started
-                  <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
-                </Link>
+                {/* Action Button - Desktop */}
+                {actionButton}
               </nav>
               {/* Mobile Menu Button */}
               <button
@@ -89,20 +187,63 @@ export default function Header() {
                     {link.name}
                   </Link>
                 ))}
-                {/* Simple Get Started Button - Mobile */}
-                <Link
-                  href="/signup"
-                  onClick={() => setMobileOpen(false)}
-                  className="w-full inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-black bg-white hover:bg-gray-100 transition-colors duration-200"
-                >
-                  Get Started
-                  <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
-                </Link>
+                {/* Action Button - Mobile */}
+                {mobileActionButton}
               </div>
             </div>
           )}
         </div>
       </header>
+
+      {/* Custom Confirmation Modal */}
+      <AnimatePresence>
+        {showConfirm && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm"
+            onClick={() => setShowConfirm(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-black/90 backdrop-blur-xl border border-white/10 rounded-2xl p-6 max-w-sm w-full mx-4"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 className="text-white text-lg font-medium mb-4">
+                Are you sure you want to logout?
+              </h3>
+              <div className="flex gap-3 justify-end">
+                <button
+                  onClick={() => setShowConfirm(false)}
+                  className="px-4 py-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors duration-200"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={performLogout}
+                  className="px-4 py-2 rounded-full bg-red-500 text-white hover:bg-red-600 transition-colors duration-200"
+                >
+                  Logout
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Toast Notification */}
+      <AnimatePresence>
+        {showToast && (
+          <Toast
+            message={toastMessage}
+            type={toastType}
+            onClose={() => setShowToast(false)}
+          />
+        )}
+      </AnimatePresence>
     </>
   );
 }
