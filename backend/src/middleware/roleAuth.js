@@ -1,8 +1,10 @@
-export const roleRequired = (roles = []) => {
+export default function roleAuth(allowedRoles = []) {
   return (req, res, next) => {
-    if (!roles.includes(req.user.role)) {
-      return res.status(403).json({ message: "Access denied" });
+    if (!allowedRoles.includes(req.user.role)) {
+      return res
+        .status(403)
+        .json({ message: "Access denied: Insufficient role" });
     }
     next();
   };
-};
+}

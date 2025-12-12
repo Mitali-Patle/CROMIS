@@ -1,18 +1,30 @@
 import jwt from "jsonwebtoken";
 
-export const authRequired = (req, res, next) => {
+export default function auth(req, res, next) {
+  let token;
+
+  // 1. Check Authorization header (Postman, API clients)
   const authHeader = req.headers.authorization;
+  if (authHeader?.startsWith("Bearer ")) {
+    token = authHeader.split(" ")[1];
+  }
 
-  if (!authHeader)
+  // 2. If not found → check cookies (Frontend)
+  if (!token && req.cookies?.token) {
+    token = req.cookies.token;
+  }
+
+  // 3. If still missing → block
+  if (!token) {
     return res.status(401).json({ message: "No token provided" });
-
-  const token = authHeader.split(" ")[1];
+  }
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded; // token payload → { id, email, role }
+
+    req.user = decoded; // { id, role, email }
     next();
   } catch (err) {
-    return res.status(401).json({ message: "Invalid token" });
+    return res.status(401).json({ message: "Invalid or expired token" });
   }
-};
+}
