@@ -35,16 +35,10 @@ SEP-2025/
 │   │
 │   └── src/
 │       ├── app.js               # Express app config
-│       │
 │       ├── routes/              # API Routes
 │       │   └── index.js
-│       │
 │       ├── controllers/         # Controller functions
-│       │   └── sampleController.js
-│       │
 │       ├── models/              # Mongoose models (User, etc.)
-│       │   └── User.js
-│       │
 │       └── config/              # DB configuration
 │           └── db.js
 │
