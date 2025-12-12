@@ -5,12 +5,12 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import { ArrowRight } from "lucide-react";
 // Dynamic import for LiquidEther to avoid SSR issues
-// const LiquidEther = dynamic(() => import("@/components/ui/LiquidEther"), {
-//   ssr: false,
-//   loading: () => (
-//     <div className="absolute inset-0 bg-gradient-to-b from-gray-900/20 to-black" />
-//   ),
-// });
+const LiquidEther = dynamic(() => import("@/components/ui/LiquidEther"), {
+  ssr: false,
+  loading: () => (
+    <div className="absolute inset-0 bg-gradient-to-b from-gray-900/20 to-black" />
+  ),
+});
 
 const HeroSection = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -71,15 +71,15 @@ const HeroSection = () => {
   return (
     <section className="relative h-screen flex items-center justify-center overflow-hidden">
       {/* LiquidEther Background */}
-      {/* <div className="absolute inset-0 z-0">
+      <div className="absolute inset-0 z-0">
         <LiquidEther
           colors={["#ffffff", "#ffffff", "#ffffff"]}
           autoDemo={true}
           resolution={0.5}
-          mouseForce={20}     
+          mouseForce={20}
           autoIntensity={2.2}
         />
-      </div> */}
+      </div>
 
       <div className="absolute inset-0 bg-gradient-to-b from-gray-900/20 to-black pointer-events-none z-5" />
 
@@ -95,7 +95,12 @@ const HeroSection = () => {
         />
       </div>
 
-      <div className="relative z-20 text-center px-6 max-w-6xl mx-auto flex flex-col items-center justify-center mt-12">
+      <div className="relative z-20 text-center px-6 max-w-6xl mx-auto flex flex-col items-center justify-center">
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
         <h1 className="text-[5rem] md:text-[18rem] font-bold mb-6 tracking-wider leading-none">
           CROMIS
         </h1>
