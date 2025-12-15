@@ -4,7 +4,10 @@ export const API_BASE_URL =
 export async function apiRequest(endpoint, method = "GET", body = null) {
   const res = await fetch(`${API_BASE_URL}${endpoint}`, {
     method,
-    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+    },
     body: body ? JSON.stringify(body) : null,
   });
 

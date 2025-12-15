@@ -1,30 +1,42 @@
 import jwt from "jsonwebtoken";
 
+/**
+ * Auth middleware
+ * Supports:
+ *  - JWT in httpOnly cookies (frontend – Next.js)
+ *  - JWT in Authorization header (Postman / API clients)
+ */
 export default function auth(req, res, next) {
-  let token;
-
-  // 1. Check Authorization header (Postman, API clients)
-  const authHeader = req.headers.authorization;
-  if (authHeader?.startsWith("Bearer ")) {
-    token = authHeader.split(" ")[1];
-  }
-
-  // 2. If not found → check cookies (Frontend)
-  if (!token && req.cookies?.token) {
-    token = req.cookies.token;
-  }
-
-  // 3. If still missing → block
-  if (!token) {
-    return res.status(401).json({ message: "No token provided" });
-  }
-
   try {
+    let token = null;
+
+    // 1️⃣ Check Authorization header (Bearer token)
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith("Bearer ")) {
+      token = authHeader.split(" ")[1];
+    }
+
+    // 2️⃣ If not found, check cookies
+    if (!token && req.cookies && req.cookies.token) {
+      token = req.cookies.token;
+    }
+
+    // 3️⃣ If no token → Unauthorized
+    if (!token) {
+      return res.status(401).json({ message: "Authentication token missing" });
+    }
+
+    // 4️⃣ Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    req.user = decoded; // { id, role, email }
+    // 5️⃣ Attach user payload to request
+    // Expected payload: { id, role, email }
+    req.user = decoded;
+
     next();
-  } catch (err) {
-    return res.status(401).json({ message: "Invalid or expired token" });
+  } catch (error) {
+    return res.status(401).json({
+      message: "Invalid or expired authentication token",
+    });
   }
 }

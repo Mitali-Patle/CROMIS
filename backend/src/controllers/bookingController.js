@@ -188,7 +188,7 @@ export const updateBookingRequest = async (req, res) => {
       if (rejectionReason !== undefined)
         booking.rejectionReason = rejectionReason;
     }
-    // Admin-only: Status update (with validation)
+    // Admin-only: Status update (with validation – flexible for any change)
     if (isAdmin && newStatus && booking.status !== newStatus) {
       const validStatuses = [
         "pending",
@@ -200,17 +200,7 @@ export const updateBookingRequest = async (req, res) => {
       if (!validStatuses.includes(newStatus)) {
         return res.status(400).json({ error: "Invalid status value" });
       }
-      if (newStatus === "approved" && booking.status !== "pending") {
-        return res
-          .status(400)
-          .json({ error: "Can only approve pending bookings" });
-      }
-      if (newStatus === "rejected" && booking.status !== "pending") {
-        return res
-          .status(400)
-          .json({ error: "Can only reject pending bookings" });
-      }
-      // For approved/rejected: Set fields
+      // For approved: Always check conflict/availability, regardless of current status
       if (newStatus === "approved") {
         booking.approvedBy = req.user.id;
         booking.approvedAt = new Date();
@@ -256,7 +246,19 @@ export const updateBookingRequest = async (req, res) => {
         booking.approvedAt = null;
         booking.rejectedBy = null;
         booking.rejectedAt = null;
-      } // expired: no special handling
+      } else if (newStatus === "expired") {
+        // Optional: Clear fields or set expiry date
+        booking.approvedBy = null;
+        booking.approvedAt = null;
+        booking.rejectedBy = null;
+        booking.rejectedAt = null;
+      } // pending: Reset fields if reverting
+      else if (newStatus === "pending") {
+        booking.approvedBy = null;
+        booking.approvedAt = null;
+        booking.rejectedBy = null;
+        booking.rejectedAt = null;
+      }
       booking.status = newStatus;
       statusChanged = true;
     }
@@ -322,7 +324,7 @@ export const updateBookingRequest = async (req, res) => {
           .json({ error: "Time slot outside resource availability" });
       }
     }
-    // For non-pending bookings, only allow owner edits if admin approves, but admins can always update
+    // Removed restriction for non-pending edits – admins can always update, owners only if pending or no status change
     if (booking.status !== "pending" && !isAdmin && !statusChanged) {
       return res
         .status(400)
