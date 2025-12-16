@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   Menu,
   Loader2,
@@ -10,12 +11,12 @@ import {
   XCircle,
 } from "lucide-react";
 import Sidebar from "./components/Sidebar";
-import DashboardSummary from "./components/DashboardSummary";
 import ResourceForm from "./components/ResourceForm";
 import BookingList from "./components/BookingList";
 import AnalyticsChart from "./components/AnalyticsChart";
 import TensorFlowInsights from "./components/TensorFlowInsights";
 import ReportExporter from "./components/ReportExporter";
+import Dashboard from "./components/Dashboard";
 import { apiRequest } from "@/lib/api";
 import {
   LineChart,
@@ -31,6 +32,7 @@ import {
 } from "recharts";
 
 export default function AdminPage() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [summaryData, setSummaryData] = useState({
@@ -51,6 +53,23 @@ export default function AdminPage() {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  // Persist activeTab to localStorage
+  useEffect(() => {
+    const savedTab = localStorage.getItem("adminActiveTab");
+    if (savedTab && savedTab !== "home") {
+      setActiveTab(savedTab);
+    } else {
+      localStorage.setItem("adminActiveTab", "dashboard");
+    }
+  }, []);
+
+  // Save activeTab on change
+  useEffect(() => {
+    if (activeTab !== "home") {
+      localStorage.setItem("adminActiveTab", activeTab);
+    }
+  }, [activeTab]);
 
   const fetchSummaryData = async () => {
     try {
@@ -157,7 +176,8 @@ export default function AdminPage() {
     return (
       <div className="bg-gray-900 p-6 rounded-lg border border-gray-700">
         <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-          <Clock className="w-4 h-4" /> Pending Requests Trend (Last 7)
+          <Clock className="w-4 h-4 text-gray-400" /> Pending Requests Trend
+          (Last 7)
         </h3>
         <ResponsiveContainer width="100%" height={300}>
           <LineChart data={chartData}>
@@ -168,14 +188,14 @@ export default function AdminPage() {
             <Line
               type="monotone"
               dataKey="pending"
-              stroke="#3B82F6"
+              stroke="#FFFFFF"
               strokeWidth={2}
             />
           </LineChart>
         </ResponsiveContainer>
         <div className="mt-4 flex justify-between text-sm text-gray-400">
           <span>Total Pending: {data.length}</span>
-          <button className="flex items-center gap-1 text-blue-400 hover:text-blue-300">
+          <button className="flex items-center gap-1 text-white hover:text-gray-300">
             <Download className="w-3 h-3" /> Export
           </button>
         </div>
@@ -187,11 +207,10 @@ export default function AdminPage() {
     switch (activeTab) {
       case "dashboard":
         return (
-          <div className="space-y-6">
-            <DashboardSummary data={summaryData} />
-            <PendingRequestsChart data={pendingBookings} />{" "}
-            {/* New pending chart */}
-          </div>
+          <Dashboard
+            summaryData={summaryData}
+            pendingBookings={pendingBookings}
+          />
         );
       case "resources":
         return <ResourceForm />;
@@ -200,8 +219,7 @@ export default function AdminPage() {
       case "approvals":
         return (
           <div className="space-y-6">
-            <PendingRequestsChart data={pendingBookings} />{" "}
-            {/* Reuse in approvals */}
+            <PendingRequestsChart data={pendingBookings} />
             <BookingList
               bookings={bookings.filter((b) => b.status === "pending")}
               mode="approval"
@@ -232,7 +250,7 @@ export default function AdminPage() {
               title="Peak Hours"
             />
             <div className="bg-gray-900 p-6 rounded-lg border border-gray-700">
-              <h3 className="text-lg font-semibold mb-4">
+              <h3 className="text-lg font-semibold mb-4 text-white">
                 Underutilized Resources
               </h3>
               <ul className="space-y-2">
@@ -244,7 +262,9 @@ export default function AdminPage() {
               </ul>
             </div>
             <div className="bg-gray-900 p-6 rounded-lg border border-gray-700">
-              <h3 className="text-lg font-semibold mb-4">Usage by Role</h3>
+              <h3 className="text-lg font-semibold mb-4 text-white">
+                Usage by Role
+              </h3>
               <ul className="space-y-2">
                 {analyticsData.roleUsage.map((role, i) => (
                   <li key={i} className="text-sm text-gray-300">
@@ -267,15 +287,19 @@ export default function AdminPage() {
           />
         );
       default:
-        return <DashboardSummary data={summaryData} />;
+        return (
+          <Dashboard
+            summaryData={summaryData}
+            pendingBookings={pendingBookings}
+          />
+        );
     }
   };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-black text-white">
-        <Loader2 className="w-8 h-8 animate-spin" />
-        <p className="ml-2">Loading dashboard...</p>
+      <div className="flex items-center justify-center min-h-screen bg-black">
+        <Loader2 className="w-8 h-8 animate-spin text-white" />
       </div>
     );
   }
