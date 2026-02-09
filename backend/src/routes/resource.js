@@ -1,76 +1,43 @@
-import { Router } from "express";
-import Resource from "../models/Resource.js";
-import BookingRequest from "../models/BookingRequest.js";
-import {
-  createResource,
-  getAllResources,
+import express from 'express';
+import { 
+  createResource, 
+  getAllResources, 
   getResourceById,
-  updateResource,
-  deleteResource,
-} from "../controllers/resourceController.js";
-import auth from "../middleware/auth.js";
-import roleAuth from "../middleware/roleAuth.js";
+  getResourceWithAvailability,      // NEW - Epic 2 Story 7
+  getResourceBookingHistory,         // NEW - Epic 2 Story 15
+  updateResource, 
+  deleteResource 
+} from '../controllers/resourceController.js';
+import { protect } from '../middleware/auth.js';
+import { adminOnly } from '../middleware/roleAuth.js';
 
-const router = Router();
+const router = express.Router();
+/**
+ * Public/User Routes (Protected)
+ */
+// Get all resources (filtered)
+router.get('/', protect, getAllResources);
 
-/* ------------------- PUBLIC ROUTES ------------------- */
+// Get resource by ID (basic info)
+router.get('/:id', protect, getResourceById);
 
-// ✅ Availability route (MUST be before "/:id")
-router.get("/availability/check", async (req, res) => {
-  try {
-    const { date } = req.query;
+// NEW: Get resource with availability calendar (Epic 2 Story 7)
+router.get('/:id/details', protect, getResourceWithAvailability);
 
-    if (!date) {
-      return res.status(400).json({ message: "Date is required" });
-    }
+/**
+ * Admin-Only Routes
+ */
+// Create resource
+router.post('/', protect, adminOnly, createResource);
 
-    // 🔑 Convert date string → start & end of day
-    const start = new Date(date);
-    start.setHours(0, 0, 0, 0);
+// Update resource
+router.patch('/:id', protect, adminOnly, updateResource);
 
-    const end = new Date(date);
-    end.setHours(23, 59, 59, 999);
+// Delete/Archive resource
+router.delete('/:id', protect, adminOnly, deleteResource);
 
-    // Fetch all resources
-    const resources = await Resource.find();
-
-    // Fetch approved bookings for that day
-    const bookings = await BookingRequest.find({
-      date: { $gte: start, $lte: end },
-      status: "approved",
-    });
-
-    const availability = resources.map((resource) => {
-      const resourceBookings = bookings.filter(
-        (b) => b.resource.toString() === resource._id.toString()
-      );
-
-      return {
-        _id: resource._id,
-        name: resource.name,
-        isAvailable: resourceBookings.length === 0,
-        bookings: resourceBookings.map((b) => ({
-          startTime: b.startTime,
-          endTime: b.endTime,
-        })),
-      };
-    });
-
-    res.json(availability);
-  } catch (err) {
-    console.error("Availability error:", err);
-    res.status(500).json({ message: err.message });
-  }
-});
-
-// Anyone can view resources
-router.get("/", getAllResources);
-router.get("/:id", getResourceById);
-
-/* ------------------- ADMIN ROUTES ------------------- */
-router.post("/", auth, roleAuth(["admin"]), createResource);
-router.patch("/:id", auth, roleAuth(["admin"]), updateResource);
-router.delete("/:id", auth, roleAuth(["admin"]), deleteResource);
+// NEW: Get resource booking history (Epic 2 Story 15)
+router.get('/:id/history', protect, adminOnly, getResourceBookingHistory);
 
 export default router;
 
