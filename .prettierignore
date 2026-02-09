@@ -1,0 +1,30 @@
+# Ignore node modules everywhere
+node_modules
+
+# Ignore all Next.js build files
+frontend/.next
+
+# Ignore backend build or logs
+backend/dist
+backend/build
+
+# Ignore Docker artifacts
+*.log
+*.dockerignore
+
+# Ignore environment files
+*.env
+*.env.local
+*.env.example
+
+# Ignore OS files
+.DS_Store
+
+# Ignore lockfiles if needed
+yarn.lock
+package-lock.json
+pnpm-lock.yaml
+
+# Ignore Git folder
+.git
+.github

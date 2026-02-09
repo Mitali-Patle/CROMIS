@@ -1,0 +1,37 @@
+---
+name: Super-Linter
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+
+jobs:
+  super-lint:
+    name: Lint code base
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Super-Linter
+        uses: github/super-linter@v5
+        env:
+          DEFAULT_BRANCH: main
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+          # Disable unwanted noisy linters
+          VALIDATE_ENV: false
+          VALIDATE_CSS: false
+          VALIDATE_MARKDOWN: false
+          VALIDATE_JAVASCRIPT_STANDARD: false
+
+          # Avoid GitHub Status API failures
+          DISABLE_ERRORS: true
+          OUTPUT_DETAILS: detailed
+
+          # Ignore big auto-generated folders
+          FILTER_REGEX_EXCLUDE: "node_modules/|.next/|dist/|frontend/.next/|backend/node_modules/"
