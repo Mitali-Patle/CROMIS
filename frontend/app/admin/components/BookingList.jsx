@@ -3,9 +3,9 @@ import {
   CheckCircle,
   XCircle,
   Clock,
-  Edit,
   MoreVertical,
   Loader2,
+  MessageSquare,
 } from "lucide-react";
 import { apiRequest } from "@/lib/api";
 
@@ -15,9 +15,24 @@ const BookingList = ({
   onApprove,
   onReject,
   onUpdateStatus,
+  onRefresh,
 }) => {
   const [editingStatus, setEditingStatus] = useState(null);
   const [loading, setLoading] = useState({});
+  const [activeCommentId, setActiveCommentId] = useState(null);
+  const [commentText, setCommentText] = useState("");
+  const [localComments, setLocalComments] = useState({});
+
+  /* 🔐 ROLE CHECK (ADMIN ONLY) */
+  const role =
+    typeof document !== "undefined"
+      ? document.cookie
+          .split("; ")
+          .find((r) => r.startsWith("role="))
+          ?.split("=")[1]
+      : null;
+
+  const isAdmin = role === "admin";
 
   const getStatusIcon = (status) => {
     if (status === "approved")
@@ -43,49 +58,104 @@ const BookingList = ({
   };
 
   const handleApprove = async (bookingId) => {
-    setLoading((prev) => ({ ...prev, [bookingId]: true }));
-    try {
-      await apiRequest(`/bookings/${bookingId}`, "PATCH", {
-        status: "approved",
-      });
-      onApprove?.(bookingId);
-      window.location.reload(); // Reload page
-    } catch (err) {
-      console.error("Approve error:", err);
-      alert("Failed to approve booking");
-    }
-    setLoading((prev) => ({ ...prev, [bookingId]: false }));
+    setLoading((p) => ({ ...p, [bookingId]: true }));
+    await apiRequest(`/bookings/${bookingId}`, "PATCH", {
+      status: "approved",
+    });
+    onApprove?.(bookingId);
+    setLoading((p) => ({ ...p, [bookingId]: false }));
   };
 
   const handleReject = async (bookingId) => {
-    setLoading((prev) => ({ ...prev, [bookingId]: true }));
-    try {
-      await apiRequest(`/bookings/${bookingId}`, "PATCH", {
-        status: "rejected",
-      });
-      onReject?.(bookingId);
-      window.location.reload(); // Reload page
-    } catch (err) {
-      console.error("Reject error:", err);
-      alert("Failed to reject booking");
-    }
-    setLoading((prev) => ({ ...prev, [bookingId]: false }));
+    setLoading((p) => ({ ...p, [bookingId]: true }));
+    await apiRequest(`/bookings/${bookingId}`, "PATCH", {
+      status: "rejected",
+    });
+    onReject?.(bookingId);
+    setLoading((p) => ({ ...p, [bookingId]: false }));
   };
 
   const handleStatusUpdate = async (bookingId, newStatus) => {
-    setLoading((prev) => ({ ...prev, [bookingId]: true }));
+    setLoading((p) => ({ ...p, [bookingId]: true }));
+    await apiRequest(`/bookings/${bookingId}`, "PATCH", {
+      status: newStatus,
+    });
+    onUpdateStatus?.(bookingId, newStatus);
+    setEditingStatus(null);
+    setLoading((p) => ({ ...p, [bookingId]: false }));
+  };
+
+  /* ======================
+     BATCH APPROVAL (NEW)
+     ====================== */
+  const handleBatchApprove = async (groupId) => {
     try {
-      await apiRequest(`/bookings/${bookingId}`, "PATCH", {
-        status: newStatus,
+      setLoading((p) => ({ ...p, [groupId]: true }));
+      await apiRequest("/bookings/batch", "PATCH", {
+        groupId,
+        status: "approved",
       });
-      onUpdateStatus?.(bookingId, newStatus);
-      setEditingStatus(null);
-      window.location.reload(); // Reload page
+      onRefresh?.(); // Refresh all data instead of calling single-item handler
     } catch (err) {
-      console.error("Status update error:", err);
-      alert("Failed to update status");
+      console.error("Batch Approve Error:", err);
+      alert(err.message || "Failed to approve group");
+    } finally {
+      setLoading((p) => ({ ...p, [groupId]: false }));
     }
-    setLoading((prev) => ({ ...prev, [bookingId]: false }));
+  };
+
+  const handleBatchReject = async (groupId) => {
+    try {
+      setLoading((p) => ({ ...p, [groupId]: true }));
+      await apiRequest("/bookings/batch", "PATCH", {
+        groupId,
+        status: "rejected",
+      });
+      onRefresh?.(); // Refresh all data
+    } catch (err) {
+      console.error("Batch Reject Error:", err);
+      alert(err.message || "Failed to reject group");
+    } finally {
+      setLoading((p) => ({ ...p, [groupId]: false }));
+    }
+  };
+
+  /* ======================
+     GROUP BOOKINGS BY groupId
+     ====================== */
+  const groupedBookings = React.useMemo(() => {
+    const groups = {};
+    const singles = [];
+
+    bookings.forEach((booking) => {
+      if (booking.groupId) {
+        if (!groups[booking.groupId]) {
+          groups[booking.groupId] = [];
+        }
+        groups[booking.groupId].push(booking);
+      } else {
+        singles.push(booking);
+      }
+    });
+
+    return { groups, singles };
+  }, [bookings]);
+
+  /* ======================
+     ADMIN COMMENT (Story 15)
+     ====================== */
+  const saveAdminComment = async (bookingId) => {
+    await apiRequest(`/bookings/${bookingId}`, "PATCH", {
+      adminComment: commentText,
+    });
+
+    setLocalComments((prev) => ({
+      ...prev,
+      [bookingId]: commentText,
+    }));
+
+    setActiveCommentId(null);
+    setCommentText("");
   };
 
   const getStatusOptions = () => [
@@ -96,264 +166,281 @@ const BookingList = ({
     { value: "expired", label: "Expired" },
   ];
 
-  // Responsive: Cards on mobile/tablet, table on desktop
-  const isMobile = typeof window !== "undefined" && window.innerWidth < 1024; // Tablet+ as mobile
+  const isMobile = typeof window !== "undefined" && window.innerWidth < 1024;
 
+  /* ======================= MOBILE ======================= */
   if (isMobile) {
     return (
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Bookings ({bookings.length})</h3>
-        {bookings.length === 0 ? (
-          <p className="text-gray-500 text-center py-8">No bookings found.</p>
-        ) : (
-          bookings.map((booking) => (
+        {bookings.map((booking) => {
+          const id = booking._id;
+          const comment = localComments[id] ?? booking.adminComment ?? "";
+
+          return (
             <div
-              key={booking._id || booking.id}
-              className="bg-gray-900 rounded-lg border border-gray-700 p-4"
+              key={id}
+              className="bg-gray-900 border border-gray-700 rounded-lg p-4"
             >
-              <div className="grid grid-cols-1 gap-3">
-                <div>
-                  <p className="text-sm font-medium text-white">User</p>
-                  <p className="text-xs text-gray-400">
-                    {booking.requester?.name || booking.user}
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    {booking.requester?.email || "N/A"}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-white">Resource</p>
-                  <p className="text-xs text-gray-400">
-                    {booking.resource?.name || booking.resource}
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    {booking.resource?.location || "N/A"}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-white">Date & Time</p>
-                  <p className="text-xs text-gray-400">{booking.date}</p>
-                  <p className="text-xs text-gray-500">
-                    {booking.startTime} - {booking.endTime}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-white">Status</p>
-                  <span
-                    className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(booking.status)}`}
+              <p className="text-white font-medium">{booking.resource?.name}</p>
+              <p className="text-xs text-gray-400">
+                {booking.date} | {booking.startTime} – {booking.endTime}
+              </p>
+
+              <span
+                className={`inline-block mt-2 px-2 py-1 rounded-full text-xs ${getStatusColor(
+                  booking.status,
+                )}`}
+              >
+                {booking.status.toUpperCase()}
+              </span>
+
+              {isAdmin && (
+                <div className="mt-3">
+                  <button
+                    onClick={() => {
+                      setActiveCommentId(id);
+                      setCommentText(comment);
+                    }}
+                    className="text-blue-400 text-sm flex items-center gap-1"
                   >
-                    {booking.status.toUpperCase()}
-                  </span>
-                </div>
-              </div>
-              <div className="mt-4 flex flex-col gap-2">
-                {mode === "approval" && booking.status === "pending" && (
-                  <>
-                    <button
-                      onClick={() => handleApprove(booking._id || booking.id)}
-                      disabled={loading[booking._id || booking.id]}
-                      className="w-full px-3 py-2 bg-green-600 text-white rounded text-sm hover:bg-green-700 disabled:opacity-50 transition"
-                    >
-                      {loading[booking._id || booking.id] ? (
-                        <Loader2 className="w-4 h-4 animate-spin mr-1" />
-                      ) : (
-                        "Approve"
-                      )}
-                    </button>
-                    <button
-                      onClick={() => handleReject(booking._id || booking.id)}
-                      disabled={loading[booking._id || booking.id]}
-                      className="w-full px-3 py-2 bg-red-600 text-white rounded text-sm hover:bg-red-700 disabled:opacity-50 transition"
-                    >
-                      {loading[booking._id || booking.id] ? (
-                        <Loader2 className="w-4 h-4 animate-spin mr-1" />
-                      ) : (
-                        "Reject"
-                      )}
-                    </button>
-                  </>
-                )}
-                {(mode === "history" || booking.status !== "pending") && (
-                  <div className="relative">
-                    <button
-                      onClick={() =>
-                        setEditingStatus(
-                          editingStatus === (booking._id || booking.id)
-                            ? null
-                            : booking._id || booking.id,
-                        )
-                      }
-                      className="w-full p-2 text-gray-400 hover:text-white rounded hover:bg-gray-800 transition"
-                    >
-                      <MoreVertical className="w-4 h-4 mr-2" />
-                      Edit Status
-                    </button>
-                    {editingStatus === (booking._id || booking.id) && (
-                      <div className="absolute right-0 top-full mt-1 bg-gray-800 rounded-lg border border-gray-700 shadow-lg z-10 min-w-[120px] w-full">
-                        {getStatusOptions().map((option) => (
-                          <button
-                            key={option.value}
-                            onClick={() =>
-                              handleStatusUpdate(
-                                booking._id || booking.id,
-                                option.value,
-                              )
-                            }
-                            disabled={
-                              loading[booking._id || booking.id] ||
-                              option.value === booking.status
-                            }
-                            className="w-full text-left px-3 py-2 text-sm text-gray-300 hover:bg-gray-700 disabled:opacity-50 transition"
-                          >
-                            {option.label}
-                          </button>
-                        ))}
+                    <MessageSquare className="w-4 h-4" />
+                    Admin Comment
+                  </button>
+
+                  {activeCommentId === id && (
+                    <div className="mt-2 space-y-2">
+                      <textarea
+                        maxLength={1000}
+                        value={commentText}
+                        onChange={(e) => setCommentText(e.target.value)}
+                        className="w-full bg-gray-800 border border-gray-700 rounded p-2 text-sm"
+                        placeholder="Internal admin note (not visible to users)"
+                      />
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => saveAdminComment(id)}
+                          className="bg-white text-black px-3 py-1 rounded text-sm"
+                        >
+                          Save
+                        </button>
+                        <button
+                          onClick={() => setActiveCommentId(null)}
+                          className="bg-gray-700 px-3 py-1 rounded text-sm"
+                        >
+                          Cancel
+                        </button>
                       </div>
-                    )}
-                  </div>
-                )}
-              </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
-          ))
-        )}
+          );
+        })}
       </div>
     );
   }
 
-  // Desktop Table
+  /* ======================= DESKTOP ======================= */
   return (
     <div className="overflow-x-auto">
-      <h3 className="text-lg font-semibold mb-4">
-        Bookings ({bookings.length})
-      </h3>
-      <div className="bg-gray-900 rounded-lg border border-gray-700 overflow-hidden">
-        <table className="w-full">
-          <thead>
-            <tr className="bg-gray-800">
-              <th className="p-4 text-left text-sm font-medium text-gray-300">
-                User
-              </th>
-              <th className="p-4 text-left text-sm font-medium text-gray-300">
-                Resource
-              </th>
-              <th className="p-4 text-left text-sm font-medium text-gray-300">
-                Date
-              </th>
-              <th className="p-4 text-left text-sm font-medium text-gray-300">
-                Time
-              </th>
-              <th className="p-4 text-left text-sm font-medium text-gray-300">
-                Status
-              </th>
-              <th className="p-4 text-left text-sm font-medium text-gray-300">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {bookings.map((booking) => {
-              const bookingId = booking._id || booking.id;
+      <table className="w-full bg-gray-900 border border-gray-700 rounded-lg">
+        <thead className="bg-gray-800">
+          <tr>
+            <th className="p-4 text-left text-gray-300">User</th>
+            <th className="p-4 text-left text-gray-300">Resource</th>
+            <th className="p-4 text-left text-gray-300">Date</th>
+            <th className="p-4 text-left text-gray-300">Time</th>
+            <th className="p-4 text-left text-gray-300">Status</th>
+            <th className="p-4 text-left text-gray-300">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {/* Render Grouped Bookings */}
+          {Object.entries(groupedBookings.groups).map(
+            ([groupId, groupBookings]) => {
+              const firstBooking = groupBookings[0];
+              const allPending = groupBookings.every(
+                (b) => b.status === "pending",
+              );
+
               return (
-                <tr key={bookingId} className="border-t border-gray-700">
-                  <td className="p-4">
-                    <span className="text-white font-medium">
-                      {booking.requester?.name || booking.user}
-                    </span>
-                    <p className="text-xs text-gray-500">
-                      {booking.requester?.email || "N/A"}
-                    </p>
-                  </td>
-                  <td className="p-4">
-                    <span className="text-white font-medium">
-                      {booking.resource?.name || booking.resource}
-                    </span>
-                    <p className="text-xs text-gray-500">
-                      {booking.resource?.location || "N/A"}
-                    </p>
-                  </td>
-                  <td className="p-4">{booking.date}</td>
-                  <td className="p-4">
-                    {booking.startTime} - {booking.endTime}
-                  </td>
-                  <td className="p-4">
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(booking.status)}`}
-                    >
-                      {booking.status.toUpperCase()}
-                    </span>
-                  </td>
-                  <td className="p-4">
-                    <div className="flex items-center gap-2">
-                      {mode === "approval" && booking.status === "pending" && (
-                        <>
-                          <button
-                            onClick={() => handleApprove(bookingId)}
-                            disabled={loading[bookingId]}
-                            className="px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700 disabled:opacity-50 transition"
+                <React.Fragment key={groupId}>
+                  {/* Group Header Row */}
+                  <tr className="border-t-2 border-blue-500 bg-gray-800">
+                    <td colSpan="6" className="p-4">
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <span className="text-blue-400 font-semibold">
+                            📅 Multi-Day/Recurring Group ({groupBookings.length}{" "}
+                            bookings)
+                          </span>
+                          <span className="ml-3 text-gray-400 text-sm">
+                            {firstBooking.requester?.name} •{" "}
+                            {firstBooking.resource?.name}
+                          </span>
+                        </div>
+                        {mode === "approval" && allPending && (
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => handleBatchApprove(groupId)}
+                              disabled={loading[groupId]}
+                              className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded text-sm font-medium flex items-center gap-2"
+                            >
+                              {loading[groupId] ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                              ) : (
+                                <CheckCircle className="w-4 h-4" />
+                              )}
+                              Approve Group
+                            </button>
+                            <button
+                              onClick={() => handleBatchReject(groupId)}
+                              disabled={loading[groupId]}
+                              className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded text-sm font-medium flex items-center gap-2"
+                            >
+                              {loading[groupId] ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                              ) : (
+                                <XCircle className="w-4 h-4" />
+                              )}
+                              Reject Group
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                  {/* Individual Bookings in Group */}
+                  {groupBookings.map((booking) => {
+                    const id = booking._id;
+                    const comment =
+                      localComments[id] ?? booking.adminComment ?? "";
+
+                    return (
+                      <tr
+                        key={id}
+                        className="border-t border-gray-700 bg-gray-850"
+                      >
+                        <td className="p-4 pl-8 text-gray-400">↳</td>
+                        <td className="p-4">{booking.resource?.name}</td>
+                        <td className="p-4">{booking.date}</td>
+                        <td className="p-4">
+                          {booking.startTime} – {booking.endTime}
+                        </td>
+                        <td className="p-4">
+                          <span
+                            className={`px-2 py-1 rounded-full text-xs ${getStatusColor(booking.status)}`}
                           >
-                            {loading[bookingId] ? (
-                              <Loader2 className="w-4 h-4 animate-spin" />
-                            ) : (
-                              "Approve"
-                            )}
-                          </button>
-                          <button
-                            onClick={() => handleReject(bookingId)}
-                            disabled={loading[bookingId]}
-                            className="px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700 disabled:opacity-50 transition"
-                          >
-                            {loading[bookingId] ? (
-                              <Loader2 className="w-4 h-4 animate-spin" />
-                            ) : (
-                              "Reject"
-                            )}
-                          </button>
-                        </>
-                      )}
-                      {(mode === "history" || booking.status !== "pending") && (
-                        <div className="relative">
-                          <button
-                            onClick={() =>
-                              setEditingStatus(
-                                editingStatus === bookingId ? null : bookingId,
-                              )
-                            }
-                            className="p-2 text-gray-400 hover:text-white rounded hover:bg-gray-800 transition"
-                          >
-                            <MoreVertical className="w-4 h-4" />
-                          </button>
-                          {editingStatus === bookingId && (
-                            <div className="absolute right-0 top-full mt-1 bg-gray-800 rounded-lg border border-gray-700 shadow-lg z-10 min-w-[120px]">
-                              {getStatusOptions().map((option) => (
-                                <button
-                                  key={option.value}
-                                  onClick={() =>
-                                    handleStatusUpdate(bookingId, option.value)
-                                  }
-                                  disabled={
-                                    loading[bookingId] ||
-                                    option.value === booking.status
-                                  }
-                                  className="w-full text-left px-3 py-2 text-sm text-gray-300 hover:bg-gray-700 disabled:opacity-50 transition"
-                                >
-                                  {option.label}
-                                </button>
-                              ))}
-                            </div>
+                            {booking.status.toUpperCase()}
+                          </span>
+                        </td>
+                        <td className="p-4">
+                          {isAdmin && (
+                            <button
+                              onClick={() => {
+                                setActiveCommentId(id);
+                                setCommentText(comment);
+                              }}
+                              className="text-blue-400 text-sm flex items-center gap-1"
+                            >
+                              <MessageSquare className="w-4 h-4" />
+                            </button>
                           )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </React.Fragment>
+              );
+            },
+          )}
+
+          {/* Render Single Bookings */}
+          {groupedBookings.singles.map((booking) => {
+            const id = booking._id;
+            const comment = localComments[id] ?? booking.adminComment ?? "";
+
+            return (
+              <tr key={id} className="border-t border-gray-700 align-top">
+                <td className="p-4">{booking.requester?.name}</td>
+                <td className="p-4">{booking.resource?.name}</td>
+                <td className="p-4">{booking.date}</td>
+                <td className="p-4">
+                  {booking.startTime} – {booking.endTime}
+                </td>
+                <td className="p-4">
+                  <span
+                    className={`px-2 py-1 rounded-full text-xs ${getStatusColor(
+                      booking.status,
+                    )}`}
+                  >
+                    {booking.status.toUpperCase()}
+                  </span>
+                </td>
+                <td className="p-4 space-y-2">
+                  {mode === "approval" && booking.status === "pending" && (
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleApprove(id)}
+                        className="bg-green-600 px-3 py-1 rounded text-sm"
+                      >
+                        Approve
+                      </button>
+                      <button
+                        onClick={() => handleReject(id)}
+                        className="bg-red-600 px-3 py-1 rounded text-sm"
+                      >
+                        Reject
+                      </button>
+                    </div>
+                  )}
+
+                  {isAdmin && (
+                    <div>
+                      <button
+                        onClick={() => {
+                          setActiveCommentId(id);
+                          setCommentText(comment);
+                        }}
+                        className="text-blue-400 text-sm flex items-center gap-1"
+                      >
+                        <MessageSquare className="w-4 h-4" />
+                        Admin Comment
+                      </button>
+
+                      {activeCommentId === id && (
+                        <div className="mt-2 space-y-2">
+                          <textarea
+                            maxLength={1000}
+                            value={commentText}
+                            onChange={(e) => setCommentText(e.target.value)}
+                            className="w-full bg-gray-800 border border-gray-700 rounded p-2 text-sm"
+                          />
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => saveAdminComment(id)}
+                              className="bg-white text-black px-3 py-1 rounded text-sm"
+                            >
+                              Save
+                            </button>
+                            <button
+                              onClick={() => setActiveCommentId(null)}
+                              className="bg-gray-700 px-3 py-1 rounded text-sm"
+                            >
+                              Cancel
+                            </button>
+                          </div>
                         </div>
                       )}
                     </div>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-        {bookings.length === 0 && (
-          <p className="p-4 text-center text-gray-500">No bookings found.</p>
-        )}
-      </div>
+                  )}
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
     </div>
   );
 };

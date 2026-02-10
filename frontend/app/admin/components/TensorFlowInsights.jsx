@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import * as tf from "@tensorflow/tfjs";
+import { Loader2 } from "lucide-react";
 
 const TensorFlowInsights = ({ data }) => {
   const [prediction, setPrediction] = useState(null);

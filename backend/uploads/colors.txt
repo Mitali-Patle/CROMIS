@@ -1,0 +1,70 @@
+F4EFEC
+
+#FBF7EB - ivory pearl
+
+#FDF9F0 - ---- cotton
+
+#FAF3E9 ------  whisper
+
+#f5f5dc - beign
+
+#EDC9AF - desert sand
+
+
+
+-----------------------------------\
+
+
+AI generated 
+
+
+#FFFFF0
+#F5F5DC
+#FAF0E6
+#FFF5EE
+#F0FFF0
+
+#F5FFFA
+
+
+Preferance ---
+
+
+#FFFFF0
+#FFF5EE ( optional ) seashell
+#F5FFFA
+#f4efec
+
+
+
+final 1 ---
+
+#F5FFFA
+#F8F8FF
+
+
+font preference color
+
+#666057
+sub heading / button backgroud color - #090A0AA3
+
+
+font preference
+
+courier prime - canva 
+
+
+image resolution sizes
+
+4096/ 2654 - default
+
+
+-------------------------------------------------------------
+
+
+button text colors 
+
+#AA5335 - text color - menu highlight text color 
+
+
+

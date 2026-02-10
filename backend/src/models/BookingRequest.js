@@ -35,15 +35,37 @@ const bookingRequestSchema = new mongoose.Schema(
       type: [String],
       default: [],
     },
+    groupId: {
+      type: String,
+      default: null,
+    },
+
     status: {
       type: String,
       enum: ["pending", "approved", "rejected", "cancelled", "expired"],
       default: "pending",
     },
-    adminComment: {
-      type: String,
-      default: "",
-    },
+    // 🔒 Internal Admin-Only Comments (NOT visible to students/faculty)
+    comments: [
+      {
+        text: {
+          type: String,
+          required: true,
+          maxlength: 1000,
+          trim: true,
+        },
+        admin: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+          required: true,
+        },
+        createdAt: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
+
     // Approval fields
     approvedBy: {
       type: mongoose.Schema.Types.ObjectId,

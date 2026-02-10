@@ -10,6 +10,7 @@ import {
   Settings,
   Calendar,
   CheckCircle,
+  Clock,
   BarChart3,
   FileText,
   Home,
@@ -31,7 +32,8 @@ const Sidebar = ({ onNavClick, activeTab, isOpen, onToggle }) => {
     { key: "dashboard", label: "Dashboard", icon: LayoutDashboard },
     { key: "resources", label: "Resources", icon: Settings },
     { key: "bookings", label: "Bookings", icon: Calendar },
-    { key: "approvals", label: "Approvals", icon: CheckCircle },
+    { key: "approvals", label: "Approvals", icon: Clock },
+    { key: "approved-singles", label: "Approved", icon: CheckCircle },
     { key: "analytics", label: "Analytics", icon: BarChart3 },
     { key: "reports", label: "Reports", icon: FileText },
   ];

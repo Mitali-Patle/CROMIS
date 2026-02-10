@@ -1,3 +1,4 @@
+console.log("🔥 bookingController LOADED:", import.meta.url);
 import BookingRequest from "../models/BookingRequest.js";
 import Resource from "../models/Resource.js";
 
@@ -31,14 +32,13 @@ const hasOverlap = (existingStart, existingEnd, newStart, newEnd) => {
 export const createBookingRequest = async (req, res) => {
   try {
     const requesterId = req.user.id;
-    const {
-      resource,
-      date: dateStr,
-      startTime,
-      endTime,
-      purpose,
-      attachments = [],
-    } = req.body;
+    const { resource, date: dateStr, startTime, endTime, purpose } = req.body;
+
+    // Handle file uploads (Multer adds req.files)
+    const attachments = req.files
+      ? req.files.map((f) => f.path)
+      : req.body.attachments || [];
+
     if (!resource || !dateStr || !startTime || !endTime || !purpose) {
       return res.status(400).json({
         error: "resource, date, startTime, endTime, purpose are required",
@@ -372,6 +372,217 @@ export const cancelBookingRequest = async (req, res) => {
     return res.json({ message: "Booking cancelled", booking });
   } catch (err) {
     console.error("cancelBookingRequest:", err);
+    return res.status(500).json({ error: "Server error" });
+  }
+};
+
+/**
+ * Get booked slots for a resource on a given date
+ * Used by students & faculty to check availability
+ *
+ * Query params:
+ *  - resource (required)
+ *  - date (YYYY-MM-DD, required)
+ */
+export const getBookedSlots = async (req, res) => {
+  try {
+    const { resource, date } = req.query;
+
+    if (!resource || !date) {
+      return res.status(400).json({
+        error: "resource and date are required",
+      });
+    }
+
+    // Normalize date to UTC midnight
+    const [year, month, day] = date.split("-").map(Number);
+    const normalizedDate = new Date(Date.UTC(year, month - 1, day));
+
+    // Fetch all pending + approved bookings
+    const bookings = await BookingRequest.find({
+      resource,
+      date: normalizedDate,
+      status: { $in: ["pending", "approved"] },
+    }).select("startTime endTime status");
+
+    // Return only booked ranges
+    const bookedSlots = bookings.map((b) => ({
+      startTime: b.startTime,
+      endTime: b.endTime,
+      status: b.status,
+    }));
+
+    return res.json({
+      date,
+      resource,
+      bookedSlots,
+    });
+  } catch (err) {
+    console.error("getBookedSlots:", err);
+    return res.status(500).json({ error: "Server error" });
+  }
+};
+
+/**
+ * Get single booking by ID
+ * Owner (student/faculty) OR admin only
+ */
+export const getBookingById = async (req, res) => {
+  try {
+    const booking = await BookingRequest.findById(req.params.id).populate([
+      "resource",
+      "requester",
+      "approvedBy",
+      "rejectedBy",
+    ]);
+
+    if (!booking) {
+      return res.status(404).json({ error: "Booking not found" });
+    }
+
+    const isOwner = String(booking.requester?._id) === String(req.user.id);
+    const isAdmin = req.user.role === "admin";
+
+    if (!isOwner && !isAdmin) {
+      return res.status(403).json({ error: "Access denied" });
+    }
+
+    return res.json(booking);
+  } catch (err) {
+    console.error("getBookingById:", err);
+    return res.status(500).json({ error: "Server error" });
+  }
+};
+
+// ===============================
+// ADMIN: Add internal comment
+// ===============================
+export const addAdminComment = async (req, res) => {
+  try {
+    const { bookingId } = req.params;
+    const { text } = req.body;
+
+    if (!text || text.trim().length === 0) {
+      return res.status(400).json({ message: "Comment text is required" });
+    }
+
+    if (text.length > 1000) {
+      return res.status(400).json({ message: "Max 1000 characters allowed" });
+    }
+
+    const booking = await BookingRequest.findById(bookingId);
+    if (!booking) {
+      return res.status(404).json({ message: "Booking not found" });
+    }
+
+    booking.comments.push({
+      text,
+      admin: req.user.id,
+    });
+
+    await booking.save();
+
+    res.status(201).json({
+      message: "Admin comment added",
+      comments: booking.comments,
+    });
+  } catch (err) {
+    console.error("Add admin comment error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// ===============================
+// ADMIN: Get internal comments
+// ===============================
+export const getAdminComments = async (req, res) => {
+  try {
+    const { bookingId } = req.params;
+
+    const booking = await BookingRequest.findById(bookingId).populate(
+      "comments.admin",
+      "name email role",
+    );
+
+    if (!booking) {
+      return res.status(404).json({ message: "Booking not found" });
+    }
+
+    res.json(booking.comments);
+  } catch (err) {
+    console.error("Get admin comments error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// ===============================
+// ADMIN: Batch Update Bookings by Group ID
+// ===============================
+export const batchUpdateBookings = async (req, res) => {
+  try {
+    const { groupId, status } = req.body;
+
+    if (!groupId) {
+      return res.status(400).json({ error: "groupId is required" });
+    }
+
+    const validStatuses = ["approved", "rejected", "cancelled"];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({
+        error: "Invalid status. Must be approved, rejected, or cancelled",
+      });
+    }
+
+    // Find if the groupId exists at all
+    const groupExists = await BookingRequest.exists({ groupId });
+    if (!groupExists) {
+      return res
+        .status(404)
+        .json({ error: `No bookings found with groupId: ${groupId}` });
+    }
+
+    // Find all bookings with this groupId that are pending
+    const pendingInGroup = await BookingRequest.find({
+      groupId,
+      status: "pending",
+    });
+
+    if (pendingInGroup.length === 0) {
+      return res.status(400).json({
+        error: "No pending bookings found in this group",
+        message: "All bookings in this group may have already been processed.",
+      });
+    }
+
+    // Update all bookings in the group
+    const updateData = { status };
+
+    if (status === "approved") {
+      updateData.approvedBy = req.user.id;
+      updateData.approvedAt = new Date();
+    } else if (status === "rejected") {
+      updateData.rejectedBy = req.user.id;
+      updateData.rejectedAt = new Date();
+    } else if (status === "cancelled") {
+      updateData.approvedBy = null;
+      updateData.approvedAt = null;
+      updateData.rejectedBy = null;
+      updateData.rejectedAt = null;
+    }
+
+    const result = await BookingRequest.updateMany(
+      { groupId, status: "pending" },
+      { $set: updateData },
+    );
+
+    return res.json({
+      message: `Successfully updated ${result.modifiedCount} bookings`,
+      modifiedCount: result.modifiedCount,
+      groupId,
+      status,
+    });
+  } catch (err) {
+    console.error("batchUpdateBookings:", err);
     return res.status(500).json({ error: "Server error" });
   }
 };
