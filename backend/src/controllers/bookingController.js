@@ -517,4 +517,59 @@ export const getAdminComments = async (req, res) => {
 };
 
 
+// ===============================
+// ADMIN: Batch Update Bookings by Group ID
+// ===============================
+export const batchUpdateBookings = async (req, res) => {
+  try {
+    const { groupId, status } = req.body;
+
+    if (!groupId) {
+      return res.status(400).json({ error: "groupId is required" });
+    }
+
+    const validStatuses = ["approved", "rejected", "cancelled"];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ error: "Invalid status. Must be approved, rejected, or cancelled" });
+    }
+
+    // Find all bookings with this groupId
+    const bookings = await BookingRequest.find({ groupId, status: "pending" });
+
+    if (bookings.length === 0) {
+      return res.status(404).json({ error: "No pending bookings found with this groupId" });
+    }
+
+    // Update all bookings in the group
+    const updateData = { status };
+
+    if (status === "approved") {
+      updateData.approvedBy = req.user.id;
+      updateData.approvedAt = new Date();
+    } else if (status === "rejected") {
+      updateData.rejectedBy = req.user.id;
+      updateData.rejectedAt = new Date();
+    } else if (status === "cancelled") {
+      updateData.approvedBy = null;
+      updateData.approvedAt = null;
+      updateData.rejectedBy = null;
+      updateData.rejectedAt = null;
+    }
+
+    const result = await BookingRequest.updateMany(
+      { groupId, status: "pending" },
+      { $set: updateData }
+    );
+
+    return res.json({
+      message: `Successfully updated ${result.modifiedCount} bookings`,
+      modifiedCount: result.modifiedCount,
+      groupId,
+      status,
+    });
+  } catch (err) {
+    console.error("batchUpdateBookings:", err);
+    return res.status(500).json({ error: "Server error" });
+  }
+};
 

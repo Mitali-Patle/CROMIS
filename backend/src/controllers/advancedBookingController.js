@@ -20,6 +20,11 @@ export const createMultiDayBooking = async (req, res) => {
     const { resource, startDate, endDate, startTime, endTime, purpose } =
       req.body;
 
+    // Handle file uploads (Multer adds req.files)
+    const attachments = req.files
+      ? req.files.map(f => f.path)
+      : (req.body.attachments || []);
+
     const requester = req.user.id;
     const groupId = crypto.randomUUID();
 
@@ -69,6 +74,7 @@ export const createMultiDayBooking = async (req, res) => {
         startTime,
         endTime,
         purpose,
+        attachments,
         status: "pending",
         groupId,
       });
@@ -83,31 +89,47 @@ export const createMultiDayBooking = async (req, res) => {
 };
 
 /* ----------------------------------
-   STORY 11 — Recurring Weekly
+   STORY 11 — Recurring Booking
 -----------------------------------*/
 export const createRecurringBooking = async (req, res) => {
   try {
-    const { resource, startDate, occurrences, startTime, endTime, purpose } =
+    const { resource, startDate, endDate, startTime, endTime, purpose, recurrencePattern } =
       req.body;
 
-    if (occurrences > 52) {
-      return res.status(400).json({ error: "Max 52 occurrences allowed" });
-    }
+    // Handle file uploads (Multer adds req.files)
+    const attachments = req.files
+      ? req.files.map(f => f.path)
+      : (req.body.attachments || []);
 
     const requester = req.user.id;
     const groupId = crypto.randomUUID();
 
-    const bookings = [];
-    let date = new Date(startDate);
+    const start = new Date(startDate);
+    const end = new Date(endDate);
 
-    for (let i = 0; i < occurrences; i++) {
-      const dateStr = date.toISOString().split("T")[0];
+    // Validate date range
+    if (start > end) {
+      return res.status(400).json({ error: "Start date must be before end date" });
+    }
+
+    const bookings = [];
+    let currentDate = new Date(start);
+
+    // Determine increment based on pattern
+    const increment = recurrencePattern === "weekly" ? 7 : 1;
+
+    // Safety limit: max 100 bookings
+    let count = 0;
+    const MAX_BOOKINGS = 100;
+
+    while (currentDate <= end && count < MAX_BOOKINGS) {
+      const dateStr = currentDate.toISOString().split("T")[0];
       const uStart = toUTC(dateStr, startTime);
       const uEnd = toUTC(dateStr, endTime);
 
       const conflict = await BookingRequest.findOne({
         resource,
-        date,
+        date: new Date(currentDate),
         status: { $in: ["pending", "approved"] },
       });
 
@@ -120,15 +142,21 @@ export const createRecurringBooking = async (req, res) => {
       bookings.push({
         requester,
         resource,
-        date: new Date(date),
+        date: new Date(currentDate),
         startTime,
         endTime,
         purpose,
+        attachments,
         status: "pending",
         groupId,
       });
 
-      date.setDate(date.getDate() + 7);
+      currentDate.setDate(currentDate.getDate() + increment);
+      count++;
+    }
+
+    if (bookings.length === 0) {
+      return res.status(400).json({ error: "No valid dates in range" });
     }
 
     const created = await BookingRequest.insertMany(bookings);

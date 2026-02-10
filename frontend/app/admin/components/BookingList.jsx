@@ -26,9 +26,9 @@ const BookingList = ({
   const role =
     typeof document !== "undefined"
       ? document.cookie
-          .split("; ")
-          .find((r) => r.startsWith("role="))
-          ?.split("=")[1]
+        .split("; ")
+        .find((r) => r.startsWith("role="))
+        ?.split("=")[1]
       : null;
 
   const isAdmin = role === "admin";
@@ -83,6 +83,50 @@ const BookingList = ({
     setEditingStatus(null);
     setLoading((p) => ({ ...p, [bookingId]: false }));
   };
+
+  /* ======================
+     BATCH APPROVAL (NEW)
+     ====================== */
+  const handleBatchApprove = async (groupId) => {
+    setLoading((p) => ({ ...p, [groupId]: true }));
+    await apiRequest("/bookings/batch", "PATCH", {
+      groupId,
+      status: "approved",
+    });
+    onApprove?.(groupId); // Refresh data
+    setLoading((p) => ({ ...p, [groupId]: false }));
+  };
+
+  const handleBatchReject = async (groupId) => {
+    setLoading((p) => ({ ...p, [groupId]: true }));
+    await apiRequest("/bookings/batch", "PATCH", {
+      groupId,
+      status: "rejected",
+    });
+    onReject?.(groupId); // Refresh data
+    setLoading((p) => ({ ...p, [groupId]: false }));
+  };
+
+  /* ======================
+     GROUP BOOKINGS BY groupId
+     ====================== */
+  const groupedBookings = React.useMemo(() => {
+    const groups = {};
+    const singles = [];
+
+    bookings.forEach((booking) => {
+      if (booking.groupId) {
+        if (!groups[booking.groupId]) {
+          groups[booking.groupId] = [];
+        }
+        groups[booking.groupId].push(booking);
+      } else {
+        singles.push(booking);
+      }
+    });
+
+    return { groups, singles };
+  }, [bookings]);
 
   /* ======================
      ADMIN COMMENT (Story 15)
@@ -205,10 +249,88 @@ const BookingList = ({
           </tr>
         </thead>
         <tbody>
-          {bookings.map((booking) => {
+          {/* Render Grouped Bookings */}
+          {Object.entries(groupedBookings.groups).map(([groupId, groupBookings]) => {
+            const firstBooking = groupBookings[0];
+            const allPending = groupBookings.every(b => b.status === "pending");
+
+            return (
+              <React.Fragment key={groupId}>
+                {/* Group Header Row */}
+                <tr className="border-t-2 border-blue-500 bg-gray-800">
+                  <td colSpan="6" className="p-4">
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <span className="text-blue-400 font-semibold">
+                          📅 Multi-Day/Recurring Group ({groupBookings.length} bookings)
+                        </span>
+                        <span className="ml-3 text-gray-400 text-sm">
+                          {firstBooking.requester?.name} • {firstBooking.resource?.name}
+                        </span>
+                      </div>
+                      {mode === "approval" && allPending && (
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleBatchApprove(groupId)}
+                            disabled={loading[groupId]}
+                            className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded text-sm font-medium flex items-center gap-2"
+                          >
+                            {loading[groupId] ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
+                            Approve Group
+                          </button>
+                          <button
+                            onClick={() => handleBatchReject(groupId)}
+                            disabled={loading[groupId]}
+                            className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded text-sm font-medium flex items-center gap-2"
+                          >
+                            {loading[groupId] ? <Loader2 className="w-4 h-4 animate-spin" /> : <XCircle className="w-4 h-4" />}
+                            Reject Group
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+                {/* Individual Bookings in Group */}
+                {groupBookings.map((booking) => {
+                  const id = booking._id;
+                  const comment = localComments[id] ?? booking.adminComment ?? "";
+
+                  return (
+                    <tr key={id} className="border-t border-gray-700 bg-gray-850">
+                      <td className="p-4 pl-8 text-gray-400">↳</td>
+                      <td className="p-4">{booking.resource?.name}</td>
+                      <td className="p-4">{booking.date}</td>
+                      <td className="p-4">{booking.startTime} – {booking.endTime}</td>
+                      <td className="p-4">
+                        <span className={`px-2 py-1 rounded-full text-xs ${getStatusColor(booking.status)}`}>
+                          {booking.status.toUpperCase()}
+                        </span>
+                      </td>
+                      <td className="p-4">
+                        {isAdmin && (
+                          <button
+                            onClick={() => {
+                              setActiveCommentId(id);
+                              setCommentText(comment);
+                            }}
+                            className="text-blue-400 text-sm flex items-center gap-1"
+                          >
+                            <MessageSquare className="w-4 h-4" />
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </React.Fragment>
+            );
+          })}
+
+          {/* Render Single Bookings */}
+          {groupedBookings.singles.map((booking) => {
             const id = booking._id;
-            const comment =
-              localComments[id] ?? booking.adminComment ?? "";
+            const comment = localComments[id] ?? booking.adminComment ?? "";
 
             return (
               <tr key={id} className="border-t border-gray-700 align-top">

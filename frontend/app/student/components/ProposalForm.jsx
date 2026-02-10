@@ -27,33 +27,7 @@ const generateSlots = (start = "08:00", end = "20:00", step = 15) => {
 const overlaps = (start, end, booked) =>
   booked.some((b) => start < b.endTime && end > b.startTime);
 
-const getDatesBetween = (start, end) => {
-  const dates = [];
-  let d = new Date(start);
-  const e = new Date(end);
 
-  while (d <= e) {
-    dates.push(d.toISOString().split("T")[0]);
-    d.setDate(d.getDate() + 1);
-  }
-  return dates;
-};
-
-const getWeeklyDates = (start, end) => {
-  const dates = [];
-  const d = new Date(start);
-  const e = new Date(end);
-  // Get the day of the week from the start date
-  const dayOfWeek = d.getDay();
-
-  while (d <= e) {
-    if (d.getDay() === dayOfWeek) {
-      dates.push(d.toISOString().split("T")[0]);
-    }
-    d.setDate(d.getDate() + 1);
-  }
-  return dates;
-};
 
 
 /* ================= COMPONENT ================= */
@@ -114,37 +88,6 @@ export default function ProposalForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // 1. Calculate specific dates based on Tab
-    let targetDates = [];
-
-    if (activeTab === "single") {
-      if (!form.date) return alert("Please select a date.");
-      targetDates = [form.date];
-    } else if (activeTab === "multi") {
-      if (!form.startDate || !form.endDate) return alert("Please select start and end dates.");
-      if (form.startDate > form.endDate) return alert("Start date cannot be after end date.");
-      targetDates = getDatesBetween(form.startDate, form.endDate);
-    } else if (activeTab === "recurring") {
-      if (!form.startDate || !form.endDate) return alert("Please select start and end dates.");
-      if (form.startDate > form.endDate) return alert("Start date cannot be after end date.");
-
-      if (form.recurrencePattern === "daily") {
-        targetDates = getDatesBetween(form.startDate, form.endDate);
-      } else if (form.recurrencePattern === "weekly") {
-        targetDates = getWeeklyDates(form.startDate, form.endDate);
-      }
-    }
-
-    if (targetDates.length === 0) {
-      return alert("No valid dates selected.");
-    }
-
-    // Limit bursts to prevent abuse
-    if (targetDates.length > 30) {
-      if (!confirm(`You are about to request ${targetDates.length} bookings. Continue?`)) return;
-    }
-
-
     setLoading(true);
     try {
       const token = document.cookie
@@ -152,67 +95,85 @@ export default function ProposalForm() {
         .find((row) => row.startsWith("token="))
         ?.split("=")[1];
 
-      // 2. Submit loop
-      let successCount = 0;
-      let failCount = 0;
+      let endpoint = `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api"}/bookings`;
+      const formData = new FormData();
 
-      for (const dateStr of targetDates) {
-        const formData = new FormData();
-        formData.append("resource", form.resource);
-        formData.append("date", dateStr);
-        formData.append("startTime", form.startTime);
-        formData.append("endTime", form.endTime);
-        formData.append("purpose", form.purpose);
+      // Common fields
+      formData.append("resource", form.resource);
+      formData.append("startTime", form.startTime);
+      formData.append("endTime", form.endTime);
+      formData.append("purpose", form.purpose);
 
-        files.forEach((file) => {
-          formData.append("attachments", file);
-        });
+      // Add files
+      files.forEach((file) => {
+        formData.append("attachments", file);
+      });
 
-        try {
-          const res = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api"}/bookings`,
-            {
-              method: "POST",
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-              body: formData,
-            }
-          );
+      // Route based on tab
+      if (activeTab === "single") {
+        if (!form.date) return alert("Please select a date.");
+        formData.append("date", form.date);
+        // endpoint remains /bookings
+      } else if (activeTab === "multi") {
+        if (!form.startDate || !form.endDate) return alert("Please select start and end dates.");
+        if (form.startDate > form.endDate) return alert("Start date cannot be after end date.");
 
-          if (!res.ok) {
-            const errData = await res.json();
-            console.error(`Failed for ${dateStr}:`, errData);
-            failCount++;
-            // Optional: Stop on first failure? Or continue and report? 
-            // Currently continuing to try to book as many as possible.
-          } else {
-            successCount++;
-          }
-        } catch (err) {
-          console.error(`Network error for ${dateStr}`, err);
-          failCount++;
+        endpoint += "/multi";
+        formData.append("startDate", form.startDate);
+        formData.append("endDate", form.endDate);
+      } else if (activeTab === "recurring") {
+        if (!form.startDate || !form.endDate) return alert("Please select start and end dates.");
+        if (form.startDate > form.endDate) return alert("Start date cannot be after end date.");
+
+        // Route daily to /multi, weekly to /recurring
+        if (form.recurrencePattern === "daily") {
+          endpoint += "/multi";
+          formData.append("startDate", form.startDate);
+          formData.append("endDate", form.endDate);
+        } else if (form.recurrencePattern === "weekly") {
+          endpoint += "/recurring";
+          formData.append("startDate", form.startDate);
+          formData.append("endDate", form.endDate);
+          formData.append("recurrencePattern", "weekly");
         }
       }
 
-      // 3. Feedback
-      if (failCount === 0) {
-        alert("All bookings submitted successfully!");
-        setForm({
-          resource: "",
-          date: "",
-          startDate: "",
-          endDate: "",
-          startTime: "",
-          endTime: "",
-          purpose: "",
-          recurrencePattern: "daily",
-        });
-        setFiles([]);
-        setDraftId(null);
-      } else {
-        alert(`Submitted ${successCount} bookings. Failed: ${failCount}. Check your proposals list.`);
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.error || "Booking failed");
       }
+
+      const data = await res.json();
+
+      // Success feedback
+      if (activeTab === "single") {
+        alert("Booking submitted successfully!");
+      } else {
+        const count = data.bookings?.length || 0;
+        alert(`Successfully created ${count} bookings with Group ID: ${data.groupId}`);
+      }
+
+      // Reset form
+      setForm({
+        resource: "",
+        date: "",
+        startDate: "",
+        endDate: "",
+        startTime: "",
+        endTime: "",
+        purpose: "",
+        recurrencePattern: "daily",
+      });
+      setFiles([]);
+      setDraftId(null);
 
     } catch (err) {
       alert(err.message || "Booking process failed");
@@ -241,8 +202,8 @@ export default function ProposalForm() {
               key={tab}
               onClick={() => setActiveTab(tab)}
               className={`flex-1 py-2 text-sm font-medium rounded-md transition-colors ${activeTab === tab
-                  ? "bg-gray-700 text-white shadow"
-                  : "text-gray-400 hover:text-gray-200"
+                ? "bg-gray-700 text-white shadow"
+                : "text-gray-400 hover:text-gray-200"
                 }`}
             >
               {tab === "single"
