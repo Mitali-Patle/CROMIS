@@ -528,11 +528,9 @@ export const batchUpdateBookings = async (req, res) => {
 
     const validStatuses = ["approved", "rejected", "cancelled"];
     if (!validStatuses.includes(status)) {
-      return res
-        .status(400)
-        .json({
-          error: "Invalid status. Must be approved, rejected, or cancelled",
-        });
+      return res.status(400).json({
+        error: "Invalid status. Must be approved, rejected, or cancelled",
+      });
     }
 
     // Find if the groupId exists at all
