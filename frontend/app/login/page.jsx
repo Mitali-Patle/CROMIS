@@ -10,6 +10,10 @@ export default function LoginPage() {
     email: "",
     password: "",
   });
+  
+  const handleChange = (e) => {
+  setFormData({ ...formData, [e.target.name]: e.target.value });
+};
 
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -28,34 +32,33 @@ export default function LoginPage() {
     }
   }, []);
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
+  e.preventDefault();
+  setLoading(true);
 
-    try {
-      const res = await apiRequest("/auth/login", "POST", {
-        email: formData.email,
-        password: formData.password,
-      });
+  try {
+    const res = await apiRequest("/auth/login", "POST", {
+      email: formData.email,
+      password: formData.password,
+    });
 
-      // Save cookies
-      document.cookie = `token=${res.token}; path=/`;
-      document.cookie = `role=${res.user.role}; path=/`;
+    document.cookie = `token=${res.token}; path=/;`;
+    document.cookie = `role=${res.user.role}; path=/;`;
 
-      // Redirect based on role
-      if (res.user.role === "student") window.location.href = "/student";
-      if (res.user.role === "faculty") window.location.href = "/faculty";
-      if (res.user.role === "admin") window.location.href = "/admin";
-    } catch (err) {
-      alert(err.message);
+    localStorage.setItem("token", res.token);
+    localStorage.setItem("role", res.user.role);
+
+    if (res.user.role === "admin") {
+      window.location.href = "/admin";
+    } else {
+      window.location.href = "/student";
     }
+  } catch (err) {
+    alert(err.message);
+  }
 
-    setLoading(false);
-  };
+  setLoading(false);
+};
 
   return (
     <div className="bg-black text-white min-h-screen">
@@ -69,8 +72,8 @@ export default function LoginPage() {
           />
         </div>
 
-        <div className="w-full lg:w-1/2 flex items-center justify-center py-20 px-6 lg:bg-transparent relative">
-          <div className="relative z-20 w-full max-w-md mx-auto px-6 lg:bg-transparent">
+        <div className="w-full lg:w-1/2 flex items-center justify-center py-20 px-6 relative">
+          <div className="relative z-20 w-full max-w-md mx-auto px-6">
             <h1 className="text-4xl font-bold text-center mb-8">Login</h1>
 
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -86,7 +89,6 @@ export default function LoginPage() {
                   onChange={handleChange}
                   className="w-full px-4 py-3 bg-transparent border border-gray-700 rounded-lg"
                   placeholder="your@email.com"
-                  autoComplete="email"
                 />
               </div>
 
@@ -103,7 +105,6 @@ export default function LoginPage() {
                     onChange={handleChange}
                     className="w-full px-4 py-3 pr-12 bg-transparent border border-gray-700 rounded-lg"
                     placeholder="Enter password"
-                    autoComplete="current-password"
                   />
 
                   <button
@@ -122,7 +123,7 @@ export default function LoginPage() {
                 className="group w-full px-8 py-4 bg-white text-black rounded-full font-medium flex items-center justify-center gap-2"
               >
                 {loading ? "Logging in..." : "Login"}
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform mt-[1px]" />
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </button>
             </form>
 
@@ -139,9 +140,9 @@ export default function LoginPage() {
       <div className="absolute top-8 left-8 z-30">
         <a
           href="/"
-          className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm text-gray-400 hover:text-white transition font-medium border border-gray-600 rounded-lg px-2 py-2"
+          className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition border border-gray-600 rounded-lg px-3 py-2"
         >
-          <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4 mt-[-2px]" /> Back to Home
+          <ArrowLeft className="w-4 h-4" /> Back to Home
         </a>
       </div>
     </div>
