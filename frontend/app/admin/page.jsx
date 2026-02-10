@@ -155,7 +155,7 @@ export default function AdminPage() {
       case "resources":
         return <ResourceForm />;
       case "bookings":
-        return <BookingList bookings={bookings} mode="history" />;
+        return <BookingList bookings={bookings} mode="history" onRefresh={fetchSummaryData} />;
       case "approvals":
         return (
           <BookingList
@@ -163,6 +163,16 @@ export default function AdminPage() {
             mode="approval"
             onApprove={handleApprove}
             onReject={handleReject}
+            onRefresh={fetchSummaryData}
+          />
+        );
+      case "approved-singles":
+        const approvedSingles = bookings.filter(b => b.status === "approved" && !b.groupId);
+        return (
+          <BookingList
+            bookings={approvedSingles}
+            mode="history"
+            onRefresh={fetchSummaryData}
           />
         );
       case "analytics":

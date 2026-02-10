@@ -15,6 +15,7 @@ const BookingList = ({
   onApprove,
   onReject,
   onUpdateStatus,
+  onRefresh,
 }) => {
   const [editingStatus, setEditingStatus] = useState(null);
   const [loading, setLoading] = useState({});
@@ -88,23 +89,35 @@ const BookingList = ({
      BATCH APPROVAL (NEW)
      ====================== */
   const handleBatchApprove = async (groupId) => {
-    setLoading((p) => ({ ...p, [groupId]: true }));
-    await apiRequest("/bookings/batch", "PATCH", {
-      groupId,
-      status: "approved",
-    });
-    onApprove?.(groupId); // Refresh data
-    setLoading((p) => ({ ...p, [groupId]: false }));
+    try {
+      setLoading((p) => ({ ...p, [groupId]: true }));
+      await apiRequest("/bookings/batch", "PATCH", {
+        groupId,
+        status: "approved",
+      });
+      onRefresh?.(); // Refresh all data instead of calling single-item handler
+    } catch (err) {
+      console.error("Batch Approve Error:", err);
+      alert(err.message || "Failed to approve group");
+    } finally {
+      setLoading((p) => ({ ...p, [groupId]: false }));
+    }
   };
 
   const handleBatchReject = async (groupId) => {
-    setLoading((p) => ({ ...p, [groupId]: true }));
-    await apiRequest("/bookings/batch", "PATCH", {
-      groupId,
-      status: "rejected",
-    });
-    onReject?.(groupId); // Refresh data
-    setLoading((p) => ({ ...p, [groupId]: false }));
+    try {
+      setLoading((p) => ({ ...p, [groupId]: true }));
+      await apiRequest("/bookings/batch", "PATCH", {
+        groupId,
+        status: "rejected",
+      });
+      onRefresh?.(); // Refresh all data
+    } catch (err) {
+      console.error("Batch Reject Error:", err);
+      alert(err.message || "Failed to reject group");
+    } finally {
+      setLoading((p) => ({ ...p, [groupId]: false }));
+    }
   };
 
   /* ======================

@@ -533,11 +533,20 @@ export const batchUpdateBookings = async (req, res) => {
       return res.status(400).json({ error: "Invalid status. Must be approved, rejected, or cancelled" });
     }
 
-    // Find all bookings with this groupId
-    const bookings = await BookingRequest.find({ groupId, status: "pending" });
+    // Find if the groupId exists at all
+    const groupExists = await BookingRequest.exists({ groupId });
+    if (!groupExists) {
+      return res.status(404).json({ error: `No bookings found with groupId: ${groupId}` });
+    }
 
-    if (bookings.length === 0) {
-      return res.status(404).json({ error: "No pending bookings found with this groupId" });
+    // Find all bookings with this groupId that are pending
+    const pendingInGroup = await BookingRequest.find({ groupId, status: "pending" });
+
+    if (pendingInGroup.length === 0) {
+      return res.status(400).json({
+        error: "No pending bookings found in this group",
+        message: "All bookings in this group may have already been processed."
+      });
     }
 
     // Update all bookings in the group
