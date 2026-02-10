@@ -4,19 +4,13 @@ import path from "path";
 const storage = multer.diskStorage({
   destination: "uploads/",
   filename: (req, file, cb) => {
-    const unique =
-      Date.now() + "-" + Math.round(Math.random() * 1e9);
+    const unique = Date.now() + "-" + Math.round(Math.random() * 1e9);
     cb(null, unique + path.extname(file.originalname));
   },
 });
 
 const fileFilter = (req, file, cb) => {
-  const allowed = [
-    "application/pdf",
-    "image/png",
-    "image/jpeg",
-    "image/jpg",
-  ];
+  const allowed = ["application/pdf", "image/png", "image/jpeg", "image/jpg"];
   if (allowed.includes(file.mimetype)) {
     cb(null, true);
   } else {

@@ -16,7 +16,7 @@ export default function AvailabilityCalendar() {
         setLoading(true);
         setError(null);
         const data = await apiRequest(
-          `/resources/availability/check?date=${date}`
+          `/resources/availability/check?date=${date}`,
         );
         setAvailability(data);
       } catch (err) {
@@ -41,18 +41,12 @@ export default function AvailabilityCalendar() {
         onChange={(e) => setDate(e.target.value)}
       />
 
-      {loading && (
-        <p className="text-gray-400">Loading availability...</p>
-      )}
+      {loading && <p className="text-gray-400">Loading availability...</p>}
 
-      {error && (
-        <p className="text-red-400">{error}</p>
-      )}
+      {error && <p className="text-red-400">{error}</p>}
 
       {!loading && date && availability.length === 0 && (
-        <p className="text-gray-400">
-          No resources found for this date.
-        </p>
+        <p className="text-gray-400">No resources found for this date.</p>
       )}
 
       {/* Availability Cards */}
@@ -62,14 +56,10 @@ export default function AvailabilityCalendar() {
             key={res._id}
             className="bg-gray-900 p-4 rounded border border-gray-700"
           >
-            <h3 className="font-semibold text-white">
-              {res.name}
-            </h3>
+            <h3 className="font-semibold text-white">{res.name}</h3>
 
             {res.isAvailable ? (
-              <p className="text-green-400 mt-2">
-                Available
-              </p>
+              <p className="text-green-400 mt-2">Available</p>
             ) : (
               <div className="mt-2">
                 <p className="text-red-400">Booked Slots:</p>
@@ -88,4 +78,3 @@ export default function AvailabilityCalendar() {
     </div>
   );
 }
-

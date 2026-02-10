@@ -18,7 +18,9 @@ export default function Header() {
           C
         </div>
         <h1 className="text-lg font-semibold">
-          {role === "faculty" ? "Faculty Dashboard" : "Student / Faculty Dashboard"}
+          {role === "faculty"
+            ? "Faculty Dashboard"
+            : "Student / Faculty Dashboard"}
         </h1>
       </div>
     </header>

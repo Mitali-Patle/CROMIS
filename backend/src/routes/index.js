@@ -7,7 +7,6 @@ import userRoutes from "./users.js";
 import purposeTemplateRoutes from "./purposeTemplates.js";
 import draftRoutes from "./drafts.js";
 
-
 const router = Router();
 
 router.get("/health", (req, res) => {
@@ -22,10 +21,4 @@ router.use("/users", userRoutes);
 router.use("/purpose-templates", purposeTemplateRoutes);
 router.use("/drafts", draftRoutes);
 
-
 export default router;
-
-
-
-
-

@@ -27,9 +27,9 @@ const BookingList = ({
   const role =
     typeof document !== "undefined"
       ? document.cookie
-        .split("; ")
-        .find((r) => r.startsWith("role="))
-        ?.split("=")[1]
+          .split("; ")
+          .find((r) => r.startsWith("role="))
+          ?.split("=")[1]
       : null;
 
   const isAdmin = role === "admin";
@@ -166,8 +166,7 @@ const BookingList = ({
     { value: "expired", label: "Expired" },
   ];
 
-  const isMobile =
-    typeof window !== "undefined" && window.innerWidth < 1024;
+  const isMobile = typeof window !== "undefined" && window.innerWidth < 1024;
 
   /* ======================= MOBILE ======================= */
   if (isMobile) {
@@ -175,17 +174,14 @@ const BookingList = ({
       <div className="space-y-4">
         {bookings.map((booking) => {
           const id = booking._id;
-          const comment =
-            localComments[id] ?? booking.adminComment ?? "";
+          const comment = localComments[id] ?? booking.adminComment ?? "";
 
           return (
             <div
               key={id}
               className="bg-gray-900 border border-gray-700 rounded-lg p-4"
             >
-              <p className="text-white font-medium">
-                {booking.resource?.name}
-              </p>
+              <p className="text-white font-medium">{booking.resource?.name}</p>
               <p className="text-xs text-gray-400">
                 {booking.date} | {booking.startTime} – {booking.endTime}
               </p>
@@ -216,9 +212,7 @@ const BookingList = ({
                       <textarea
                         maxLength={1000}
                         value={commentText}
-                        onChange={(e) =>
-                          setCommentText(e.target.value)
-                        }
+                        onChange={(e) => setCommentText(e.target.value)}
                         className="w-full bg-gray-800 border border-gray-700 rounded p-2 text-sm"
                         placeholder="Internal admin note (not visible to users)"
                       />
@@ -263,82 +257,104 @@ const BookingList = ({
         </thead>
         <tbody>
           {/* Render Grouped Bookings */}
-          {Object.entries(groupedBookings.groups).map(([groupId, groupBookings]) => {
-            const firstBooking = groupBookings[0];
-            const allPending = groupBookings.every(b => b.status === "pending");
+          {Object.entries(groupedBookings.groups).map(
+            ([groupId, groupBookings]) => {
+              const firstBooking = groupBookings[0];
+              const allPending = groupBookings.every(
+                (b) => b.status === "pending",
+              );
 
-            return (
-              <React.Fragment key={groupId}>
-                {/* Group Header Row */}
-                <tr className="border-t-2 border-blue-500 bg-gray-800">
-                  <td colSpan="6" className="p-4">
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <span className="text-blue-400 font-semibold">
-                          📅 Multi-Day/Recurring Group ({groupBookings.length} bookings)
-                        </span>
-                        <span className="ml-3 text-gray-400 text-sm">
-                          {firstBooking.requester?.name} • {firstBooking.resource?.name}
-                        </span>
-                      </div>
-                      {mode === "approval" && allPending && (
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => handleBatchApprove(groupId)}
-                            disabled={loading[groupId]}
-                            className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded text-sm font-medium flex items-center gap-2"
-                          >
-                            {loading[groupId] ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
-                            Approve Group
-                          </button>
-                          <button
-                            onClick={() => handleBatchReject(groupId)}
-                            disabled={loading[groupId]}
-                            className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded text-sm font-medium flex items-center gap-2"
-                          >
-                            {loading[groupId] ? <Loader2 className="w-4 h-4 animate-spin" /> : <XCircle className="w-4 h-4" />}
-                            Reject Group
-                          </button>
+              return (
+                <React.Fragment key={groupId}>
+                  {/* Group Header Row */}
+                  <tr className="border-t-2 border-blue-500 bg-gray-800">
+                    <td colSpan="6" className="p-4">
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <span className="text-blue-400 font-semibold">
+                            📅 Multi-Day/Recurring Group ({groupBookings.length}{" "}
+                            bookings)
+                          </span>
+                          <span className="ml-3 text-gray-400 text-sm">
+                            {firstBooking.requester?.name} •{" "}
+                            {firstBooking.resource?.name}
+                          </span>
                         </div>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-                {/* Individual Bookings in Group */}
-                {groupBookings.map((booking) => {
-                  const id = booking._id;
-                  const comment = localComments[id] ?? booking.adminComment ?? "";
-
-                  return (
-                    <tr key={id} className="border-t border-gray-700 bg-gray-850">
-                      <td className="p-4 pl-8 text-gray-400">↳</td>
-                      <td className="p-4">{booking.resource?.name}</td>
-                      <td className="p-4">{booking.date}</td>
-                      <td className="p-4">{booking.startTime} – {booking.endTime}</td>
-                      <td className="p-4">
-                        <span className={`px-2 py-1 rounded-full text-xs ${getStatusColor(booking.status)}`}>
-                          {booking.status.toUpperCase()}
-                        </span>
-                      </td>
-                      <td className="p-4">
-                        {isAdmin && (
-                          <button
-                            onClick={() => {
-                              setActiveCommentId(id);
-                              setCommentText(comment);
-                            }}
-                            className="text-blue-400 text-sm flex items-center gap-1"
-                          >
-                            <MessageSquare className="w-4 h-4" />
-                          </button>
+                        {mode === "approval" && allPending && (
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => handleBatchApprove(groupId)}
+                              disabled={loading[groupId]}
+                              className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded text-sm font-medium flex items-center gap-2"
+                            >
+                              {loading[groupId] ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                              ) : (
+                                <CheckCircle className="w-4 h-4" />
+                              )}
+                              Approve Group
+                            </button>
+                            <button
+                              onClick={() => handleBatchReject(groupId)}
+                              disabled={loading[groupId]}
+                              className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded text-sm font-medium flex items-center gap-2"
+                            >
+                              {loading[groupId] ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                              ) : (
+                                <XCircle className="w-4 h-4" />
+                              )}
+                              Reject Group
+                            </button>
+                          </div>
                         )}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </React.Fragment>
-            );
-          })}
+                      </div>
+                    </td>
+                  </tr>
+                  {/* Individual Bookings in Group */}
+                  {groupBookings.map((booking) => {
+                    const id = booking._id;
+                    const comment =
+                      localComments[id] ?? booking.adminComment ?? "";
+
+                    return (
+                      <tr
+                        key={id}
+                        className="border-t border-gray-700 bg-gray-850"
+                      >
+                        <td className="p-4 pl-8 text-gray-400">↳</td>
+                        <td className="p-4">{booking.resource?.name}</td>
+                        <td className="p-4">{booking.date}</td>
+                        <td className="p-4">
+                          {booking.startTime} – {booking.endTime}
+                        </td>
+                        <td className="p-4">
+                          <span
+                            className={`px-2 py-1 rounded-full text-xs ${getStatusColor(booking.status)}`}
+                          >
+                            {booking.status.toUpperCase()}
+                          </span>
+                        </td>
+                        <td className="p-4">
+                          {isAdmin && (
+                            <button
+                              onClick={() => {
+                                setActiveCommentId(id);
+                                setCommentText(comment);
+                              }}
+                              className="text-blue-400 text-sm flex items-center gap-1"
+                            >
+                              <MessageSquare className="w-4 h-4" />
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </React.Fragment>
+              );
+            },
+          )}
 
           {/* Render Single Bookings */}
           {groupedBookings.singles.map((booking) => {
@@ -347,12 +363,8 @@ const BookingList = ({
 
             return (
               <tr key={id} className="border-t border-gray-700 align-top">
-                <td className="p-4">
-                  {booking.requester?.name}
-                </td>
-                <td className="p-4">
-                  {booking.resource?.name}
-                </td>
+                <td className="p-4">{booking.requester?.name}</td>
+                <td className="p-4">{booking.resource?.name}</td>
                 <td className="p-4">{booking.date}</td>
                 <td className="p-4">
                   {booking.startTime} – {booking.endTime}
@@ -367,23 +379,22 @@ const BookingList = ({
                   </span>
                 </td>
                 <td className="p-4 space-y-2">
-                  {mode === "approval" &&
-                    booking.status === "pending" && (
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => handleApprove(id)}
-                          className="bg-green-600 px-3 py-1 rounded text-sm"
-                        >
-                          Approve
-                        </button>
-                        <button
-                          onClick={() => handleReject(id)}
-                          className="bg-red-600 px-3 py-1 rounded text-sm"
-                        >
-                          Reject
-                        </button>
-                      </div>
-                    )}
+                  {mode === "approval" && booking.status === "pending" && (
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleApprove(id)}
+                        className="bg-green-600 px-3 py-1 rounded text-sm"
+                      >
+                        Approve
+                      </button>
+                      <button
+                        onClick={() => handleReject(id)}
+                        className="bg-red-600 px-3 py-1 rounded text-sm"
+                      >
+                        Reject
+                      </button>
+                    </div>
+                  )}
 
                   {isAdmin && (
                     <div>
@@ -403,9 +414,7 @@ const BookingList = ({
                           <textarea
                             maxLength={1000}
                             value={commentText}
-                            onChange={(e) =>
-                              setCommentText(e.target.value)
-                            }
+                            onChange={(e) => setCommentText(e.target.value)}
                             className="w-full bg-gray-800 border border-gray-700 rounded p-2 text-sm"
                           />
                           <div className="flex gap-2">

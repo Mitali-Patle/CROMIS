@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import connectDB from "./src/config/db.js";
-import app from "./src/app.js";   // ✅ app comes from here
+import app from "./src/app.js"; // ✅ app comes from here
 import path from "path";
 import express from "express";
 

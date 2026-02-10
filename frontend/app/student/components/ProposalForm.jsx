@@ -27,9 +27,6 @@ const generateSlots = (start = "08:00", end = "20:00", step = 15) => {
 const overlaps = (start, end, booked) =>
   booked.some((b) => start < b.endTime && end > b.startTime);
 
-
-
-
 /* ================= COMPONENT ================= */
 
 export default function ProposalForm() {
@@ -115,15 +112,19 @@ export default function ProposalForm() {
         formData.append("date", form.date);
         // endpoint remains /bookings
       } else if (activeTab === "multi") {
-        if (!form.startDate || !form.endDate) return alert("Please select start and end dates.");
-        if (form.startDate > form.endDate) return alert("Start date cannot be after end date.");
+        if (!form.startDate || !form.endDate)
+          return alert("Please select start and end dates.");
+        if (form.startDate > form.endDate)
+          return alert("Start date cannot be after end date.");
 
         endpoint += "/multi";
         formData.append("startDate", form.startDate);
         formData.append("endDate", form.endDate);
       } else if (activeTab === "recurring") {
-        if (!form.startDate || !form.endDate) return alert("Please select start and end dates.");
-        if (form.startDate > form.endDate) return alert("Start date cannot be after end date.");
+        if (!form.startDate || !form.endDate)
+          return alert("Please select start and end dates.");
+        if (form.startDate > form.endDate)
+          return alert("Start date cannot be after end date.");
 
         // Route daily to /multi, weekly to /recurring
         if (form.recurrencePattern === "daily") {
@@ -158,7 +159,9 @@ export default function ProposalForm() {
         alert("Booking submitted successfully!");
       } else {
         const count = data.bookings?.length || 0;
-        alert(`Successfully created ${count} bookings with Group ID: ${data.groupId}`);
+        alert(
+          `Successfully created ${count} bookings with Group ID: ${data.groupId}`,
+        );
       }
 
       // Reset form
@@ -174,7 +177,6 @@ export default function ProposalForm() {
       });
       setFiles([]);
       setDraftId(null);
-
     } catch (err) {
       alert(err.message || "Booking process failed");
     }
@@ -194,17 +196,17 @@ export default function ProposalForm() {
     <div className="max-w-xl mx-auto">
       {/* Container matching the dark design */}
       <div className="bg-black border border-gray-800 rounded-xl p-6 shadow-2xl">
-
         {/* TABS */}
         <div className="flex bg-gray-900 rounded-lg p-1 mb-6">
           {["single", "multi", "recurring"].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`flex-1 py-2 text-sm font-medium rounded-md transition-colors ${activeTab === tab
-                ? "bg-gray-700 text-white shadow"
-                : "text-gray-400 hover:text-gray-200"
-                }`}
+              className={`flex-1 py-2 text-sm font-medium rounded-md transition-colors ${
+                activeTab === tab
+                  ? "bg-gray-700 text-white shadow"
+                  : "text-gray-400 hover:text-gray-200"
+              }`}
             >
               {tab === "single"
                 ? "Single"
@@ -237,7 +239,9 @@ export default function ProposalForm() {
           {/* Date Fields Based on Tab */}
           {activeTab === "single" && (
             <div>
-              <label className="block text-xs text-gray-500 mb-1 ml-1">Date</label>
+              <label className="block text-xs text-gray-500 mb-1 ml-1">
+                Date
+              </label>
               <input
                 type="date"
                 name="date"
@@ -253,7 +257,9 @@ export default function ProposalForm() {
           {(activeTab === "multi" || activeTab === "recurring") && (
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs text-gray-500 mb-1 ml-1">Start Date</label>
+                <label className="block text-xs text-gray-500 mb-1 ml-1">
+                  Start Date
+                </label>
                 <input
                   type="date"
                   name="startDate"
@@ -265,7 +271,9 @@ export default function ProposalForm() {
                 />
               </div>
               <div>
-                <label className="block text-xs text-gray-500 mb-1 ml-1">End Date</label>
+                <label className="block text-xs text-gray-500 mb-1 ml-1">
+                  End Date
+                </label>
                 <input
                   type="date"
                   name="endDate"
@@ -282,7 +290,9 @@ export default function ProposalForm() {
           {/* Recurrence Pattern (Only for Recurring Tab) */}
           {activeTab === "recurring" && (
             <div>
-              <label className="block text-xs text-gray-500 mb-1 ml-1">Recurrence</label>
+              <label className="block text-xs text-gray-500 mb-1 ml-1">
+                Recurrence
+              </label>
               <select
                 name="recurrencePattern"
                 value={form.recurrencePattern}
@@ -298,7 +308,9 @@ export default function ProposalForm() {
           {/* Time Fields */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs text-gray-500 mb-1 ml-1">Start Time</label>
+              <label className="block text-xs text-gray-500 mb-1 ml-1">
+                Start Time
+              </label>
               <select
                 name="startTime"
                 required
@@ -315,7 +327,9 @@ export default function ProposalForm() {
               </select>
             </div>
             <div>
-              <label className="block text-xs text-gray-500 mb-1 ml-1">End Time</label>
+              <label className="block text-xs text-gray-500 mb-1 ml-1">
+                End Time
+              </label>
               <select
                 name="endTime"
                 required
@@ -364,7 +378,9 @@ export default function ProposalForm() {
                   type="file"
                   multiple
                   accept=".pdf,image/*"
-                  onChange={(e) => setFiles((prev) => [...prev, ...Array.from(e.target.files)])}
+                  onChange={(e) =>
+                    setFiles((prev) => [...prev, ...Array.from(e.target.files)])
+                  }
                   className="hidden"
                 />
               </label>
@@ -373,11 +389,16 @@ export default function ProposalForm() {
             {files.length > 0 && (
               <ul className="text-sm bg-gray-900 rounded p-2 space-y-1">
                 {files.map((file, i) => (
-                  <li key={i} className="flex justify-between items-center text-gray-300">
+                  <li
+                    key={i}
+                    className="flex justify-between items-center text-gray-300"
+                  >
                     <span className="truncate max-w-[200px]">{file.name}</span>
                     <button
                       type="button"
-                      onClick={() => setFiles(files.filter((_, idx) => idx !== i))}
+                      onClick={() =>
+                        setFiles(files.filter((_, idx) => idx !== i))
+                      }
                       className="text-red-500 hover:text-red-400 text-xs"
                     >
                       Remove
@@ -388,13 +409,16 @@ export default function ProposalForm() {
             )}
           </div>
 
-
           <button
             type="submit"
             disabled={loading}
             className="w-full bg-white text-black font-bold py-3 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 flex justify-center items-center"
           >
-            {loading ? <Loader2 className="animate-spin w-5 h-5" /> : "Submit Proposal"}
+            {loading ? (
+              <Loader2 className="animate-spin w-5 h-5" />
+            ) : (
+              "Submit Proposal"
+            )}
           </button>
         </form>
 

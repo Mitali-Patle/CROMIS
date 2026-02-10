@@ -10,10 +10,10 @@ export default function LoginPage() {
     email: "",
     password: "",
   });
-  
+
   const handleChange = (e) => {
-  setFormData({ ...formData, [e.target.name]: e.target.value });
-};
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -33,32 +33,32 @@ export default function LoginPage() {
   }, []);
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  setLoading(true);
+    e.preventDefault();
+    setLoading(true);
 
-  try {
-    const res = await apiRequest("/auth/login", "POST", {
-      email: formData.email,
-      password: formData.password,
-    });
+    try {
+      const res = await apiRequest("/auth/login", "POST", {
+        email: formData.email,
+        password: formData.password,
+      });
 
-    document.cookie = `token=${res.token}; path=/;`;
-    document.cookie = `role=${res.user.role}; path=/;`;
+      document.cookie = `token=${res.token}; path=/;`;
+      document.cookie = `role=${res.user.role}; path=/;`;
 
-    localStorage.setItem("token", res.token);
-    localStorage.setItem("role", res.user.role);
+      localStorage.setItem("token", res.token);
+      localStorage.setItem("role", res.user.role);
 
-    if (res.user.role === "admin") {
-      window.location.href = "/admin";
-    } else {
-      window.location.href = "/student";
+      if (res.user.role === "admin") {
+        window.location.href = "/admin";
+      } else {
+        window.location.href = "/student";
+      }
+    } catch (err) {
+      alert(err.message);
     }
-  } catch (err) {
-    alert(err.message);
-  }
 
-  setLoading(false);
-};
+    setLoading(false);
+  };
 
   return (
     <div className="bg-black text-white min-h-screen">

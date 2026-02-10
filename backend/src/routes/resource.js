@@ -42,7 +42,7 @@ router.get("/availability/check", async (req, res) => {
 
     const availability = resources.map((resource) => {
       const resourceBookings = bookings.filter(
-        (b) => b.resource.toString() === resource._id.toString()
+        (b) => b.resource.toString() === resource._id.toString(),
       );
 
       return {
@@ -73,7 +73,3 @@ router.patch("/:id", auth, roleAuth(["admin"]), updateResource);
 router.delete("/:id", auth, roleAuth(["admin"]), deleteResource);
 
 export default router;
-
-
-
-

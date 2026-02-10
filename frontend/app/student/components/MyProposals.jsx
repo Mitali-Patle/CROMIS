@@ -52,12 +52,10 @@ export default function MyProposals() {
   // Apply filters + search
   const filteredProposals = useMemo(() => {
     return proposals.filter((p) => {
-      const matchesStatus =
-        statusFilter === "all" || p.status === statusFilter;
+      const matchesStatus = statusFilter === "all" || p.status === statusFilter;
 
       const matchesResource =
-        resourceFilter === "all" ||
-        p.resource?._id === resourceFilter;
+        resourceFilter === "all" || p.resource?._id === resourceFilter;
 
       const text = `${p.purpose} ${p.resource?.name}`.toLowerCase();
       const matchesSearch = text.includes(search.toLowerCase());
@@ -120,11 +118,7 @@ export default function MyProposals() {
       ) : (
         <div className="space-y-4">
           {filteredProposals.map((p) => (
-            <ProposalCard
-              key={p._id}
-              proposal={p}
-              onCancel={cancelProposal}
-            />
+            <ProposalCard key={p._id} proposal={p} onCancel={cancelProposal} />
           ))}
         </div>
       )}

@@ -12,13 +12,12 @@ export default function StudentPage() {
   const [activeTab, setActiveTab] = useState("home");
 
   useEffect(() => {
-  const tab = sessionStorage.getItem("openTab");
-  if (tab) {
-    setActiveTab(tab);
-    sessionStorage.removeItem("openTab");
-  }
-}, []);
-
+    const tab = sessionStorage.getItem("openTab");
+    if (tab) {
+      setActiveTab(tab);
+      sessionStorage.removeItem("openTab");
+    }
+  }, []);
 
   const renderContent = () => {
     switch (activeTab) {
@@ -41,9 +40,7 @@ export default function StudentPage() {
 
       <div className="flex-1 flex flex-col">
         <Header />
-        <main className="flex-1 p-6 overflow-y-auto">
-          {renderContent()}
-        </main>
+        <main className="flex-1 p-6 overflow-y-auto">{renderContent()}</main>
       </div>
     </div>
   );
