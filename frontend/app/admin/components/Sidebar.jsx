@@ -10,6 +10,7 @@ import {
   Settings,
   Calendar,
   CheckCircle,
+  Clock,
   BarChart3,
   FileText,
   Home,
@@ -31,7 +32,8 @@ const Sidebar = ({ onNavClick, activeTab, isOpen, onToggle }) => {
     { key: "dashboard", label: "Dashboard", icon: LayoutDashboard },
     { key: "resources", label: "Resources", icon: Settings },
     { key: "bookings", label: "Bookings", icon: Calendar },
-    { key: "approvals", label: "Approvals", icon: CheckCircle },
+    { key: "approvals", label: "Approvals", icon: Clock },
+    { key: "approved-singles", label: "Approved", icon: CheckCircle },
     { key: "analytics", label: "Analytics", icon: BarChart3 },
     { key: "reports", label: "Reports", icon: FileText },
   ];
@@ -81,7 +83,7 @@ const Sidebar = ({ onNavClick, activeTab, isOpen, onToggle }) => {
             <img
               src="/cromis-logo.png" // Replace with your logo path (e.g., in public folder)
               alt="CROMIS Logo"
-              className="w-7 h-7 flex-shrink-0" // Adjust size as needed
+              className="w-7 h-7 shrink-0" // Adjust size as needed
             />
             <h1 className="text-xl text-white">CROMIS</h1>
           </div>
@@ -110,7 +112,7 @@ const Sidebar = ({ onNavClick, activeTab, isOpen, onToggle }) => {
                 }`}
               >
                 <Icon
-                  className={`w-5 h-5 flex-shrink-0 transition-transform duration-200 ${
+                  className={`w-5 h-5 shrink-0 transition-transform duration-200 ${
                     isActive
                       ? "text-black"
                       : "text-gray-400 group-hover:text-white"

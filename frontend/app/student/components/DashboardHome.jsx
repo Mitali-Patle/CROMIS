@@ -24,8 +24,8 @@ export default function DashboardHome() {
 
       <div className="bg-gray-900 border border-gray-700 rounded p-6">
         <p className="text-gray-400">
-          Use the sidebar to create new booking proposals, manage drafts,
-          and track approvals.
+          Use the sidebar to create new booking proposals, manage drafts, and
+          track approvals.
         </p>
       </div>
     </div>

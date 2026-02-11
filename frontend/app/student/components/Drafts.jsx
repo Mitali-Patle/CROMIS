@@ -18,11 +18,10 @@ export default function Drafts() {
   }, []);
 
   const resumeDraft = (draft) => {
-  localStorage.setItem("resumeDraft", JSON.stringify(draft));
-  sessionStorage.setItem("openTab", "new");
-  window.location.href = "/student";
-};
-
+    localStorage.setItem("resumeDraft", JSON.stringify(draft));
+    sessionStorage.setItem("openTab", "new");
+    window.location.href = "/student";
+  };
 
   const deleteDraft = async (id) => {
     if (!confirm("Delete this draft?")) return;

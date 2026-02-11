@@ -19,8 +19,8 @@ export default function Dashboard({ onNavigate }) {
 
         setStats({
           total: bookings.length,
-          pending: bookings.filter(b => b.status === "pending").length,
-          approved: bookings.filter(b => b.status === "approved").length,
+          pending: bookings.filter((b) => b.status === "pending").length,
+          approved: bookings.filter((b) => b.status === "approved").length,
           drafts: drafts.length,
         });
       } catch {}

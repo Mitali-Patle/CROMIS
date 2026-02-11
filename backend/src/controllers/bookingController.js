@@ -54,6 +54,11 @@ export const createBookingRequest = async (req, res) => {
       endTime,
       purpose,
     } = req.body;
+
+    // Handle file uploads (Multer adds req.files)
+    const attachments = req.files
+      ? req.files.map((f) => f.path)
+      : req.body.attachments || [];
     if (!resource || !dateStr || !startTime || !endTime || !purpose) {
       return res.status(400).json({
         error: "resource, date, startTime, endTime, purpose are required",
@@ -486,15 +491,18 @@ export const getBookedSlots = async (req, res) => {
  */
 export const getBookingById = async (req, res) => {
   try {
-    const booking = await BookingRequest.findById(req.params.id)
-      .populate(["resource", "requester", "approvedBy", "rejectedBy"]);
+    const booking = await BookingRequest.findById(req.params.id).populate([
+      "resource",
+      "requester",
+      "approvedBy",
+      "rejectedBy",
+    ]);
 
     if (!booking) {
       return res.status(404).json({ error: "Booking not found" });
     }
 
-    const isOwner =
-      String(booking.requester?._id) === String(req.user.id);
+    const isOwner = String(booking.requester?._id) === String(req.user.id);
     const isAdmin = req.user.role === "admin";
 
     if (!isOwner && !isAdmin) {
@@ -553,8 +561,10 @@ export const getAdminComments = async (req, res) => {
   try {
     const { bookingId } = req.params;
 
-    const booking = await BookingRequest.findById(bookingId)
-      .populate("comments.admin", "name email role");
+    const booking = await BookingRequest.findById(bookingId).populate(
+      "comments.admin",
+      "name email role",
+    );
 
     if (!booking) {
       return res.status(404).json({ message: "Booking not found" });
@@ -567,5 +577,74 @@ export const getAdminComments = async (req, res) => {
   }
 };
 
+// ===============================
+// ADMIN: Batch Update Bookings by Group ID
+// ===============================
+export const batchUpdateBookings = async (req, res) => {
+  try {
+    const { groupId, status } = req.body;
 
+    if (!groupId) {
+      return res.status(400).json({ error: "groupId is required" });
+    }
 
+    const validStatuses = ["approved", "rejected", "cancelled"];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({
+        error: "Invalid status. Must be approved, rejected, or cancelled",
+      });
+    }
+
+    // Find if the groupId exists at all
+    const groupExists = await BookingRequest.exists({ groupId });
+    if (!groupExists) {
+      return res
+        .status(404)
+        .json({ error: `No bookings found with groupId: ${groupId}` });
+    }
+
+    // Find all bookings with this groupId that are pending
+    const pendingInGroup = await BookingRequest.find({
+      groupId,
+      status: "pending",
+    });
+
+    if (pendingInGroup.length === 0) {
+      return res.status(400).json({
+        error: "No pending bookings found in this group",
+        message: "All bookings in this group may have already been processed.",
+      });
+    }
+
+    // Update all bookings in the group
+    const updateData = { status };
+
+    if (status === "approved") {
+      updateData.approvedBy = req.user.id;
+      updateData.approvedAt = new Date();
+    } else if (status === "rejected") {
+      updateData.rejectedBy = req.user.id;
+      updateData.rejectedAt = new Date();
+    } else if (status === "cancelled") {
+      updateData.approvedBy = null;
+      updateData.approvedAt = null;
+      updateData.rejectedBy = null;
+      updateData.rejectedAt = null;
+    }
+
+    const result = await BookingRequest.updateMany(
+      { groupId, status: "pending" },
+      { $set: updateData },
+    );
+
+    return res.json({
+      message: `Successfully updated ${result.modifiedCount} bookings`,
+      modifiedCount: result.modifiedCount,
+      groupId,
+      status,
+    });
+  } catch (err) {
+    console.error("batchUpdateBookings:", err);
+    return res.status(500).json({ error: "Server error" });
+  }
+};

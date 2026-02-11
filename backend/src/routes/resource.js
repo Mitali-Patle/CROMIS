@@ -1,17 +1,17 @@
-import express from 'express';
-import { 
-  createResource, 
-  getAllResources, 
+import { Router } from "express";
+import {
+  createResource,
+  getAllResources,
   getResourceById,
   getResourceWithAvailability,      // NEW - Epic 2 Story 7
   getResourceBookingHistory,         // NEW - Epic 2 Story 15
-  updateResource, 
-  deleteResource 
+  updateResource,
+  deleteResource,
 } from '../controllers/resourceController.js';
 import { protect } from '../middleware/auth.js';
 import { adminOnly } from '../middleware/roleAuth.js';
 
-const router = express.Router();
+const router = Router();
 /**
  * Public/User Routes (Protected)
  */
@@ -40,7 +40,3 @@ router.delete('/:id', protect, adminOnly, deleteResource);
 router.get('/:id/history', protect, adminOnly, getResourceBookingHistory);
 
 export default router;
-
-
-
-

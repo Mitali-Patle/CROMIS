@@ -1,22 +1,9 @@
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
-/* ----------------------------------
-   Helper: read cookie by name
------------------------------------*/
-const getCookie = (name) => {
-  if (typeof document === "undefined") return null;
-  const match = document.cookie.match(
-    new RegExp("(^| )" + name + "=([^;]+)")
-  );
-  return match ? match[2] : null;
-};
-
-/* ----------------------------------
-   API Request Wrapper
------------------------------------*/
 export const apiRequest = async (endpoint, method = "GET", body) => {
-  const token = getCookie("token");
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
   const headers = {
     "Content-Type": "application/json",
@@ -30,7 +17,6 @@ export const apiRequest = async (endpoint, method = "GET", body) => {
     method,
     headers,
     body: body ? JSON.stringify(body) : undefined,
-    credentials: "include", // IMPORTANT
   });
 
   const data = await res.json().catch(() => ({}));

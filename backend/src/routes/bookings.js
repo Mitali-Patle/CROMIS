@@ -12,7 +12,13 @@ import {
   getBookedSlots,
   getBookingById,
   addAdminComment,
+  batchUpdateBookings,
 } from "../controllers/bookingController.js";
+
+import {
+  createMultiDayBooking,
+  createRecurringBooking,
+} from "../controllers/advancedBookingController.js";
 
 const router = Router();
 
@@ -25,11 +31,18 @@ router.get("/availability", auth, getBookedSlots);
 /* ===============================
    USER BOOKINGS
    =============================== */
+router.post("/", auth, upload.array("attachments", 5), createBookingRequest);
 router.post(
-  "/",
+  "/multi",
   auth,
   upload.array("attachments", 5),
-  createBookingRequest
+  createMultiDayBooking,
+);
+router.post(
+  "/recurring",
+  auth,
+  upload.array("attachments", 5),
+  createRecurringBooking,
 );
 router.get("/my", auth, getUserBookings);
 
@@ -46,13 +59,12 @@ router.get("/", auth, roleAuth(["admin"]), getAllBookings);
 /* ===============================
    ADMIN COMMENTS (INTERNAL)
    =============================== */
-router.post(
-  "/:id/admin-comment",
-  auth,
-  roleAuth(["admin"]),
-  addAdminComment
-);
+router.post("/:id/admin-comment", auth, roleAuth(["admin"]), addAdminComment);
 
+/* ===============================
+   BATCH OPERATIONS
+   =============================== */
+router.patch("/batch", auth, roleAuth(["admin"]), batchUpdateBookings);
 
 /* ===============================
    MUTATIONS

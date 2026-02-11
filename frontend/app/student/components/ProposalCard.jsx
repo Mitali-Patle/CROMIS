@@ -57,22 +57,20 @@ export default function ProposalCard({ proposal, onCancel }) {
 
         {/* Edit — Story 13 (pending only, hook) */}
         {proposal.status === "pending" && (
-  <button
-  onClick={() => {
-    localStorage.setItem(
-      "resumeEditBooking",
-      JSON.stringify(proposal)
-    );
-    sessionStorage.setItem("openTab", "new");
-    window.location.href = "/student";
-  }}
-  className="text-yellow-400 text-sm hover:underline"
->
-  Edit
-</button>
-
-)}
-
+          <button
+            onClick={() => {
+              localStorage.setItem(
+                "resumeEditBooking",
+                JSON.stringify(proposal),
+              );
+              sessionStorage.setItem("openTab", "new");
+              window.location.href = "/student";
+            }}
+            className="text-yellow-400 text-sm hover:underline"
+          >
+            Edit
+          </button>
+        )}
 
         {/* Cancel — Story 6 */}
         {proposal.status === "pending" && (

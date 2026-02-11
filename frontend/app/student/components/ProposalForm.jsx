@@ -27,35 +27,6 @@ const generateSlots = (start = "08:00", end = "20:00", step = 15) => {
 const overlaps = (start, end, booked) =>
   booked.some((b) => start < b.endTime && end > b.startTime);
 
-const getDatesBetween = (start, end) => {
-  const dates = [];
-  let d = new Date(start);
-  const e = new Date(end);
-
-  while (d <= e) {
-    dates.push(d.toISOString().split("T")[0]);
-    d.setDate(d.getDate() + 1);
-  }
-  return dates;
-};
-
-const getWeeklyDates = (start, end) => {
-  const dates = [];
-  const d = new Date(start);
-  const e = new Date(end);
-  // Get the day of the week from the start date
-  const dayOfWeek = d.getDay();
-
-  while (d <= e) {
-    if (d.getDay() === dayOfWeek) {
-      dates.push(d.toISOString().split("T")[0]);
-    }
-    d.setDate(d.getDate() + 1);
-  }
-  return dates;
-};
-
-
 /* ================= COMPONENT ================= */
 
 export default function ProposalForm() {
@@ -114,37 +85,6 @@ export default function ProposalForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // 1. Calculate specific dates based on Tab
-    let targetDates = [];
-
-    if (activeTab === "single") {
-      if (!form.date) return alert("Please select a date.");
-      targetDates = [form.date];
-    } else if (activeTab === "multi") {
-      if (!form.startDate || !form.endDate) return alert("Please select start and end dates.");
-      if (form.startDate > form.endDate) return alert("Start date cannot be after end date.");
-      targetDates = getDatesBetween(form.startDate, form.endDate);
-    } else if (activeTab === "recurring") {
-      if (!form.startDate || !form.endDate) return alert("Please select start and end dates.");
-      if (form.startDate > form.endDate) return alert("Start date cannot be after end date.");
-
-      if (form.recurrencePattern === "daily") {
-        targetDates = getDatesBetween(form.startDate, form.endDate);
-      } else if (form.recurrencePattern === "weekly") {
-        targetDates = getWeeklyDates(form.startDate, form.endDate);
-      }
-    }
-
-    if (targetDates.length === 0) {
-      return alert("No valid dates selected.");
-    }
-
-    // Limit bursts to prevent abuse
-    if (targetDates.length > 30) {
-      if (!confirm(`You are about to request ${targetDates.length} bookings. Continue?`)) return;
-    }
-
-
     setLoading(true);
     try {
       const token = document.cookie
@@ -152,68 +92,91 @@ export default function ProposalForm() {
         .find((row) => row.startsWith("token="))
         ?.split("=")[1];
 
-      // 2. Submit loop
-      let successCount = 0;
-      let failCount = 0;
+      let endpoint = `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api"}/bookings`;
+      const formData = new FormData();
 
-      for (const dateStr of targetDates) {
-        const formData = new FormData();
-        formData.append("resource", form.resource);
-        formData.append("date", dateStr);
-        formData.append("startTime", form.startTime);
-        formData.append("endTime", form.endTime);
-        formData.append("purpose", form.purpose);
+      // Common fields
+      formData.append("resource", form.resource);
+      formData.append("startTime", form.startTime);
+      formData.append("endTime", form.endTime);
+      formData.append("purpose", form.purpose);
 
-        files.forEach((file) => {
-          formData.append("attachments", file);
-        });
+      // Add files
+      files.forEach((file) => {
+        formData.append("attachments", file);
+      });
 
-        try {
-          const res = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api"}/bookings`,
-            {
-              method: "POST",
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-              body: formData,
-            }
-          );
+      // Route based on tab
+      if (activeTab === "single") {
+        if (!form.date) return alert("Please select a date.");
+        formData.append("date", form.date);
+        // endpoint remains /bookings
+      } else if (activeTab === "multi") {
+        if (!form.startDate || !form.endDate)
+          return alert("Please select start and end dates.");
+        if (form.startDate > form.endDate)
+          return alert("Start date cannot be after end date.");
 
-          if (!res.ok) {
-            const errData = await res.json();
-            console.error(`Failed for ${dateStr}:`, errData);
-            failCount++;
-            // Optional: Stop on first failure? Or continue and report? 
-            // Currently continuing to try to book as many as possible.
-          } else {
-            successCount++;
-          }
-        } catch (err) {
-          console.error(`Network error for ${dateStr}`, err);
-          failCount++;
+        endpoint += "/multi";
+        formData.append("startDate", form.startDate);
+        formData.append("endDate", form.endDate);
+      } else if (activeTab === "recurring") {
+        if (!form.startDate || !form.endDate)
+          return alert("Please select start and end dates.");
+        if (form.startDate > form.endDate)
+          return alert("Start date cannot be after end date.");
+
+        // Route daily to /multi, weekly to /recurring
+        if (form.recurrencePattern === "daily") {
+          endpoint += "/multi";
+          formData.append("startDate", form.startDate);
+          formData.append("endDate", form.endDate);
+        } else if (form.recurrencePattern === "weekly") {
+          endpoint += "/recurring";
+          formData.append("startDate", form.startDate);
+          formData.append("endDate", form.endDate);
+          formData.append("recurrencePattern", "weekly");
         }
       }
 
-      // 3. Feedback
-      if (failCount === 0) {
-        alert("All bookings submitted successfully!");
-        setForm({
-          resource: "",
-          date: "",
-          startDate: "",
-          endDate: "",
-          startTime: "",
-          endTime: "",
-          purpose: "",
-          recurrencePattern: "daily",
-        });
-        setFiles([]);
-        setDraftId(null);
-      } else {
-        alert(`Submitted ${successCount} bookings. Failed: ${failCount}. Check your proposals list.`);
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.error || "Booking failed");
       }
 
+      const data = await res.json();
+
+      // Success feedback
+      if (activeTab === "single") {
+        alert("Booking submitted successfully!");
+      } else {
+        const count = data.bookings?.length || 0;
+        alert(
+          `Successfully created ${count} bookings with Group ID: ${data.groupId}`,
+        );
+      }
+
+      // Reset form
+      setForm({
+        resource: "",
+        date: "",
+        startDate: "",
+        endDate: "",
+        startTime: "",
+        endTime: "",
+        purpose: "",
+        recurrencePattern: "daily",
+      });
+      setFiles([]);
+      setDraftId(null);
     } catch (err) {
       alert(err.message || "Booking process failed");
     }
@@ -233,17 +196,17 @@ export default function ProposalForm() {
     <div className="max-w-xl mx-auto">
       {/* Container matching the dark design */}
       <div className="bg-black border border-gray-800 rounded-xl p-6 shadow-2xl">
-
         {/* TABS */}
         <div className="flex bg-gray-900 rounded-lg p-1 mb-6">
           {["single", "multi", "recurring"].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`flex-1 py-2 text-sm font-medium rounded-md transition-colors ${activeTab === tab
+              className={`flex-1 py-2 text-sm font-medium rounded-md transition-colors ${
+                activeTab === tab
                   ? "bg-gray-700 text-white shadow"
                   : "text-gray-400 hover:text-gray-200"
-                }`}
+              }`}
             >
               {tab === "single"
                 ? "Single"
@@ -276,7 +239,9 @@ export default function ProposalForm() {
           {/* Date Fields Based on Tab */}
           {activeTab === "single" && (
             <div>
-              <label className="block text-xs text-gray-500 mb-1 ml-1">Date</label>
+              <label className="block text-xs text-gray-500 mb-1 ml-1">
+                Date
+              </label>
               <input
                 type="date"
                 name="date"
@@ -292,7 +257,9 @@ export default function ProposalForm() {
           {(activeTab === "multi" || activeTab === "recurring") && (
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs text-gray-500 mb-1 ml-1">Start Date</label>
+                <label className="block text-xs text-gray-500 mb-1 ml-1">
+                  Start Date
+                </label>
                 <input
                   type="date"
                   name="startDate"
@@ -304,7 +271,9 @@ export default function ProposalForm() {
                 />
               </div>
               <div>
-                <label className="block text-xs text-gray-500 mb-1 ml-1">End Date</label>
+                <label className="block text-xs text-gray-500 mb-1 ml-1">
+                  End Date
+                </label>
                 <input
                   type="date"
                   name="endDate"
@@ -321,7 +290,9 @@ export default function ProposalForm() {
           {/* Recurrence Pattern (Only for Recurring Tab) */}
           {activeTab === "recurring" && (
             <div>
-              <label className="block text-xs text-gray-500 mb-1 ml-1">Recurrence</label>
+              <label className="block text-xs text-gray-500 mb-1 ml-1">
+                Recurrence
+              </label>
               <select
                 name="recurrencePattern"
                 value={form.recurrencePattern}
@@ -337,7 +308,9 @@ export default function ProposalForm() {
           {/* Time Fields */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs text-gray-500 mb-1 ml-1">Start Time</label>
+              <label className="block text-xs text-gray-500 mb-1 ml-1">
+                Start Time
+              </label>
               <select
                 name="startTime"
                 required
@@ -354,7 +327,9 @@ export default function ProposalForm() {
               </select>
             </div>
             <div>
-              <label className="block text-xs text-gray-500 mb-1 ml-1">End Time</label>
+              <label className="block text-xs text-gray-500 mb-1 ml-1">
+                End Time
+              </label>
               <select
                 name="endTime"
                 required
@@ -403,7 +378,9 @@ export default function ProposalForm() {
                   type="file"
                   multiple
                   accept=".pdf,image/*"
-                  onChange={(e) => setFiles((prev) => [...prev, ...Array.from(e.target.files)])}
+                  onChange={(e) =>
+                    setFiles((prev) => [...prev, ...Array.from(e.target.files)])
+                  }
                   className="hidden"
                 />
               </label>
@@ -412,11 +389,16 @@ export default function ProposalForm() {
             {files.length > 0 && (
               <ul className="text-sm bg-gray-900 rounded p-2 space-y-1">
                 {files.map((file, i) => (
-                  <li key={i} className="flex justify-between items-center text-gray-300">
+                  <li
+                    key={i}
+                    className="flex justify-between items-center text-gray-300"
+                  >
                     <span className="truncate max-w-[200px]">{file.name}</span>
                     <button
                       type="button"
-                      onClick={() => setFiles(files.filter((_, idx) => idx !== i))}
+                      onClick={() =>
+                        setFiles(files.filter((_, idx) => idx !== i))
+                      }
                       className="text-red-500 hover:text-red-400 text-xs"
                     >
                       Remove
@@ -427,13 +409,16 @@ export default function ProposalForm() {
             )}
           </div>
 
-
           <button
             type="submit"
             disabled={loading}
             className="w-full bg-white text-black font-bold py-3 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 flex justify-center items-center"
           >
-            {loading ? <Loader2 className="animate-spin w-5 h-5" /> : "Submit Proposal"}
+            {loading ? (
+              <Loader2 className="animate-spin w-5 h-5" />
+            ) : (
+              "Submit Proposal"
+            )}
           </button>
         </form>
 

@@ -78,9 +78,9 @@ export default function AdminPage() {
       apiRequest("/bookings"), // 🔒 admin only
     ]);
 
-    const pending = bookingsRes.filter(b => b.status === "pending");
-    const approved = bookingsRes.filter(b => b.status === "approved");
-    const rejected = bookingsRes.filter(b => b.status === "rejected");
+    const pending = bookingsRes.filter((b) => b.status === "pending");
+    const approved = bookingsRes.filter((b) => b.status === "approved");
+    const rejected = bookingsRes.filter((b) => b.status === "rejected");
 
     setSummaryData({
       totalResources: resourcesRes.length,
@@ -88,7 +88,7 @@ export default function AdminPage() {
       approvedRequests: approved.length,
       rejectedRequests: rejected.length,
       currentOccupancy: `${Math.round(
-        (approved.length / (resourcesRes.length * 10)) * 100
+        (approved.length / (resourcesRes.length * 10)) * 100,
       )}%`,
     });
 
@@ -118,10 +118,7 @@ export default function AdminPage() {
     const loadData = async () => {
       try {
         setLoading(true);
-        await Promise.all([
-          fetchSummaryData(),
-          fetchAnalytics(),
-        ]);
+        await Promise.all([fetchSummaryData(), fetchAnalytics()]);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -151,11 +148,22 @@ export default function AdminPage() {
   const renderContent = () => {
     switch (activeTab) {
       case "dashboard":
-        return <Dashboard summaryData={summaryData} pendingBookings={pendingBookings} />;
+        return (
+          <Dashboard
+            summaryData={summaryData}
+            pendingBookings={pendingBookings}
+          />
+        );
       case "resources":
         return <ResourceForm />;
       case "bookings":
-        return <BookingList bookings={bookings} mode="history" />;
+        return (
+          <BookingList
+            bookings={bookings}
+            mode="history"
+            onRefresh={fetchSummaryData}
+          />
+        );
       case "approvals":
         return (
           <BookingList
@@ -163,12 +171,24 @@ export default function AdminPage() {
             mode="approval"
             onApprove={handleApprove}
             onReject={handleReject}
+            onRefresh={fetchSummaryData}
+          />
+        );
+      case "approved-singles":
+        const approvedSingles = bookings.filter(
+          (b) => b.status === "approved" && !b.groupId,
+        );
+        return (
+          <BookingList
+            bookings={approvedSingles}
+            mode="history"
+            onRefresh={fetchSummaryData}
           />
         );
       case "analytics":
         return (
           <AnalyticsChart
-            data={analyticsData.daily.map(d => d.totalBookings)}
+            data={analyticsData.daily.map((d) => d.totalBookings)}
             title="Daily Utilization"
           />
         );

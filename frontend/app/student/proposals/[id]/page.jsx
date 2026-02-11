@@ -46,19 +46,15 @@ export default function ProposalDetailsPage() {
 
       <div className="border border-gray-700 bg-gray-900 rounded p-6 space-y-4">
         <div className="flex justify-between items-start">
-          <h1 className="text-2xl font-bold">
-            {proposal.resource?.name}
-          </h1>
-          <span
-            className={`font-semibold ${statusColors[proposal.status]}`}
-          >
+          <h1 className="text-2xl font-bold">{proposal.resource?.name}</h1>
+          <span className={`font-semibold ${statusColors[proposal.status]}`}>
             {proposal.status.toUpperCase()}
           </span>
         </div>
 
         <p className="text-gray-400">
-          {proposal.date?.split("T")[0]} |{" "}
-          {proposal.startTime} – {proposal.endTime}
+          {proposal.date?.split("T")[0]} | {proposal.startTime} –{" "}
+          {proposal.endTime}
         </p>
 
         <div>
@@ -69,9 +65,7 @@ export default function ProposalDetailsPage() {
         {proposal.adminComment && (
           <div>
             <h3 className="font-semibold mb-1">Admin Comment</h3>
-            <p className="text-sm text-gray-300">
-              {proposal.adminComment}
-            </p>
+            <p className="text-sm text-gray-300">{proposal.adminComment}</p>
           </div>
         )}
 
@@ -87,8 +81,7 @@ export default function ProposalDetailsPage() {
         <p className="text-xs text-gray-500">
           Created: {new Date(proposal.createdAt).toLocaleString()}
           <br />
-          Last updated:{" "}
-          {new Date(proposal.updatedAt).toLocaleString()}
+          Last updated: {new Date(proposal.updatedAt).toLocaleString()}
         </p>
       </div>
     </div>
