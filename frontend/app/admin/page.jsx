@@ -38,6 +38,10 @@ export default function AdminPage() {
     peakHours: [],
     underutilized: [],
     roleUsage: [],
+    heatmap: [],
+    timeline: [],
+    topResources: [],
+    overallStatus: [],
   });
 
   const [loading, setLoading] = useState(true);
@@ -50,11 +54,11 @@ export default function AdminPage() {
     const r = localStorage.getItem("role");
 
     if (r !== "admin") {
-      router.replace("/login"); // or "/login"
+      router.replace("/login");
       return;
     }
 
-    setRole(r); // ONLY admin reaches here
+    setRole(r);
   }, [router]);
 
   /* =======================
@@ -75,7 +79,7 @@ export default function AdminPage() {
   const fetchSummaryData = async () => {
     const [resourcesRes, bookingsRes] = await Promise.all([
       apiRequest("/resources"),
-      apiRequest("/bookings"), // 🔒 admin only
+      apiRequest("/bookings"),
     ]);
 
     const pending = bookingsRes.filter((b) => b.status === "pending");
@@ -97,23 +101,36 @@ export default function AdminPage() {
   };
 
   const fetchAnalytics = async () => {
-    const [daily, weekly, peakHours, underutilized, roleUsage] =
-      await Promise.all([
-        apiRequest("/analytics/daily"),
-        apiRequest("/analytics/weekly"),
-        apiRequest("/analytics/peak-hours"),
-        apiRequest("/analytics/underutilized"),
-        apiRequest("/analytics/role-usage"),
-      ]);
+    const endpoints = [
+      { key: "daily", url: "/analytics/daily" },
+      { key: "weekly", url: "/analytics/weekly" },
+      { key: "peakHours", url: "/analytics/peak-hours" },
+      { key: "underutilized", url: "/analytics/underutilized" },
+      { key: "roleUsage", url: "/analytics/role-usage" },
+      { key: "heatmap", url: "/analytics/heatmap" },
+      { key: "timeline", url: "/analytics/timeline" },
+      { key: "topResources", url: "/analytics/top-resources" },
+      { key: "overallStatus", url: "/analytics/overall-status" },
+    ];
 
-    setAnalyticsData({ daily, weekly, peakHours, underutilized, roleUsage });
+    const results = await Promise.allSettled(
+      endpoints.map((ep) => apiRequest(ep.url)),
+    );
+
+    const newData = {};
+    endpoints.forEach((ep, i) => {
+      newData[ep.key] =
+        results[i].status === "fulfilled" ? results[i].value : [];
+    });
+
+    setAnalyticsData((prev) => ({ ...prev, ...newData }));
   };
 
   /* =======================
      🚀 LOAD DATA (ONLY AFTER ROLE CONFIRMED)
   ======================= */
   useEffect(() => {
-    if (role !== "admin") return; // 🛑 HARD STOP
+    if (role !== "admin") return;
 
     const loadData = async () => {
       try {
@@ -187,11 +204,137 @@ export default function AdminPage() {
         );
       case "analytics":
         return (
-          <AnalyticsChart
-            data={analyticsData.daily.map((d) => d.totalBookings)}
-            title="Daily Utilization"
-          />
+          <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+              <AnalyticsChart
+                data={analyticsData.daily.map((d) => ({
+                  name: d._id,
+                  totalHours: Math.round(d.totalHours * 10) / 10,
+                  bookingCount: d.bookingCount,
+                }))}
+                type="bar"
+                title="Daily Utilization"
+                subtitle="Hours booked vs total requests (last 7 days)"
+              />
+              <AnalyticsChart
+                data={analyticsData.weekly.map((w) => ({
+                  name: `W${w._id.week} ${w._id.year}`,
+                  totalHours: Math.round(w.totalHours * 10) / 10,
+                  bookingCount: w.bookingCount,
+                }))}
+                type="line"
+                title="Weekly Trends"
+                subtitle="Week-over-week resource demand"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+              <AnalyticsChart
+                data={["student", "faculty"].map((role) => {
+                  const entry = analyticsData.roleUsage.find(
+                    (r) => r.role === role,
+                  );
+                  return {
+                    name: role.charAt(0).toUpperCase() + role.slice(1),
+                    value: entry ? entry.count : 0,
+                  };
+                })}
+                type="pie"
+                title="Usage by Role"
+                subtitle="Student vs Faculty booking distribution"
+              />
+              <div className="bg-gray-900/50 p-6 rounded-2xl border border-gray-700/50">
+                <h3 className="text-xl font-semibold mb-2">Resource Alerts</h3>
+                <p className="text-sm text-gray-400 mb-6">
+                  Underutilized resources ({"<"} 2 bookings in 30 days)
+                </p>
+                <div className="space-y-3">
+                  {analyticsData.underutilized.filter((r) => r.underused)
+                    .length === 0 ? (
+                    <p className="text-gray-500 text-sm italic">
+                      No underutilized resources detected.
+                    </p>
+                  ) : (
+                    analyticsData.underutilized
+                      .filter((r) => r.underused)
+                      .map((r) => (
+                        <div
+                          key={r._id}
+                          className="flex items-center justify-between p-3 bg-red-500/10 border border-red-500/20 rounded-xl"
+                        >
+                          <div>
+                            <p className="font-medium text-red-200">{r.name}</p>
+                            <p className="text-xs text-red-400/80">
+                              {r.bookingCount} bookings in 30 days
+                            </p>
+                          </div>
+                          <button className="text-xs px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors">
+                            Promote
+                          </button>
+                        </div>
+                      ))
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <AnalyticsChart
+              data={analyticsData.heatmap}
+              type="heatmap"
+              title="Global Usage Heatmap"
+              subtitle="Concentration of bookings by day and hour"
+            />
+
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+              <AnalyticsChart
+                data={analyticsData.topResources.map((r) => ({
+                  name: r.name,
+                  value: r.count,
+                }))}
+                type="bar"
+                title="Top 5 Resources"
+                subtitle="Most frequently booked resources"
+              />
+              <AnalyticsChart
+                data={analyticsData.overallStatus.map((s) => ({
+                  name: s._id.charAt(0).toUpperCase() + s._id.slice(1),
+                  value: s.count,
+                }))}
+                type="pie"
+                title="Booking Status Breakdown"
+                subtitle="Approved, Pending & Rejected distribution"
+              />
+              <AnalyticsChart
+                data={analyticsData.peakHours.map((p) => ({
+                  name: `${p._id}:00`,
+                  value: p.count,
+                }))}
+                type="bar"
+                title="Peak Booking Hours"
+                subtitle="Top 5 busiest time slots"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+              <div className="xl:col-span-2">
+                <AnalyticsChart
+                  data={analyticsData.timeline}
+                  type="gantt"
+                  title="Resource Occupancy Timeline"
+                  subtitle="Next 14 days availability forecast"
+                />
+              </div>
+              <div className="xl:col-span-1">
+                <TensorFlowInsights
+                  data={analyticsData.daily.map((d) => d.bookingCount)}
+                  roleData={analyticsData.roleUsage}
+                  peakData={analyticsData.peakHours}
+                />
+              </div>
+            </div>
+          </div>
         );
+
       case "reports":
         return (
           <ReportExporter

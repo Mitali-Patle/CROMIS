@@ -1,4 +1,3 @@
-console.log("🔥 bookingController LOADED:", import.meta.url);
 import BookingRequest from "../models/BookingRequest.js";
 import Resource from "../models/Resource.js";
 
