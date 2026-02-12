@@ -46,48 +46,37 @@ export default function SignupPage() {
 
   // Handle signup submit
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  if (formData.password !== formData.confirmPassword) {
-    alert("Passwords do not match!");
-    return;
-  }
-
-  setLoading(true);
-
-  try {
-    const res = await apiRequest("/auth/signup", "POST", {
-      name: formData.name,
-      email: formData.email,
-      password: formData.password,
-      role: "student", // Default signup role (students only)
-    });
-
-    // Save token and role (use response data, not hardcoded)
-    document.cookie = `token=${res.token}; path=/; max-age=604800`;
-    document.cookie = `role=${res.user.role}; path=/; max-age=604800`;
-
-    localStorage.setItem("token", res.token);
-    localStorage.setItem("role", res.user.role);
-
-    alert("Signup successful!");
-
-    // Redirect based on actual role from backend response
-    if (res.user.role === "faculty") {
-      window.location.href = "/faculty";
-    } else if (res.user.role === "student") {
-      window.location.href = "/student";
-    } else if (res.user.role === "admin") {
-      window.location.href = "/admin";
-    } else {
-      window.location.href = "/";
+    if (formData.password !== formData.confirmPassword) {
+      alert("Passwords do not match!");
+      return;
     }
-  } catch (err) {
-    alert(err.message);
-  } finally {
+
+    setLoading(true);
+
+    try {
+      const res = await apiRequest("/auth/signup", "POST", {
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        role: "student", // FORCE role = student
+      });
+
+      // Save token + role into cookies
+      document.cookie = `token=${res.token}; path=/;`;
+      document.cookie = `role=student; path=/;`;
+
+      alert("Signup successful!");
+
+      // Redirect student to dashboard
+      window.location.href = "/student";
+    } catch (err) {
+      alert(err.message);
+    }
+
     setLoading(false);
-  }
-};
+  };
 
   return (
     <div className="bg-black text-white min-h-screen">

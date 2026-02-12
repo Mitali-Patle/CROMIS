@@ -1,4 +1,4 @@
-﻿import jwt from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 
 /**
  * Auth middleware
@@ -40,6 +40,3 @@ export default function auth(req, res, next) {
     });
   }
 }
-
-// Named export for backward compatibility
-export const protect = auth;
