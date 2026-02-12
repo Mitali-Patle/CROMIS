@@ -10,7 +10,7 @@
 }
 
 // Named export for admin-only routes
-export const adminOnly = roleAuth(['admin']);
+export const adminOnly = roleAuth(["admin"]);
 
 // Named export for faculty and admin routes
-export const facultyOrAdmin = roleAuth(['faculty', 'admin']);
+export const facultyOrAdmin = roleAuth(["faculty", "admin"]);

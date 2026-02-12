@@ -32,10 +32,14 @@ const hasOverlap = (existingStart, existingEnd, newStart, newEnd) => {
  */
 const getPriority = (role) => {
   switch (role) {
-    case 'admin': return 3;
-    case 'faculty': return 2;
-    case 'student': return 1;
-    default: return 1;
+    case "admin":
+      return 3;
+    case "faculty":
+      return 2;
+    case "student":
+      return 1;
+    default:
+      return 1;
   }
 };
 
@@ -46,13 +50,7 @@ const getPriority = (role) => {
 export const createBookingRequest = async (req, res) => {
   try {
     const requesterId = req.user.id;
-    const {
-      resource,
-      date: dateStr,
-      startTime,
-      endTime,
-      purpose,
-    } = req.body;
+    const { resource, date: dateStr, startTime, endTime, purpose } = req.body;
 
     // Handle file uploads (Multer adds req.files)
     const attachments = req.files
@@ -63,20 +61,20 @@ export const createBookingRequest = async (req, res) => {
         error: "resource, date, startTime, endTime, purpose are required",
       });
     }
-    
+
     const r = await Resource.findById(resource);
     if (!r || !r.isActive) {
       return res.status(400).json({ error: "Invalid or inactive resource" });
     }
-    
+
     const normalizedDate = getNormalizedDate(dateStr);
     const start = toUTCDateTime(dateStr, startTime);
     const end = toUTCDateTime(dateStr, endTime);
-    
+
     if (start >= end) {
       return res.status(400).json({ error: "Invalid time range" });
     }
-    
+
     // Check against resource availability
     if (r.availableFrom && r.availableTo) {
       const availStart = toUTCDateTime(dateStr, r.availableFrom);
@@ -93,7 +91,7 @@ export const createBookingRequest = async (req, res) => {
     if (!requesterUser) {
       return res.status(400).json({ error: "Invalid user" });
     }
-    
+
     const requesterPriority = getPriority(requesterUser.role);
 
     // Conflict checking with priority override
@@ -101,7 +99,7 @@ export const createBookingRequest = async (req, res) => {
       resource,
       date: normalizedDate,
       status: { $in: ["pending", "approved"] },
-    }).populate('requester');
+    }).populate("requester");
 
     let hasConflict = false;
     const conflictsToCancel = [];
@@ -110,15 +108,17 @@ export const createBookingRequest = async (req, res) => {
       const dateStrForConflict = conflict.date.toISOString().split("T")[0];
       const cStart = toUTCDateTime(dateStrForConflict, conflict.startTime);
       const cEnd = toUTCDateTime(dateStrForConflict, conflict.endTime);
-      
+
       if (hasOverlap(cStart, cEnd, start, end)) {
         // Check priority
         const conflictPriority = getPriority(conflict.requester.role);
-        
+
         if (requesterPriority > conflictPriority) {
           // Current requester has higher priority - mark for cancellation
           conflictsToCancel.push(conflict);
-          console.log(`[PRIORITY] ${requesterUser.role} overriding ${conflict.requester.role} booking`);
+          console.log(
+            `[PRIORITY] ${requesterUser.role} overriding ${conflict.requester.role} booking`,
+          );
         } else {
           // Lower or equal priority - genuine conflict
           hasConflict = true;
@@ -128,20 +128,22 @@ export const createBookingRequest = async (req, res) => {
     }
 
     if (hasConflict) {
-      return res.status(409).json({ 
-        error: `Time slot already booked by ${requesterUser.role === 'faculty' ? 'another faculty member or admin' : 'higher or equal priority user'}` 
+      return res.status(409).json({
+        error: `Time slot already booked by ${requesterUser.role === "faculty" ? "another faculty member or admin" : "higher or equal priority user"}`,
       });
     }
 
     // Cancel lower priority bookings
     for (const conflict of conflictsToCancel) {
-      conflict.status = 'cancelled';
+      conflict.status = "cancelled";
       conflict.adminComment = `Overridden by ${requesterUser.role} priority booking on ${new Date().toISOString()}`;
       await conflict.save();
-      
+
       // Log the override
-      console.log(`[PRIORITY OVERRIDE] Cancelled booking ${conflict._id} (${conflict.requester.role}) for ${requesterUser.role} priority`);
-      
+      console.log(
+        `[PRIORITY OVERRIDE] Cancelled booking ${conflict._id} (${conflict.requester.role}) for ${requesterUser.role} priority`,
+      );
+
       // TODO: In production, send email notification to cancelled user
       // Example: await sendCancellationEmail(conflict.requester.email, conflict, 'priority override');
     }
@@ -155,7 +157,7 @@ export const createBookingRequest = async (req, res) => {
       endTime,
       purpose,
       attachments,
-      status: 'pending',
+      status: "pending",
       priority: requesterPriority, // Store priority for reference
     });
 
@@ -165,7 +167,7 @@ export const createBookingRequest = async (req, res) => {
     // Include override info in response
     const response = {
       ...booking.toObject(),
-      overriddenBookings: conflictsToCancel.length
+      overriddenBookings: conflictsToCancel.length,
     };
 
     if (conflictsToCancel.length > 0) {
@@ -204,7 +206,7 @@ export const getAllBookings = async (req, res) => {
     if (req.query.status) filter.status = req.query.status;
     if (req.query.resource) filter.resource = req.query.resource;
     if (req.query.requester) filter.requester = req.query.requester;
-    
+
     const bookings = await BookingRequest.find(filter)
       .populate(["resource", "requester", "approvedBy", "rejectedBy"])
       .sort({ date: -1 });
@@ -224,14 +226,14 @@ export const updateBookingRequest = async (req, res) => {
     const bookingId = req.params.id;
     let booking = await BookingRequest.findById(bookingId);
     if (!booking) return res.status(404).json({ error: "Booking not found" });
-    
+
     const isOwner = String(booking.requester) === String(req.user.id);
     const isAdmin = req.user.role === "admin";
-    
+
     if (!isOwner && !isAdmin) {
       return res.status(403).json({ error: "Access denied" });
     }
-    
+
     const {
       date: newDateStr,
       startTime: newStartTime,
@@ -259,11 +261,18 @@ export const updateBookingRequest = async (req, res) => {
     // Admin-only updates
     if (isAdmin) {
       if (adminComment !== undefined) booking.adminComment = adminComment;
-      if (rejectionReason !== undefined) booking.rejectionReason = rejectionReason;
+      if (rejectionReason !== undefined)
+        booking.rejectionReason = rejectionReason;
     }
     // Admin-only: Status update (with validation)
     if (isAdmin && newStatus && booking.status !== newStatus) {
-      const validStatuses = ["pending", "approved", "rejected", "cancelled", "expired"];
+      const validStatuses = [
+        "pending",
+        "approved",
+        "rejected",
+        "cancelled",
+        "expired",
+      ];
       if (!validStatuses.includes(newStatus)) {
         return res.status(400).json({ error: "Invalid status value" });
       }
@@ -281,31 +290,33 @@ export const updateBookingRequest = async (req, res) => {
       if (newStatus === "approved") {
         booking.approvedBy = req.user.id;
         booking.approvedAt = new Date();
-        
+
         // Check for conflicts before approving
         const dateStr = booking.date.toISOString().split("T")[0];
         const uStart = toUTCDateTime(dateStr, booking.startTime);
         const uEnd = toUTCDateTime(dateStr, booking.endTime);
-        
+
         if (uStart >= uEnd) {
           return res.status(400).json({ error: "Invalid time range" });
         }
-        
+
         if (r.availableFrom && r.availableTo) {
           const availStart = toUTCDateTime(dateStr, r.availableFrom);
           const availEnd = toUTCDateTime(dateStr, r.availableTo);
           if (uStart < availStart || uEnd > availEnd) {
-            return res.status(400).json({ error: "Time slot outside resource availability" });
+            return res
+              .status(400)
+              .json({ error: "Time slot outside resource availability" });
           }
         }
-        
+
         const potentialConflicts = await BookingRequest.find({
           resource: booking.resource,
           date: booking.date,
           status: { $in: ["pending", "approved"] },
           _id: { $ne: booking._id },
         });
-        
+
         let hasConflict = false;
         for (const conflict of potentialConflicts) {
           const cDateStr = conflict.date.toISOString().split("T")[0];
@@ -316,14 +327,18 @@ export const updateBookingRequest = async (req, res) => {
             break;
           }
         }
-        
+
         if (hasConflict) {
           return res.status(409).json({ error: "Time slot already booked" });
         }
       } else if (newStatus === "rejected") {
         booking.rejectedBy = req.user.id;
         booking.rejectedAt = new Date();
-      } else if (newStatus === "cancelled" || newStatus === "expired" || newStatus === "pending") {
+      } else if (
+        newStatus === "cancelled" ||
+        newStatus === "expired" ||
+        newStatus === "pending"
+      ) {
         booking.approvedBy = null;
         booking.approvedAt = null;
         booking.rejectedBy = null;
@@ -333,30 +348,36 @@ export const updateBookingRequest = async (req, res) => {
     }
 
     // Validation for date/time changes on pending bookings
-    if ((newDateStr || newStartTime || newEndTime) && booking.status === "pending" && !isAdmin) {
+    if (
+      (newDateStr || newStartTime || newEndTime) &&
+      booking.status === "pending" &&
+      !isAdmin
+    ) {
       const dateStr = booking.date.toISOString().split("T")[0];
       const uStart = toUTCDateTime(dateStr, booking.startTime);
       const uEnd = toUTCDateTime(dateStr, booking.endTime);
-      
+
       if (uStart >= uEnd) {
         return res.status(400).json({ error: "Invalid time range" });
       }
-      
+
       if (r.availableFrom && r.availableTo) {
         const availStart = toUTCDateTime(dateStr, r.availableFrom);
         const availEnd = toUTCDateTime(dateStr, r.availableTo);
         if (uStart < availStart || uEnd > availEnd) {
-          return res.status(400).json({ error: "Time slot outside resource availability" });
+          return res
+            .status(400)
+            .json({ error: "Time slot outside resource availability" });
         }
       }
-      
+
       const potentialConflicts = await BookingRequest.find({
         resource: booking.resource,
         date: booking.date,
         status: { $in: ["pending", "approved"] },
         _id: { $ne: booking._id },
       });
-      
+
       let hasConflict = false;
       for (const conflict of potentialConflicts) {
         const cDateStr = conflict.date.toISOString().split("T")[0];
@@ -367,7 +388,7 @@ export const updateBookingRequest = async (req, res) => {
           break;
         }
       }
-      
+
       if (hasConflict) {
         return res.status(409).json({ error: "Time slot already booked" });
       }
@@ -398,8 +419,13 @@ export const updateBookingRequest = async (req, res) => {
     }
 
     await booking.save();
-    await booking.populate(["resource", "requester", "approvedBy", "rejectedBy"]);
-    
+    await booking.populate([
+      "resource",
+      "requester",
+      "approvedBy",
+      "rejectedBy",
+    ]);
+
     return res.json(booking);
   } catch (err) {
     console.error("updateBookingRequest:", err);
@@ -415,21 +441,26 @@ export const cancelBookingRequest = async (req, res) => {
     const bookingId = req.params.id;
     const booking = await BookingRequest.findById(bookingId);
     if (!booking) return res.status(404).json({ error: "Booking not found" });
-    
+
     const isOwner = String(booking.requester) === String(req.user.id);
     if (!isOwner && req.user.role !== "admin") {
       return res.status(403).json({ error: "Access denied" });
     }
-    
+
     booking.approvedBy = null;
     booking.approvedAt = null;
     booking.rejectedBy = null;
     booking.rejectedAt = null;
     booking.status = "cancelled";
-    
+
     await booking.save();
-    await booking.populate(["resource", "requester", "approvedBy", "rejectedBy"]);
-    
+    await booking.populate([
+      "resource",
+      "requester",
+      "approvedBy",
+      "rejectedBy",
+    ]);
+
     return res.json({ message: "Booking cancelled", booking });
   } catch (err) {
     console.error("cancelBookingRequest:", err);

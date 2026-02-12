@@ -33,38 +33,38 @@ export default function LoginPage() {
   }, []);
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  setLoading(true);
+    e.preventDefault();
+    setLoading(true);
 
-  try {
-    const res = await apiRequest("/auth/login", "POST", {
-      email: formData.email,
-      password: formData.password,
-    });
+    try {
+      const res = await apiRequest("/auth/login", "POST", {
+        email: formData.email,
+        password: formData.password,
+      });
 
-    // Save token and role to cookies AND localStorage
-    document.cookie = `token=${res.token}; path=/; max-age=604800`;
-    document.cookie = `role=${res.user.role}; path=/; max-age=604800`;
+      // Save token and role to cookies AND localStorage
+      document.cookie = `token=${res.token}; path=/; max-age=604800`;
+      document.cookie = `role=${res.user.role}; path=/; max-age=604800`;
 
-    localStorage.setItem("token", res.token);
-    localStorage.setItem("role", res.user.role);
+      localStorage.setItem("token", res.token);
+      localStorage.setItem("role", res.user.role);
 
-    // Redirect based on role from backend
-    if (res.user.role === "admin") {
-      window.location.href = "/admin";
-    } else if (res.user.role === "faculty") {
-      window.location.href = "/faculty";  // ← NEW: Faculty redirect
-    } else if (res.user.role === "student") {
-      window.location.href = "/student";
-    } else {
-      window.location.href = "/";  // Fallback
+      // Redirect based on role from backend
+      if (res.user.role === "admin") {
+        window.location.href = "/admin";
+      } else if (res.user.role === "faculty") {
+        window.location.href = "/faculty"; // ← NEW: Faculty redirect
+      } else if (res.user.role === "student") {
+        window.location.href = "/student";
+      } else {
+        window.location.href = "/"; // Fallback
+      }
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      setLoading(false);
     }
-  } catch (err) {
-    alert(err.message);
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   return (
     <div className="bg-black text-white min-h-screen">

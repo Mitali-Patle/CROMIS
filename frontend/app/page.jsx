@@ -1,18 +1,18 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import { apiRequest } from '@/lib/api';
-import { 
-  Calendar, 
-  MapPin, 
-  Users, 
-  Clock, 
-  Tag, 
+import React, { useState, useEffect } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { apiRequest } from "@/lib/api";
+import {
+  Calendar,
+  MapPin,
+  Users,
+  Clock,
+  Tag,
   FileText,
   ArrowLeft,
-  AlertCircle
-} from 'lucide-react';
+  AlertCircle,
+} from "lucide-react";
 
 export default function ResourceDetailPage() {
   const params = useParams();
@@ -20,7 +20,7 @@ export default function ResourceDetailPage() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedDate, setSelectedDate] = useState('');
+  const [selectedDate, setSelectedDate] = useState("");
 
   useEffect(() => {
     fetchResourceDetails();
@@ -62,9 +62,11 @@ export default function ResourceDetailPage() {
           <div className="bg-red-900/20 border border-red-700 rounded-lg p-6 flex items-start gap-3">
             <AlertCircle className="w-6 h-6 text-red-500 flex-shrink-0 mt-1" />
             <div>
-              <h2 className="text-xl font-semibold text-red-500 mb-2">Error Loading Resource</h2>
+              <h2 className="text-xl font-semibold text-red-500 mb-2">
+                Error Loading Resource
+              </h2>
               <p className="text-gray-300">{error}</p>
-              <button 
+              <button
                 onClick={() => router.back()}
                 className="mt-4 px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition"
               >
@@ -82,8 +84,10 @@ export default function ResourceDetailPage() {
       <div className="min-h-screen bg-black text-white p-8">
         <div className="max-w-6xl mx-auto text-center">
           <h1 className="text-3xl font-bold mb-4">Resource Not Found</h1>
-          <p className="text-gray-400 mb-6">The resource you're looking for doesn't exist or has been removed.</p>
-          <button 
+          <p className="text-gray-400 mb-6">
+            The resource you're looking for doesn't exist or has been removed.
+          </p>
+          <button
             onClick={() => router.back()}
             className="px-6 py-3 bg-white text-black rounded-lg font-medium hover:bg-gray-100 transition"
           >
@@ -98,7 +102,7 @@ export default function ResourceDetailPage() {
 
   // Group bookings by date for calendar view
   const bookingsByDate = bookings.reduce((acc, booking) => {
-    const dateKey = new Date(booking.date).toISOString().split('T')[0];
+    const dateKey = new Date(booking.date).toISOString().split("T")[0];
     if (!acc[dateKey]) acc[dateKey] = [];
     acc[dateKey].push(booking);
     return acc;
@@ -108,7 +112,7 @@ export default function ResourceDetailPage() {
     <div className="min-h-screen bg-black text-white p-8">
       <div className="max-w-6xl mx-auto">
         {/* Back Button */}
-        <button 
+        <button
           onClick={() => router.back()}
           className="mb-6 flex items-center gap-2 text-gray-400 hover:text-white transition"
         >
@@ -124,12 +128,14 @@ export default function ResourceDetailPage() {
               <Tag className="w-4 h-4" />
               {resource.type}
             </span>
-            <span className={`px-3 py-1 rounded-full text-xs ${
-              resource.isActive 
-                ? 'bg-green-900 text-green-300' 
-                : 'bg-red-900 text-red-300'
-            }`}>
-              {resource.isActive ? 'Active' : 'Inactive'}
+            <span
+              className={`px-3 py-1 rounded-full text-xs ${
+                resource.isActive
+                  ? "bg-green-900 text-green-300"
+                  : "bg-red-900 text-red-300"
+              }`}
+            >
+              {resource.isActive ? "Active" : "Inactive"}
             </span>
           </div>
         </div>
@@ -144,7 +150,8 @@ export default function ResourceDetailPage() {
                 Description
               </h2>
               <p className="text-gray-300 leading-relaxed">
-                {resource.description || 'No description available for this resource.'}
+                {resource.description ||
+                  "No description available for this resource."}
               </p>
             </div>
 
@@ -154,37 +161,44 @@ export default function ResourceDetailPage() {
                 <Calendar className="w-5 h-5" />
                 Upcoming Bookings (Next 30 Days)
               </h2>
-              
+
               {bookings.length === 0 ? (
                 <div className="text-center py-8">
                   <Calendar className="w-12 h-12 text-gray-600 mx-auto mb-3" />
                   <p className="text-gray-400">No bookings scheduled</p>
-                  <p className="text-sm text-gray-500 mt-1">This resource is available for booking</p>
+                  <p className="text-sm text-gray-500 mt-1">
+                    This resource is available for booking
+                  </p>
                 </div>
               ) : (
                 <div className="space-y-2 max-h-96 overflow-y-auto">
                   {bookings.map((booking) => (
-                    <div 
+                    <div
                       key={booking._id}
                       className="flex justify-between items-center p-4 bg-gray-800 rounded-lg hover:bg-gray-750 transition"
                     >
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-1">
                           <p className="font-medium">
-                            {new Date(booking.date).toLocaleDateString('en-US', {
-                              weekday: 'short',
-                              year: 'numeric',
-                              month: 'short',
-                              day: 'numeric'
-                            })}
+                            {new Date(booking.date).toLocaleDateString(
+                              "en-US",
+                              {
+                                weekday: "short",
+                                year: "numeric",
+                                month: "short",
+                                day: "numeric",
+                              },
+                            )}
                           </p>
-                          <span className={`px-2 py-0.5 rounded-full text-xs ${
-                            booking.status === 'approved' 
-                              ? 'bg-green-900 text-green-300'
-                              : booking.status === 'pending'
-                              ? 'bg-yellow-900 text-yellow-300'
-                              : 'bg-red-900 text-red-300'
-                          }`}>
+                          <span
+                            className={`px-2 py-0.5 rounded-full text-xs ${
+                              booking.status === "approved"
+                                ? "bg-green-900 text-green-300"
+                                : booking.status === "pending"
+                                  ? "bg-yellow-900 text-yellow-300"
+                                  : "bg-red-900 text-red-300"
+                            }`}
+                          >
                             {booking.status}
                           </span>
                         </div>
@@ -196,7 +210,8 @@ export default function ResourceDetailPage() {
                           {booking.requester && (
                             <span className="flex items-center gap-1">
                               <Users className="w-4 h-4" />
-                              {booking.requester.name} ({booking.requester.role})
+                              {booking.requester.name} ({booking.requester.role}
+                              )
                             </span>
                           )}
                         </div>
@@ -226,26 +241,29 @@ export default function ResourceDetailPage() {
                     <p className="font-medium">{resource.location}</p>
                   </div>
                 </div>
-                
+
                 <div className="flex items-start gap-3">
                   <Users className="w-5 h-5 text-green-400 mt-0.5 flex-shrink-0" />
                   <div className="flex-1">
                     <p className="text-sm text-gray-400 mb-1">Capacity</p>
                     <p className="font-medium">
-                      {resource.capacity ? `${resource.capacity} people` : 'Not specified'}
+                      {resource.capacity
+                        ? `${resource.capacity} people`
+                        : "Not specified"}
                     </p>
                   </div>
                 </div>
-                
+
                 <div className="flex items-start gap-3">
                   <Clock className="w-5 h-5 text-purple-400 mt-0.5 flex-shrink-0" />
                   <div className="flex-1">
-                    <p className="text-sm text-gray-400 mb-1">Available Hours</p>
+                    <p className="text-sm text-gray-400 mb-1">
+                      Available Hours
+                    </p>
                     <p className="font-medium">
-                      {resource.availableFrom && resource.availableTo 
+                      {resource.availableFrom && resource.availableTo
                         ? `${resource.availableFrom} - ${resource.availableTo}`
-                        : '24/7'
-                      }
+                        : "24/7"}
                     </p>
                   </div>
                 </div>
@@ -261,7 +279,7 @@ export default function ResourceDetailPage() {
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {resource.tags.map((tag, index) => (
-                    <span 
+                    <span
                       key={index}
                       className="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 rounded-full text-sm transition cursor-default"
                     >
@@ -274,7 +292,7 @@ export default function ResourceDetailPage() {
 
             {/* Book Now Button */}
             {resource.isActive && (
-              <button 
+              <button
                 onClick={handleBookNow}
                 className="w-full px-6 py-4 bg-white text-black rounded-lg font-semibold hover:bg-gray-100 transition transform hover:scale-105 active:scale-95"
               >
@@ -300,13 +318,13 @@ export default function ResourceDetailPage() {
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-gray-400">Approved</span>
                   <span className="font-semibold text-green-400">
-                    {bookings.filter(b => b.status === 'approved').length}
+                    {bookings.filter((b) => b.status === "approved").length}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-gray-400">Pending</span>
                   <span className="font-semibold text-yellow-400">
-                    {bookings.filter(b => b.status === 'pending').length}
+                    {bookings.filter((b) => b.status === "pending").length}
                   </span>
                 </div>
               </div>

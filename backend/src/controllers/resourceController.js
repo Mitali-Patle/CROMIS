@@ -83,16 +83,16 @@ export const getResourceWithAvailability = async (req, res) => {
   try {
     const { id } = req.params;
     const resource = await Resource.findById(id).lean();
-    
+
     if (!resource) {
-      return res.status(404).json({ error: 'Resource not found' });
+      return res.status(404).json({ error: "Resource not found" });
     }
 
     // For inactive resources, still show data but client can handle display
     // Get bookings for next 30 days
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    
+
     const futureDate = new Date();
     futureDate.setDate(today.getDate() + 30);
     futureDate.setHours(23, 59, 59, 999);
@@ -100,19 +100,19 @@ export const getResourceWithAvailability = async (req, res) => {
     const bookings = await BookingRequest.find({
       resource: id,
       date: { $gte: today, $lte: futureDate },
-      status: { $in: ['pending', 'approved'] }
+      status: { $in: ["pending", "approved"] },
     })
-    .populate('requester', 'name email role')
-    .sort({ date: 1, startTime: 1 })
-    .lean();
+      .populate("requester", "name email role")
+      .sort({ date: 1, startTime: 1 })
+      .lean();
 
     return res.json({
       resource,
-      bookings
+      bookings,
     });
   } catch (err) {
-    console.error('getResourceWithAvailability:', err);
-    return res.status(500).json({ error: 'Server error' });
+    console.error("getResourceWithAvailability:", err);
+    return res.status(500).json({ error: "Server error" });
   }
 };
 
@@ -124,39 +124,39 @@ export const getResourceBookingHistory = async (req, res) => {
   try {
     const { id } = req.params;
     const resource = await Resource.findById(id).lean();
-    
+
     if (!resource) {
-      return res.status(404).json({ error: 'Resource not found' });
+      return res.status(404).json({ error: "Resource not found" });
     }
 
     // Get filters from query params
     const filter = { resource: id };
-    
+
     if (req.query.status) {
       filter.status = req.query.status;
     }
-    
+
     if (req.query.startDate && req.query.endDate) {
       filter.date = {
         $gte: new Date(req.query.startDate),
-        $lte: new Date(req.query.endDate)
+        $lte: new Date(req.query.endDate),
       };
     }
 
     const bookings = await BookingRequest.find(filter)
-      .populate('requester', 'name email role')
-      .populate('approvedBy', 'name')
-      .populate('rejectedBy', 'name')
+      .populate("requester", "name email role")
+      .populate("approvedBy", "name")
+      .populate("rejectedBy", "name")
       .sort({ date: -1 })
       .lean();
 
     // Calculate statistics
     const stats = {
       total: bookings.length,
-      approved: bookings.filter(b => b.status === 'approved').length,
-      pending: bookings.filter(b => b.status === 'pending').length,
-      rejected: bookings.filter(b => b.status === 'rejected').length,
-      cancelled: bookings.filter(b => b.status === 'cancelled').length,
+      approved: bookings.filter((b) => b.status === "approved").length,
+      pending: bookings.filter((b) => b.status === "pending").length,
+      rejected: bookings.filter((b) => b.status === "rejected").length,
+      cancelled: bookings.filter((b) => b.status === "cancelled").length,
     };
 
     // Group by month for timeline view
@@ -169,7 +169,7 @@ export const getResourceBookingHistory = async (req, res) => {
           approved: 0,
           pending: 0,
           rejected: 0,
-          cancelled: 0
+          cancelled: 0,
         };
       }
       acc[monthKey].count++;
@@ -181,11 +181,13 @@ export const getResourceBookingHistory = async (req, res) => {
       resource,
       bookings,
       stats,
-      timeline: Object.values(timeline).sort((a, b) => b.month.localeCompare(a.month))
+      timeline: Object.values(timeline).sort((a, b) =>
+        b.month.localeCompare(a.month),
+      ),
     });
   } catch (err) {
-    console.error('getResourceBookingHistory:', err);
-    return res.status(500).json({ error: 'Server error' });
+    console.error("getResourceBookingHistory:", err);
+    return res.status(500).json({ error: "Server error" });
   }
 };
 
