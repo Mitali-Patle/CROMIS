@@ -157,7 +157,7 @@ const TensorFlowInsights = ({ data, roleData = [], peakData = [] }) => {
   }, [data]);
 
   return (
-    <div className="bg-gray-900/50 backdrop-blur-xl p-6 rounded-2xl border border-gray-700/50 shadow-2xl h-full flex flex-col">
+    <div className="bg-black/50 backdrop-blur-xl p-6 rounded-2xl border border-gray-700/50 shadow-2xl h-full flex flex-col">
       <div className="flex items-center gap-3 mb-5">
         <div className="p-2 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-lg">
           <Brain className="w-5 h-5 text-blue-400" />

@@ -279,7 +279,7 @@ const ReportExporter = ({ analyticsData, bookings, pendingBookings }) => {
   };
 
   return (
-    <div className="bg-gray-900 p-6 rounded-lg border border-gray-700">
+    <div className="bg-black p-6 rounded-lg border border-gray-700">
       <h3 className="text-lg font-medium mb-4 text-white">Export Reports</h3>
       {/* Custom Dropdown */}
       <div className="relative mb-4">

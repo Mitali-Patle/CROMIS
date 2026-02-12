@@ -49,7 +49,7 @@ export default function Drafts() {
       {drafts.map((draft) => (
         <div
           key={draft._id}
-          className="border border-gray-700 bg-gray-900 rounded p-4 space-y-2"
+          className="border border-gray-700 bg-black rounded p-4 space-y-2"
         >
           <p className="text-sm text-gray-400">
             Resource: {draft.resource?.name || "Not selected"}

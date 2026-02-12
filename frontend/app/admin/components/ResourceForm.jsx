@@ -304,7 +304,7 @@ const ResourceForm = () => {
             {resources.map((resource) => (
               <div
                 key={resource._id}
-                className="flex justify-between items-center p-4 bg-gray-900 rounded-lg border border-gray-700"
+                className="flex justify-between items-center p-4 bg-black rounded-lg border border-gray-700"
               >
                 <div className="flex-1">
                   <h4 className="font-medium text-white">{resource.name}</h4>

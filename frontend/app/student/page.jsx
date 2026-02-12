@@ -10,6 +10,7 @@ import Drafts from "./components/Drafts";
 
 export default function StudentPage() {
   const [activeTab, setActiveTab] = useState("home");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     const tab = sessionStorage.getItem("openTab");
@@ -36,11 +37,18 @@ export default function StudentPage() {
 
   return (
     <div className="flex bg-black text-white min-h-screen">
-      <Sidebar activeTab={activeTab} onNavClick={setActiveTab} />
+      <Sidebar
+        activeTab={activeTab}
+        onNavClick={setActiveTab}
+        isOpen={sidebarOpen}
+        onToggle={setSidebarOpen}
+      />
 
       <div className="flex-1 flex flex-col">
-        <Header />
-        <main className="flex-1 p-6 overflow-y-auto">{renderContent()}</main>
+        <Header onMenuClick={() => setSidebarOpen(true)} />
+        <main className="flex-1 p-6 overflow-y-auto pb-20 md:pb-6">
+          {renderContent()}
+        </main>
       </div>
     </div>
   );

@@ -12,7 +12,7 @@ export default function ProposalCard({ proposal, onCancel }) {
   };
 
   return (
-    <div className="border border-gray-700 rounded p-4 bg-gray-900 space-y-3">
+    <div className="border border-gray-700 rounded p-4 bg-black space-y-3">
       {/* Header */}
       <div className="flex justify-between items-start">
         <div>
@@ -39,6 +39,16 @@ export default function ProposalCard({ proposal, onCancel }) {
 
       {/* Purpose */}
       <p className="text-sm">{proposal.purpose}</p>
+
+      {/* Admin Comment */}
+      {proposal.adminComment && (
+        <div className="bg-blue-500/10 border border-blue-500/30 rounded p-3">
+          <p className="text-xs font-semibold text-blue-300 mb-1">
+            Admin Comment:
+          </p>
+          <p className="text-sm text-gray-200">{proposal.adminComment}</p>
+        </div>
+      )}
 
       {/* Timeline */}
       <p className="text-xs text-gray-500">

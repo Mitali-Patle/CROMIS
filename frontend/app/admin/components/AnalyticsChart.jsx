@@ -339,7 +339,7 @@ const AnalyticsChart = ({
   return (
     <div
       ref={chartRef}
-      className="bg-gray-900/50 backdrop-blur-xl p-6 rounded-2xl border border-gray-700/50 shadow-2xl h-full flex flex-col"
+      className="bg-black/50 backdrop-blur-xl p-6 rounded-2xl border border-gray-700/50 shadow-2xl h-full flex flex-col"
     >
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div>
