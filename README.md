@@ -231,3 +231,9 @@ podman run -p 3000:3000 ghcr.io/sudharsansaravanan/se-frontend:latest
 ### Sequence Diagram:
 <img width="913" height="779" alt="Sequence" src="https://github.com/user-attachments/assets/5943284a-0a3d-4697-9c2d-85bc0f623b9c" />
 
+### Activity Diagram:
+![activity](https://github.com/user-attachments/assets/93a897f6-c8e4-4ab1-a6c2-3c2f2689334b)
+
+### Class Diagram:
+
+
