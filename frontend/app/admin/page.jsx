@@ -114,12 +114,13 @@ export default function AdminPage() {
     ];
 
     const results = await Promise.allSettled(
-      endpoints.map((ep) => apiRequest(ep.url))
+      endpoints.map((ep) => apiRequest(ep.url)),
     );
 
     const newData = {};
     endpoints.forEach((ep, i) => {
-      newData[ep.key] = results[i].status === "fulfilled" ? results[i].value : [];
+      newData[ep.key] =
+        results[i].status === "fulfilled" ? results[i].value : [];
     });
 
     setAnalyticsData((prev) => ({ ...prev, ...newData }));
@@ -209,7 +210,7 @@ export default function AdminPage() {
                 data={analyticsData.daily.map((d) => ({
                   name: d._id,
                   totalHours: Math.round(d.totalHours * 10) / 10,
-                  bookingCount: d.bookingCount
+                  bookingCount: d.bookingCount,
                 }))}
                 type="bar"
                 title="Daily Utilization"
@@ -219,7 +220,7 @@ export default function AdminPage() {
                 data={analyticsData.weekly.map((w) => ({
                   name: `W${w._id.week} ${w._id.year}`,
                   totalHours: Math.round(w.totalHours * 10) / 10,
-                  bookingCount: w.bookingCount
+                  bookingCount: w.bookingCount,
                 }))}
                 type="line"
                 title="Weekly Trends"
@@ -230,10 +231,12 @@ export default function AdminPage() {
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
               <AnalyticsChart
                 data={["student", "faculty"].map((role) => {
-                  const entry = analyticsData.roleUsage.find(r => r.role === role);
+                  const entry = analyticsData.roleUsage.find(
+                    (r) => r.role === role,
+                  );
                   return {
                     name: role.charAt(0).toUpperCase() + role.slice(1),
-                    value: entry ? entry.count : 0
+                    value: entry ? entry.count : 0,
                   };
                 })}
                 type="pie"
@@ -242,22 +245,34 @@ export default function AdminPage() {
               />
               <div className="bg-gray-900/50 p-6 rounded-2xl border border-gray-700/50">
                 <h3 className="text-xl font-semibold mb-2">Resource Alerts</h3>
-                <p className="text-sm text-gray-400 mb-6">Underutilized resources ({"<"} 2 bookings in 30 days)</p>
+                <p className="text-sm text-gray-400 mb-6">
+                  Underutilized resources ({"<"} 2 bookings in 30 days)
+                </p>
                 <div className="space-y-3">
-                  {analyticsData.underutilized.filter(r => r.underused).length === 0 ? (
-                    <p className="text-gray-500 text-sm italic">No underutilized resources detected.</p>
+                  {analyticsData.underutilized.filter((r) => r.underused)
+                    .length === 0 ? (
+                    <p className="text-gray-500 text-sm italic">
+                      No underutilized resources detected.
+                    </p>
                   ) : (
-                    analyticsData.underutilized.filter(r => r.underused).map(r => (
-                      <div key={r._id} className="flex items-center justify-between p-3 bg-red-500/10 border border-red-500/20 rounded-xl">
-                        <div>
-                          <p className="font-medium text-red-200">{r.name}</p>
-                          <p className="text-xs text-red-400/80">{r.bookingCount} bookings in 30 days</p>
+                    analyticsData.underutilized
+                      .filter((r) => r.underused)
+                      .map((r) => (
+                        <div
+                          key={r._id}
+                          className="flex items-center justify-between p-3 bg-red-500/10 border border-red-500/20 rounded-xl"
+                        >
+                          <div>
+                            <p className="font-medium text-red-200">{r.name}</p>
+                            <p className="text-xs text-red-400/80">
+                              {r.bookingCount} bookings in 30 days
+                            </p>
+                          </div>
+                          <button className="text-xs px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors">
+                            Promote
+                          </button>
                         </div>
-                        <button className="text-xs px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors">
-                          Promote
-                        </button>
-                      </div>
-                    ))
+                      ))
                   )}
                 </div>
               </div>
@@ -274,7 +289,7 @@ export default function AdminPage() {
               <AnalyticsChart
                 data={analyticsData.topResources.map((r) => ({
                   name: r.name,
-                  value: r.count
+                  value: r.count,
                 }))}
                 type="bar"
                 title="Top 5 Resources"
@@ -283,7 +298,7 @@ export default function AdminPage() {
               <AnalyticsChart
                 data={analyticsData.overallStatus.map((s) => ({
                   name: s._id.charAt(0).toUpperCase() + s._id.slice(1),
-                  value: s.count
+                  value: s.count,
                 }))}
                 type="pie"
                 title="Booking Status Breakdown"
@@ -292,7 +307,7 @@ export default function AdminPage() {
               <AnalyticsChart
                 data={analyticsData.peakHours.map((p) => ({
                   name: `${p._id}:00`,
-                  value: p.count
+                  value: p.count,
                 }))}
                 type="bar"
                 title="Peak Booking Hours"
@@ -311,7 +326,7 @@ export default function AdminPage() {
               </div>
               <div className="xl:col-span-1">
                 <TensorFlowInsights
-                  data={analyticsData.daily.map(d => d.bookingCount)}
+                  data={analyticsData.daily.map((d) => d.bookingCount)}
                   roleData={analyticsData.roleUsage}
                   peakData={analyticsData.peakHours}
                 />
@@ -321,7 +336,6 @@ export default function AdminPage() {
         );
 
       case "reports":
-
         return (
           <ReportExporter
             analyticsData={analyticsData}

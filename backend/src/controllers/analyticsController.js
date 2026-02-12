@@ -42,13 +42,23 @@ export const getDailyUtilization = async (req, res) => {
               {
                 $add: [
                   { $toInt: { $arrayElemAt: ["$endParts", 0] } },
-                  { $divide: [{ $toInt: { $arrayElemAt: ["$endParts", 1] } }, 60] },
+                  {
+                    $divide: [
+                      { $toInt: { $arrayElemAt: ["$endParts", 1] } },
+                      60,
+                    ],
+                  },
                 ],
               },
               {
                 $add: [
                   { $toInt: { $arrayElemAt: ["$startParts", 0] } },
-                  { $divide: [{ $toInt: { $arrayElemAt: ["$startParts", 1] } }, 60] },
+                  {
+                    $divide: [
+                      { $toInt: { $arrayElemAt: ["$startParts", 1] } },
+                      60,
+                    ],
+                  },
                 ],
               },
             ],
@@ -68,7 +78,9 @@ export const getDailyUtilization = async (req, res) => {
     res.json(result);
   } catch (err) {
     console.error("getDailyUtilization:", err);
-    res.status(500).json({ message: "Daily utilization error", error: err.message });
+    res
+      .status(500)
+      .json({ message: "Daily utilization error", error: err.message });
   }
 };
 
@@ -92,13 +104,23 @@ export const getWeeklyUtilization = async (req, res) => {
               {
                 $add: [
                   { $toInt: { $arrayElemAt: ["$endParts", 0] } },
-                  { $divide: [{ $toInt: { $arrayElemAt: ["$endParts", 1] } }, 60] },
+                  {
+                    $divide: [
+                      { $toInt: { $arrayElemAt: ["$endParts", 1] } },
+                      60,
+                    ],
+                  },
                 ],
               },
               {
                 $add: [
                   { $toInt: { $arrayElemAt: ["$startParts", 0] } },
-                  { $divide: [{ $toInt: { $arrayElemAt: ["$startParts", 1] } }, 60] },
+                  {
+                    $divide: [
+                      { $toInt: { $arrayElemAt: ["$startParts", 1] } },
+                      60,
+                    ],
+                  },
                 ],
               },
             ],
@@ -122,7 +144,9 @@ export const getWeeklyUtilization = async (req, res) => {
     res.json(result);
   } catch (err) {
     console.error("getWeeklyUtilization:", err);
-    res.status(500).json({ message: "Weekly utilization error", error: err.message });
+    res
+      .status(500)
+      .json({ message: "Weekly utilization error", error: err.message });
   }
 };
 
@@ -144,7 +168,9 @@ export const getPeakHours = async (req, res) => {
       },
       {
         $addFields: {
-          hour: { $toInt: { $arrayElemAt: [{ $split: ["$startTime", ":"] }, 0] } },
+          hour: {
+            $toInt: { $arrayElemAt: [{ $split: ["$startTime", ":"] }, 0] },
+          },
         },
       },
       {
@@ -213,7 +239,9 @@ export const getUnderutilizedResources = async (req, res) => {
     res.json(result);
   } catch (err) {
     console.error("getUnderutilizedResources:", err);
-    res.status(500).json({ message: "Underutilized resource error", error: err.message });
+    res
+      .status(500)
+      .json({ message: "Underutilized resource error", error: err.message });
   }
 };
 
@@ -288,7 +316,9 @@ export const getResourceHeatmap = async (req, res) => {
       },
       {
         $addFields: {
-          hour: { $toInt: { $arrayElemAt: [{ $split: ["$startTime", ":"] }, 0] } },
+          hour: {
+            $toInt: { $arrayElemAt: [{ $split: ["$startTime", ":"] }, 0] },
+          },
           dayOfWeek: { $dayOfWeek: "$date" }, // 1 (Sun) to 7 (Sat)
         },
       },
@@ -401,7 +431,9 @@ export const getTopResources = async (req, res) => {
     res.json(result);
   } catch (err) {
     console.error("getTopResources:", err);
-    res.status(500).json({ message: "Top resources error", error: err.message });
+    res
+      .status(500)
+      .json({ message: "Top resources error", error: err.message });
   }
 };
 
@@ -421,7 +453,8 @@ export const getOverallStatus = async (req, res) => {
     res.json(result);
   } catch (err) {
     console.error("getOverallStatus:", err);
-    res.status(500).json({ message: "Overall status error", error: err.message });
+    res
+      .status(500)
+      .json({ message: "Overall status error", error: err.message });
   }
 };
-

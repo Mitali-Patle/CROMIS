@@ -28,9 +28,13 @@ router.get(
 );
 router.get("/role-usage", auth, roleAuth(["admin"]), getUsageByRole);
 router.get("/heatmap", auth, roleAuth(["admin"]), getResourceHeatmap);
-router.get("/timeline", auth, roleAuth(["admin"]), getResourceOccupancyTimeline);
+router.get(
+  "/timeline",
+  auth,
+  roleAuth(["admin"]),
+  getResourceOccupancyTimeline,
+);
 router.get("/top-resources", auth, roleAuth(["admin"]), getTopResources);
 router.get("/overall-status", auth, roleAuth(["admin"]), getOverallStatus);
 
 export default router;
-
