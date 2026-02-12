@@ -390,7 +390,9 @@ export default function AdminPage() {
           <h1 className="text-xl font-bold">Admin Dashboard</h1>
         </header>
 
-        <main className="flex-1 p-6 overflow-y-auto">{renderContent()}</main>
+        <main className="flex-1 p-6 overflow-y-auto">
+          {renderContent()}
+        </main>
       </div>
     </div>
   );
