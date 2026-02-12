@@ -36,7 +36,7 @@ export default function AvailabilityCalendar() {
       {/* Date Picker */}
       <input
         type="date"
-        className="bg-gray-900 border border-gray-700 p-3 rounded w-fit"
+        className="bg-black border border-gray-700 p-3 rounded w-fit"
         value={date}
         onChange={(e) => setDate(e.target.value)}
       />
@@ -54,7 +54,7 @@ export default function AvailabilityCalendar() {
         {availability.map((res) => (
           <div
             key={res._id}
-            className="bg-gray-900 p-4 rounded border border-gray-700"
+            className="bg-black p-4 rounded border border-gray-700"
           >
             <h3 className="font-semibold text-white">{res.name}</h3>
 

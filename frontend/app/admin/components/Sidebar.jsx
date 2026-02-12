@@ -14,6 +14,7 @@ import {
   BarChart3,
   FileText,
   Home,
+  Users,
 } from "lucide-react";
 
 const Sidebar = ({ onNavClick, activeTab, isOpen, onToggle }) => {
@@ -34,6 +35,7 @@ const Sidebar = ({ onNavClick, activeTab, isOpen, onToggle }) => {
     { key: "bookings", label: "Bookings", icon: Calendar },
     { key: "approvals", label: "Approvals", icon: Clock },
     { key: "approved-singles", label: "Approved", icon: CheckCircle },
+    { key: "users", label: "User Management", icon: Users },
     { key: "analytics", label: "Analytics", icon: BarChart3 },
     { key: "reports", label: "Reports", icon: FileText },
   ];
