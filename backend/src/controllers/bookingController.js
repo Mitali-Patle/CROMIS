@@ -1,6 +1,7 @@
 console.log("🔥 bookingController LOADED:", import.meta.url);
 import BookingRequest from "../models/BookingRequest.js";
 import Resource from "../models/Resource.js";
+import User from "../models/User.js";
 
 /**
  * Parse date string (YYYY-MM-DD) to UTC midnight Date
@@ -27,60 +28,126 @@ const hasOverlap = (existingStart, existingEnd, newStart, newEnd) => {
 };
 
 /**
+ * Get priority based on user role
+ * Admin = 3, Faculty = 2, Student = 1
+ */
+const getPriority = (role) => {
+  switch (role) {
+    case 'admin': return 3;
+    case 'faculty': return 2;
+    case 'student': return 1;
+    default: return 1;
+  }
+};
+
+/**
  * Create a booking request (students + faculty)
+ * UPDATED: Implements faculty priority system
  */
 export const createBookingRequest = async (req, res) => {
   try {
     const requesterId = req.user.id;
-    const { resource, date: dateStr, startTime, endTime, purpose } = req.body;
+    const {
+      resource,
+      date: dateStr,
+      startTime,
+      endTime,
+      purpose,
+    } = req.body;
 
     // Handle file uploads (Multer adds req.files)
     const attachments = req.files
       ? req.files.map((f) => f.path)
       : req.body.attachments || [];
-
     if (!resource || !dateStr || !startTime || !endTime || !purpose) {
       return res.status(400).json({
         error: "resource, date, startTime, endTime, purpose are required",
       });
     }
+    
     const r = await Resource.findById(resource);
     if (!r || !r.isActive) {
       return res.status(400).json({ error: "Invalid or inactive resource" });
     }
+    
     const normalizedDate = getNormalizedDate(dateStr);
     const start = toUTCDateTime(dateStr, startTime);
     const end = toUTCDateTime(dateStr, endTime);
+    
     if (start >= end) {
       return res.status(400).json({ error: "Invalid time range" });
     }
+    
     // Check against resource availability
-    const availStart = toUTCDateTime(dateStr, r.availableFrom);
-    const availEnd = toUTCDateTime(dateStr, r.availableTo);
-    if (start < availStart || end > availEnd) {
-      return res
-        .status(400)
-        .json({ error: "Time slot outside resource availability" });
+    if (r.availableFrom && r.availableTo) {
+      const availStart = toUTCDateTime(dateStr, r.availableFrom);
+      const availEnd = toUTCDateTime(dateStr, r.availableTo);
+      if (start < availStart || end > availEnd) {
+        return res
+          .status(400)
+          .json({ error: "Time slot outside resource availability" });
+      }
     }
-    // Conflict checking: Fetch potentials and check overlaps in JS
+
+    // Get requester details for priority
+    const requesterUser = await User.findById(requesterId);
+    if (!requesterUser) {
+      return res.status(400).json({ error: "Invalid user" });
+    }
+    
+    const requesterPriority = getPriority(requesterUser.role);
+
+    // Conflict checking with priority override
     const potentialConflicts = await BookingRequest.find({
       resource,
       date: normalizedDate,
       status: { $in: ["pending", "approved"] },
-    });
+    }).populate('requester');
+
     let hasConflict = false;
+    const conflictsToCancel = [];
+
     for (const conflict of potentialConflicts) {
-      const dateStrForConflict = conflict.date.toISOString().split("T")[0]; // YYYY-MM-DD from stored date
+      const dateStrForConflict = conflict.date.toISOString().split("T")[0];
       const cStart = toUTCDateTime(dateStrForConflict, conflict.startTime);
       const cEnd = toUTCDateTime(dateStrForConflict, conflict.endTime);
+      
       if (hasOverlap(cStart, cEnd, start, end)) {
-        hasConflict = true;
-        break;
+        // Check priority
+        const conflictPriority = getPriority(conflict.requester.role);
+        
+        if (requesterPriority > conflictPriority) {
+          // Current requester has higher priority - mark for cancellation
+          conflictsToCancel.push(conflict);
+          console.log(`[PRIORITY] ${requesterUser.role} overriding ${conflict.requester.role} booking`);
+        } else {
+          // Lower or equal priority - genuine conflict
+          hasConflict = true;
+          break;
+        }
       }
     }
+
     if (hasConflict) {
-      return res.status(409).json({ error: "Time slot already booked" });
+      return res.status(409).json({ 
+        error: `Time slot already booked by ${requesterUser.role === 'faculty' ? 'another faculty member or admin' : 'higher or equal priority user'}` 
+      });
     }
+
+    // Cancel lower priority bookings
+    for (const conflict of conflictsToCancel) {
+      conflict.status = 'cancelled';
+      conflict.adminComment = `Overridden by ${requesterUser.role} priority booking on ${new Date().toISOString()}`;
+      await conflict.save();
+      
+      // Log the override
+      console.log(`[PRIORITY OVERRIDE] Cancelled booking ${conflict._id} (${conflict.requester.role}) for ${requesterUser.role} priority`);
+      
+      // TODO: In production, send email notification to cancelled user
+      // Example: await sendCancellationEmail(conflict.requester.email, conflict, 'priority override');
+    }
+
+    // Create the new booking
     const booking = new BookingRequest({
       requester: requesterId,
       resource,
@@ -89,11 +156,24 @@ export const createBookingRequest = async (req, res) => {
       endTime,
       purpose,
       attachments,
-      status: "pending",
+      status: 'pending',
+      priority: requesterPriority, // Store priority for reference
     });
+
     await booking.save();
-    await booking.populate(["resource", "requester"]); // Consistent population
-    return res.status(201).json(booking);
+    await booking.populate(["resource", "requester"]);
+
+    // Include override info in response
+    const response = {
+      ...booking.toObject(),
+      overriddenBookings: conflictsToCancel.length
+    };
+
+    if (conflictsToCancel.length > 0) {
+      response.message = `Booking created. ${conflictsToCancel.length} lower priority booking(s) were automatically cancelled.`;
+    }
+
+    return res.status(201).json(response);
   } catch (err) {
     console.error("createBookingRequest:", err);
     return res.status(500).json({ error: "Server error" });
@@ -107,7 +187,7 @@ export const getUserBookings = async (req, res) => {
   try {
     const requesterId = req.user.id;
     const bookings = await BookingRequest.find({ requester: requesterId })
-      .populate(["resource", "requester", "approvedBy", "rejectedBy"]) // Include approval refs for visibility
+      .populate(["resource", "requester", "approvedBy", "rejectedBy"])
       .sort({ date: -1 });
     return res.json(bookings);
   } catch (err) {
@@ -125,8 +205,9 @@ export const getAllBookings = async (req, res) => {
     if (req.query.status) filter.status = req.query.status;
     if (req.query.resource) filter.resource = req.query.resource;
     if (req.query.requester) filter.requester = req.query.requester;
+    
     const bookings = await BookingRequest.find(filter)
-      .populate(["resource", "requester", "approvedBy", "rejectedBy"]) // Include approval refs for visibility
+      .populate(["resource", "requester", "approvedBy", "rejectedBy"])
       .sort({ date: -1 });
     return res.json(bookings);
   } catch (err) {
@@ -137,17 +218,21 @@ export const getAllBookings = async (req, res) => {
 
 /**
  * Edit booking (only pending + owner OR admin)
+ * UPDATED: Maintains priority logic on edits
  */
 export const updateBookingRequest = async (req, res) => {
   try {
     const bookingId = req.params.id;
     let booking = await BookingRequest.findById(bookingId);
     if (!booking) return res.status(404).json({ error: "Booking not found" });
+    
     const isOwner = String(booking.requester) === String(req.user.id);
     const isAdmin = req.user.role === "admin";
+    
     if (!isOwner && !isAdmin) {
       return res.status(403).json({ error: "Access denied" });
     }
+    
     const {
       date: newDateStr,
       startTime: newStartTime,
@@ -158,72 +243,70 @@ export const updateBookingRequest = async (req, res) => {
       rejectionReason,
       status: newStatus,
     } = req.body;
-    let dateChanged = false;
-    let timeChanged = false;
-    let statusChanged = false;
-    let resourceAvailabilityChecked = false;
+
     // Fetch resource for availability check if needed
     let r = await Resource.findById(booking.resource);
     if (!r || !r.isActive) {
       return res.status(400).json({ error: "Invalid or inactive resource" });
     }
+
     // Apply core updates
-    if (newDateStr) {
-      booking.date = getNormalizedDate(newDateStr);
-      dateChanged = true;
-    }
-    if (newStartTime) {
-      booking.startTime = newStartTime;
-      timeChanged = true;
-    }
-    if (newEndTime) {
-      booking.endTime = newEndTime;
-      timeChanged = true;
-    }
+    if (newDateStr) booking.date = getNormalizedDate(newDateStr);
+    if (newStartTime) booking.startTime = newStartTime;
+    if (newEndTime) booking.endTime = newEndTime;
     if (purpose !== undefined) booking.purpose = purpose;
     if (newAttachments !== undefined) booking.attachments = newAttachments;
-    // Admin-only: Update adminComment or rejectionReason (any status)
+
+    // Admin-only updates
     if (isAdmin) {
       if (adminComment !== undefined) booking.adminComment = adminComment;
-      if (rejectionReason !== undefined)
-        booking.rejectionReason = rejectionReason;
+      if (rejectionReason !== undefined) booking.rejectionReason = rejectionReason;
     }
-    // Admin-only: Status update (with validation – flexible for any change)
+    // Admin-only: Status update (with validation)
     if (isAdmin && newStatus && booking.status !== newStatus) {
-      const validStatuses = [
-        "pending",
-        "approved",
-        "rejected",
-        "cancelled",
-        "expired",
-      ];
+      const validStatuses = ["pending", "approved", "rejected", "cancelled", "expired"];
       if (!validStatuses.includes(newStatus)) {
         return res.status(400).json({ error: "Invalid status value" });
       }
-      // For approved: Always check conflict/availability, regardless of current status
+      if (newStatus === "approved" && booking.status !== "pending") {
+        return res
+          .status(400)
+          .json({ error: "Can only approve pending bookings" });
+      }
+      if (newStatus === "rejected" && booking.status !== "pending") {
+        return res
+          .status(400)
+          .json({ error: "Can only reject pending bookings" });
+      }
+      // For approved/rejected: Set fields
       if (newStatus === "approved") {
         booking.approvedBy = req.user.id;
         booking.approvedAt = new Date();
-        // Conflict/availability check before approving
+        
+        // Check for conflicts before approving
         const dateStr = booking.date.toISOString().split("T")[0];
         const uStart = toUTCDateTime(dateStr, booking.startTime);
         const uEnd = toUTCDateTime(dateStr, booking.endTime);
+        
         if (uStart >= uEnd) {
           return res.status(400).json({ error: "Invalid time range" });
         }
-        const availStart = toUTCDateTime(dateStr, r.availableFrom);
-        const availEnd = toUTCDateTime(dateStr, r.availableTo);
-        if (uStart < availStart || uEnd > availEnd) {
-          return res
-            .status(400)
-            .json({ error: "Time slot outside resource availability" });
+        
+        if (r.availableFrom && r.availableTo) {
+          const availStart = toUTCDateTime(dateStr, r.availableFrom);
+          const availEnd = toUTCDateTime(dateStr, r.availableTo);
+          if (uStart < availStart || uEnd > availEnd) {
+            return res.status(400).json({ error: "Time slot outside resource availability" });
+          }
         }
+        
         const potentialConflicts = await BookingRequest.find({
           resource: booking.resource,
           date: booking.date,
           status: { $in: ["pending", "approved"] },
           _id: { $ne: booking._id },
         });
+        
         let hasConflict = false;
         for (const conflict of potentialConflicts) {
           const cDateStr = conflict.date.toISOString().split("T")[0];
@@ -234,64 +317,47 @@ export const updateBookingRequest = async (req, res) => {
             break;
           }
         }
+        
         if (hasConflict) {
           return res.status(409).json({ error: "Time slot already booked" });
         }
       } else if (newStatus === "rejected") {
         booking.rejectedBy = req.user.id;
         booking.rejectedAt = new Date();
-      } else if (newStatus === "cancelled") {
-        // Clear approval fields
+      } else if (newStatus === "cancelled" || newStatus === "expired" || newStatus === "pending") {
         booking.approvedBy = null;
         booking.approvedAt = null;
         booking.rejectedBy = null;
         booking.rejectedAt = null;
-      } else if (newStatus === "expired") {
-        // Optional: Clear fields or set expiry date
-        booking.approvedBy = null;
-        booking.approvedAt = null;
-        booking.rejectedBy = null;
-        booking.rejectedAt = null;
-      } // pending: Reset fields if reverting
-      else if (newStatus === "pending") {
-        booking.approvedBy = null;
-        booking.approvedAt = null;
-        booking.rejectedBy = null;
-        booking.rejectedAt = null;
-      }
+      } // expired: no special handling
       booking.status = newStatus;
-      statusChanged = true;
     }
-    // Core validation/checks only for date/time changes on pending bookings (non-admins or pre-status change)
-    const needsValidation =
-      dateChanged ||
-      timeChanged ||
-      newDateStr !== undefined ||
-      newStartTime !== undefined ||
-      newEndTime !== undefined;
-    if (needsValidation && booking.status === "pending" && !statusChanged) {
-      // Skip if status is being changed to approved (already checked)
-      const dateStr = booking.date.toISOString().split("T")[0]; // Current (updated) date as YYYY-MM-DD
+
+    // Validation for date/time changes on pending bookings
+    if ((newDateStr || newStartTime || newEndTime) && booking.status === "pending" && !isAdmin) {
+      const dateStr = booking.date.toISOString().split("T")[0];
       const uStart = toUTCDateTime(dateStr, booking.startTime);
       const uEnd = toUTCDateTime(dateStr, booking.endTime);
+      
       if (uStart >= uEnd) {
         return res.status(400).json({ error: "Invalid time range" });
       }
-      // Check against resource availability (after updates)
-      const availStart = toUTCDateTime(dateStr, r.availableFrom);
-      const availEnd = toUTCDateTime(dateStr, r.availableTo);
-      if (uStart < availStart || uEnd > availEnd) {
-        return res
-          .status(400)
-          .json({ error: "Time slot outside resource availability" });
+      
+      if (r.availableFrom && r.availableTo) {
+        const availStart = toUTCDateTime(dateStr, r.availableFrom);
+        const availEnd = toUTCDateTime(dateStr, r.availableTo);
+        if (uStart < availStart || uEnd > availEnd) {
+          return res.status(400).json({ error: "Time slot outside resource availability" });
+        }
       }
-      resourceAvailabilityChecked = true;
+      
       const potentialConflicts = await BookingRequest.find({
         resource: booking.resource,
         date: booking.date,
         status: { $in: ["pending", "approved"] },
         _id: { $ne: booking._id },
       });
+      
       let hasConflict = false;
       for (const conflict of potentialConflicts) {
         const cDateStr = conflict.date.toISOString().split("T")[0];
@@ -302,6 +368,7 @@ export const updateBookingRequest = async (req, res) => {
           break;
         }
       }
+      
       if (hasConflict) {
         return res.status(409).json({ error: "Time slot already booked" });
       }
@@ -324,19 +391,16 @@ export const updateBookingRequest = async (req, res) => {
           .json({ error: "Time slot outside resource availability" });
       }
     }
-    // Removed restriction for non-pending edits – admins can always update, owners only if pending or no status change
+    // For non-pending bookings, only allow owner edits if admin approves, but admins can always update
     if (booking.status !== "pending" && !isAdmin && !statusChanged) {
       return res
         .status(400)
         .json({ error: "Only pending bookings can be edited by non-admins" });
     }
+
     await booking.save();
-    await booking.populate([
-      "resource",
-      "requester",
-      "approvedBy",
-      "rejectedBy",
-    ]); // Populate for consistency, including approval refs
+    await booking.populate(["resource", "requester", "approvedBy", "rejectedBy"]);
+    
     return res.json(booking);
   } catch (err) {
     console.error("updateBookingRequest:", err);
@@ -352,23 +416,21 @@ export const cancelBookingRequest = async (req, res) => {
     const bookingId = req.params.id;
     const booking = await BookingRequest.findById(bookingId);
     if (!booking) return res.status(404).json({ error: "Booking not found" });
+    
     const isOwner = String(booking.requester) === String(req.user.id);
     if (!isOwner && req.user.role !== "admin") {
       return res.status(403).json({ error: "Access denied" });
     }
-    // Clear approval fields on cancel
+    
     booking.approvedBy = null;
     booking.approvedAt = null;
     booking.rejectedBy = null;
     booking.rejectedAt = null;
     booking.status = "cancelled";
+    
     await booking.save();
-    await booking.populate([
-      "resource",
-      "requester",
-      "approvedBy",
-      "rejectedBy",
-    ]); // Optional: for consistency
+    await booking.populate(["resource", "requester", "approvedBy", "rejectedBy"]);
+    
     return res.json({ message: "Booking cancelled", booking });
   } catch (err) {
     console.error("cancelBookingRequest:", err);
