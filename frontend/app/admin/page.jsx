@@ -10,6 +10,7 @@ import AnalyticsChart from "./components/AnalyticsChart";
 import TensorFlowInsights from "./components/TensorFlowInsights";
 import ReportExporter from "./components/ReportExporter";
 import Dashboard from "./components/Dashboard";
+import UserManagement from "./components/UserManagement";
 import { apiRequest } from "@/lib/api";
 
 export default function AdminPage() {
@@ -334,6 +335,9 @@ export default function AdminPage() {
             </div>
           </div>
         );
+
+      case "users":
+        return <UserManagement />;
 
       case "reports":
         return (
