@@ -179,9 +179,15 @@ const BookingList = ({
           return (
             <div
               key={id}
-              className="bg-gray-900 border border-gray-700 rounded-lg p-4"
+              className="bg-black border border-gray-700 rounded-lg p-4"
             >
               <p className="text-white font-medium">{booking.resource?.name}</p>
+              <p className="text-xs text-gray-400">
+                {booking.requester?.name} •{" "}
+                <span className="text-blue-300">
+                  {booking.requester?.role || "N/A"}
+                </span>
+              </p>
               <p className="text-xs text-gray-400">
                 {booking.date} | {booking.startTime} – {booking.endTime}
               </p>
@@ -244,10 +250,11 @@ const BookingList = ({
   /* ======================= DESKTOP ======================= */
   return (
     <div className="overflow-x-auto">
-      <table className="w-full bg-gray-900 border border-gray-700 rounded-lg">
+      <table className="w-full bg-black border border-gray-700 rounded-lg">
         <thead className="bg-gray-800">
           <tr>
             <th className="p-4 text-left text-gray-300">User</th>
+            <th className="p-4 text-left text-gray-300">Role</th>
             <th className="p-4 text-left text-gray-300">Resource</th>
             <th className="p-4 text-left text-gray-300">Date</th>
             <th className="p-4 text-left text-gray-300">Time</th>
@@ -268,7 +275,7 @@ const BookingList = ({
                 <React.Fragment key={groupId}>
                   {/* Group Header Row */}
                   <tr className="border-t-2 border-blue-500 bg-gray-800">
-                    <td colSpan="6" className="p-4">
+                    <td colSpan="7" className="p-4">
                       <div className="flex justify-between items-center">
                         <div>
                           <span className="text-blue-400 font-semibold">
@@ -276,7 +283,8 @@ const BookingList = ({
                             bookings)
                           </span>
                           <span className="ml-3 text-gray-400 text-sm">
-                            {firstBooking.requester?.name} •{" "}
+                            {firstBooking.requester?.name} (
+                            {firstBooking.requester?.role || "N/A"}) •{" "}
                             {firstBooking.resource?.name}
                           </span>
                         </div>
@@ -323,6 +331,11 @@ const BookingList = ({
                         className="border-t border-gray-700 bg-gray-850"
                       >
                         <td className="p-4 pl-8 text-gray-400">↳</td>
+                        <td className="p-4">
+                          <span className="px-2 py-1 rounded-full text-xs bg-blue-500/20 text-blue-300">
+                            {booking.requester?.role || "N/A"}
+                          </span>
+                        </td>
                         <td className="p-4">{booking.resource?.name}</td>
                         <td className="p-4">{booking.date}</td>
                         <td className="p-4">
@@ -364,6 +377,11 @@ const BookingList = ({
             return (
               <tr key={id} className="border-t border-gray-700 align-top">
                 <td className="p-4">{booking.requester?.name}</td>
+                <td className="p-4">
+                  <span className="px-2 py-1 rounded-full text-xs bg-blue-500/20 text-blue-300">
+                    {booking.requester?.role || "N/A"}
+                  </span>
+                </td>
                 <td className="p-4">{booking.resource?.name}</td>
                 <td className="p-4">{booking.date}</td>
                 <td className="p-4">

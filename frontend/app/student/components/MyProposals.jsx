@@ -73,7 +73,7 @@ export default function MyProposals() {
       <h1 className="text-2xl font-bold">My Proposals</h1>
 
       {/* Filters */}
-      <div className="flex flex-wrap gap-3 bg-gray-900 border border-gray-700 p-4 rounded">
+      <div className="flex flex-wrap gap-3 bg-black border border-gray-700 p-4 rounded">
         {/* Status */}
         <select
           value={statusFilter}

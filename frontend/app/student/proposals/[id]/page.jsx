@@ -44,7 +44,7 @@ export default function ProposalDetailsPage() {
         ← Back
       </button>
 
-      <div className="border border-gray-700 bg-gray-900 rounded p-6 space-y-4">
+      <div className="border border-gray-700 bg-black rounded p-6 space-y-4">
         <div className="flex justify-between items-start">
           <h1 className="text-2xl font-bold">{proposal.resource?.name}</h1>
           <span className={`font-semibold ${statusColors[proposal.status]}`}>

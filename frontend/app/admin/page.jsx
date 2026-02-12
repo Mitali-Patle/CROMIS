@@ -243,7 +243,7 @@ export default function AdminPage() {
                 title="Usage by Role"
                 subtitle="Student vs Faculty booking distribution"
               />
-              <div className="bg-gray-900/50 p-6 rounded-2xl border border-gray-700/50">
+              <div className="bg-black/50 p-6 rounded-2xl border border-gray-700/50">
                 <h3 className="text-xl font-semibold mb-2">Resource Alerts</h3>
                 <p className="text-sm text-gray-400 mb-6">
                   Underutilized resources ({"<"} 2 bookings in 30 days)

@@ -52,6 +52,13 @@ export default function ProposalForm() {
   /* ---------- Load Resources ---------- */
   useEffect(() => {
     apiRequest("/resources").then(setResources).catch(console.error);
+
+    // Check for preselected resource from dashboard
+    const preselected = localStorage.getItem("preselectedResource");
+    if (preselected) {
+      setForm((prev) => ({ ...prev, resource: preselected }));
+      localStorage.removeItem("preselectedResource");
+    }
   }, []);
 
   /* ---------- Resume Draft (Optional - kept for compatibility) ---------- */
@@ -197,7 +204,7 @@ export default function ProposalForm() {
       {/* Container matching the dark design */}
       <div className="bg-black border border-gray-800 rounded-xl p-6 shadow-2xl">
         {/* TABS */}
-        <div className="flex bg-gray-900 rounded-lg p-1 mb-6">
+        <div className="flex bg-black rounded-lg p-1 mb-6">
           {["single", "multi", "recurring"].map((tab) => (
             <button
               key={tab}
@@ -225,12 +232,13 @@ export default function ProposalForm() {
               required
               value={form.resource}
               onChange={handleChange}
-              className="w-full bg-gray-900 border border-gray-700 text-gray-200 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="w-full bg-black border border-gray-700 text-gray-200 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
             >
               <option value="">Select Resource</option>
               {resources.map((r) => (
                 <option key={r._id} value={r._id}>
-                  {r.name}
+                  {r.name} - {r.availableFrom || "08:00"} to{" "}
+                  {r.availableTo || "20:00"} (Capacity: {r.capacity || "N/A"})
                 </option>
               ))}
             </select>
@@ -249,7 +257,7 @@ export default function ProposalForm() {
                 min={new Date().toISOString().split("T")[0]}
                 value={form.date}
                 onChange={handleChange}
-                className="w-full bg-gray-900 border border-gray-700 text-gray-200 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                className="w-full bg-black border border-gray-700 text-gray-200 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
               />
             </div>
           )}
@@ -267,7 +275,7 @@ export default function ProposalForm() {
                   min={new Date().toISOString().split("T")[0]}
                   value={form.startDate}
                   onChange={handleChange}
-                  className="w-full bg-gray-900 border border-gray-700 text-gray-200 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  className="w-full bg-black border border-gray-700 text-gray-200 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 />
               </div>
               <div>
@@ -281,7 +289,7 @@ export default function ProposalForm() {
                   min={form.startDate}
                   value={form.endDate}
                   onChange={handleChange}
-                  className="w-full bg-gray-900 border border-gray-700 text-gray-200 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  className="w-full bg-black border border-gray-700 text-gray-200 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 />
               </div>
             </div>
@@ -297,7 +305,7 @@ export default function ProposalForm() {
                 name="recurrencePattern"
                 value={form.recurrencePattern}
                 onChange={handleChange}
-                className="w-full bg-gray-900 border border-gray-700 text-gray-200 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                className="w-full bg-black border border-gray-700 text-gray-200 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
               >
                 <option value="daily">Daily (Every Day)</option>
                 <option value="weekly">Weekly (Same Day of Week)</option>
@@ -316,7 +324,7 @@ export default function ProposalForm() {
                 required
                 value={form.startTime}
                 onChange={handleChange}
-                className="w-full bg-gray-900 border border-gray-700 text-gray-200 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                className="w-full bg-black border border-gray-700 text-gray-200 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
               >
                 <option value="">--:--</option>
                 {startSlots.map((t) => (
@@ -335,7 +343,7 @@ export default function ProposalForm() {
                 required
                 value={form.endTime}
                 onChange={handleChange}
-                className="w-full bg-gray-900 border border-gray-700 text-gray-200 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                className="w-full bg-black border border-gray-700 text-gray-200 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
               >
                 <option value="">--:--</option>
                 {endSlots
@@ -352,7 +360,7 @@ export default function ProposalForm() {
           {/* Purpose Template */}
           <PurposeTemplates
             onSelect={(text) => setForm((f) => ({ ...f, purpose: text }))}
-            className="w-full bg-gray-900 border border-gray-700 text-gray-200 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            className="w-full bg-black border border-gray-700 text-gray-200 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
           />
 
           {/* Purpose Textarea */}
@@ -363,7 +371,7 @@ export default function ProposalForm() {
               minLength={10}
               value={form.purpose}
               onChange={handleChange}
-              className="w-full h-24 bg-gray-900 border border-gray-700 text-gray-200 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none placeholder-gray-500"
+              className="w-full h-24 bg-black border border-gray-700 text-gray-200 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none placeholder-gray-500"
               placeholder="Purpose"
             />
           </div>
@@ -387,7 +395,7 @@ export default function ProposalForm() {
             </div>
 
             {files.length > 0 && (
-              <ul className="text-sm bg-gray-900 rounded p-2 space-y-1">
+              <ul className="text-sm bg-black rounded p-2 space-y-1">
                 {files.map((file, i) => (
                   <li
                     key={i}
