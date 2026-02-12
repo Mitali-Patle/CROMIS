@@ -225,9 +225,9 @@ podman run -p 3000:3000 ghcr.io/sudharsansaravanan/se-frontend:latest
 <img width="1408" height="768" alt="devops_pipeline_complete_white (1)" src="https://github.com/user-attachments/assets/bce27dae-d268-4c25-9905-e5db5d4bcadd" />
 
 ### Use Case Diagram:
-
 <img width="913" height="779" alt="USECASE_SEP" src="https://github.com/user-attachments/assets/de50aaca-1371-45fc-8e24-d13bb04c0757" />
 
-### Sequence Diagram:
 
+### Sequence Diagram:
 <img width="913" height="779" alt="Sequence" src="https://github.com/user-attachments/assets/5943284a-0a3d-4697-9c2d-85bc0f623b9c" />
+
