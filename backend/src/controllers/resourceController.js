@@ -1,4 +1,5 @@
 import Resource from "../models/Resource.js";
+import BookingRequest from "../models/BookingRequest.js";
 
 /**
  * Admin creates a new resource
@@ -31,7 +32,7 @@ export const createResource = async (req, res) => {
       tags,
       availableFrom,
       availableTo,
-      isActive: true, // matches schema
+      isActive: true,
     });
 
     await resource.save();
@@ -47,7 +48,7 @@ export const createResource = async (req, res) => {
  */
 export const getAllResources = async (req, res) => {
   try {
-    const filter = { isActive: true }; // matches schema
+    const filter = { isActive: true };
 
     if (req.query.type) filter.type = req.query.type;
     if (req.query.q) filter.name = { $regex: req.query.q, $options: "i" };
@@ -70,6 +71,122 @@ export const getResourceById = async (req, res) => {
     return res.json(resource);
   } catch (err) {
     console.error("getResourceById:", err);
+    return res.status(500).json({ error: "Server error" });
+  }
+};
+
+/**
+ * Get resource with booking availability (NEW - Epic 2 Story 7)
+ * Returns resource details + upcoming bookings for next 30 days
+ */
+export const getResourceWithAvailability = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const resource = await Resource.findById(id).lean();
+
+    if (!resource) {
+      return res.status(404).json({ error: "Resource not found" });
+    }
+
+    // For inactive resources, still show data but client can handle display
+    // Get bookings for next 30 days
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const futureDate = new Date();
+    futureDate.setDate(today.getDate() + 30);
+    futureDate.setHours(23, 59, 59, 999);
+
+    const bookings = await BookingRequest.find({
+      resource: id,
+      date: { $gte: today, $lte: futureDate },
+      status: { $in: ["pending", "approved"] },
+    })
+      .populate("requester", "name email role")
+      .sort({ date: 1, startTime: 1 })
+      .lean();
+
+    return res.json({
+      resource,
+      bookings,
+    });
+  } catch (err) {
+    console.error("getResourceWithAvailability:", err);
+    return res.status(500).json({ error: "Server error" });
+  }
+};
+
+/**
+ * Get resource booking history (NEW - Epic 2 Story 15)
+ * Returns all bookings for a resource (past and future)
+ */
+export const getResourceBookingHistory = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const resource = await Resource.findById(id).lean();
+
+    if (!resource) {
+      return res.status(404).json({ error: "Resource not found" });
+    }
+
+    // Get filters from query params
+    const filter = { resource: id };
+
+    if (req.query.status) {
+      filter.status = req.query.status;
+    }
+
+    if (req.query.startDate && req.query.endDate) {
+      filter.date = {
+        $gte: new Date(req.query.startDate),
+        $lte: new Date(req.query.endDate),
+      };
+    }
+
+    const bookings = await BookingRequest.find(filter)
+      .populate("requester", "name email role")
+      .populate("approvedBy", "name")
+      .populate("rejectedBy", "name")
+      .sort({ date: -1 })
+      .lean();
+
+    // Calculate statistics
+    const stats = {
+      total: bookings.length,
+      approved: bookings.filter((b) => b.status === "approved").length,
+      pending: bookings.filter((b) => b.status === "pending").length,
+      rejected: bookings.filter((b) => b.status === "rejected").length,
+      cancelled: bookings.filter((b) => b.status === "cancelled").length,
+    };
+
+    // Group by month for timeline view
+    const timeline = bookings.reduce((acc, booking) => {
+      const monthKey = new Date(booking.date).toISOString().slice(0, 7); // YYYY-MM
+      if (!acc[monthKey]) {
+        acc[monthKey] = {
+          month: monthKey,
+          count: 0,
+          approved: 0,
+          pending: 0,
+          rejected: 0,
+          cancelled: 0,
+        };
+      }
+      acc[monthKey].count++;
+      acc[monthKey][booking.status]++;
+      return acc;
+    }, {});
+
+    return res.json({
+      resource,
+      bookings,
+      stats,
+      timeline: Object.values(timeline).sort((a, b) =>
+        b.month.localeCompare(a.month),
+      ),
+    });
+  } catch (err) {
+    console.error("getResourceBookingHistory:", err);
     return res.status(500).json({ error: "Server error" });
   }
 };
@@ -116,7 +233,7 @@ export const deleteResource = async (req, res) => {
   try {
     const updated = await Resource.findByIdAndUpdate(
       req.params.id,
-      { isActive: false }, // schema-consistent
+      { isActive: false },
       { new: true },
     ).lean();
 

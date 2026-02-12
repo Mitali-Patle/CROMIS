@@ -60,22 +60,33 @@ export default function SignupPage() {
         name: formData.name,
         email: formData.email,
         password: formData.password,
-        role: "student", // FORCE role = student
+        role: "student", // Default signup role (students only)
       });
 
-      // Save token + role into cookies
-      document.cookie = `token=${res.token}; path=/;`;
-      document.cookie = `role=student; path=/;`;
+      // Save token and role (use response data, not hardcoded)
+      document.cookie = `token=${res.token}; path=/; max-age=604800`;
+      document.cookie = `role=${res.user.role}; path=/; max-age=604800`;
+
+      localStorage.setItem("token", res.token);
+      localStorage.setItem("role", res.user.role);
 
       alert("Signup successful!");
 
-      // Redirect student to dashboard
-      window.location.href = "/student";
+      // Redirect based on actual role from backend response
+      if (res.user.role === "faculty") {
+        window.location.href = "/faculty";
+      } else if (res.user.role === "student") {
+        window.location.href = "/student";
+      } else if (res.user.role === "admin") {
+        window.location.href = "/admin";
+      } else {
+        window.location.href = "/";
+      }
     } catch (err) {
       alert(err.message);
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   return (

@@ -85,6 +85,14 @@ const bookingRequestSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    // NEW: Priority field for faculty override (Epic 2 Enhancement)
+    // 1 = student, 2 = faculty, 3 = admin
+    priority: {
+      type: Number,
+      default: 1,
+      min: 1,
+      max: 3,
+    },
   },
   { timestamps: true },
 );
@@ -92,5 +100,6 @@ const bookingRequestSchema = new mongoose.Schema(
 // Indexes for efficient queries
 bookingRequestSchema.index({ resource: 1, date: 1, status: 1 });
 bookingRequestSchema.index({ requester: 1, date: -1 });
+bookingRequestSchema.index({ priority: -1 }); // NEW: Index for priority queries
 
 export default mongoose.model("BookingRequest", bookingRequestSchema);

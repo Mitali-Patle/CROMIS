@@ -42,22 +42,28 @@ export default function LoginPage() {
         password: formData.password,
       });
 
-      document.cookie = `token=${res.token}; path=/;`;
-      document.cookie = `role=${res.user.role}; path=/;`;
+      // Save token and role to cookies AND localStorage
+      document.cookie = `token=${res.token}; path=/; max-age=604800`;
+      document.cookie = `role=${res.user.role}; path=/; max-age=604800`;
 
       localStorage.setItem("token", res.token);
       localStorage.setItem("role", res.user.role);
 
+      // Redirect based on role from backend
       if (res.user.role === "admin") {
         window.location.href = "/admin";
-      } else {
+      } else if (res.user.role === "faculty") {
+        window.location.href = "/faculty"; // ← NEW: Faculty redirect
+      } else if (res.user.role === "student") {
         window.location.href = "/student";
+      } else {
+        window.location.href = "/"; // Fallback
       }
     } catch (err) {
       alert(err.message);
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   return (
