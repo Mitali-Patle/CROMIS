@@ -236,4 +236,6 @@ podman run -p 3000:3000 ghcr.io/sudharsansaravanan/se-frontend:latest
 
 ### Class Diagram:
 
+![class](https://github.com/user-attachments/assets/ffd61839-ff92-4f8c-83ed-f4476989a420)
+
 
