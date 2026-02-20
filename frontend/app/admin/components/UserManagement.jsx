@@ -34,6 +34,7 @@ export default function UserManagement() {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [formErrors, setFormErrors] = useState({});
+  const [creatingUser, setCreatingUser] = useState(false);
 
   // Fetch users
   const fetchUsers = async () => {
@@ -80,6 +81,7 @@ export default function UserManagement() {
     if (!validateForm()) return;
 
     try {
+      setCreatingUser(true);
       await apiRequest("/users", "POST", formData);
       showNotification(`${formData.role} account created successfully!`);
       setShowCreateModal(false);
@@ -88,6 +90,9 @@ export default function UserManagement() {
       fetchUsers();
     } catch (error) {
       showNotification(error.message || "Failed to create user", "error");
+    }
+    finally {
+      setCreatingUser(false);
     }
   };
 
@@ -449,9 +454,21 @@ export default function UserManagement() {
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
+                  disabled={creatingUser}
+                  className={`flex-1 px-4 py-3 bg-white text-black rounded-xl font-semibold shadow-lg transition-all transform ${
+                    creatingUser
+                      ? "opacity-60 cursor-not-allowed"
+                      : "hover:bg-gray-100 hover:shadow-xl hover:scale-105"
+                  }`}
                 >
-                  Create User
+                  {creatingUser ? (
+                    <span className="flex items-center justify-center gap-2 text-sm text-black">
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Creating...
+                    </span>
+                  ) : (
+                    "Create User"
+                  )}
                 </button>
               </div>
             </form>
