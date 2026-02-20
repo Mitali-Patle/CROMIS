@@ -85,6 +85,12 @@ const bookingRequestSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    // 💬 Admin comment visible to the student/faculty who submitted the booking
+    adminComment: {
+      type: String,
+      default: "",
+      trim: true,
+    },
   },
   { timestamps: true },
 );
