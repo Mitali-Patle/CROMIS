@@ -1,5 +1,4 @@
 node_modules/
 .env
-
-added some files and modified
-
+uploads/
+*.mjs.tmp
