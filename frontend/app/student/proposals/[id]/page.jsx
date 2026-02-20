@@ -71,9 +71,7 @@ export default function ProposalDetailsPage() {
 
         {proposal.rejectionReason && (
           <div>
-            <h3 className="font-semibold mb-1">
-              Rejection Reason
-            </h3>
+            <h3 className="font-semibold mb-1">Rejection Reason</h3>
             <p className="text-sm">{proposal.rejectionReason}</p>
           </div>
         )}

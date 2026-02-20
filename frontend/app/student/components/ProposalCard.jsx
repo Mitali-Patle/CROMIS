@@ -24,7 +24,9 @@ export default function ProposalCard({ proposal, onCancel }) {
           </p>
         </div>
 
-        <span className={`text-sm font-semibold ${statusColors[proposal.status]}`}>
+        <span
+          className={`text-sm font-semibold ${statusColors[proposal.status]}`}
+        >
           {proposal.status.toUpperCase()}
         </span>
       </div>
@@ -65,7 +67,10 @@ export default function ProposalCard({ proposal, onCancel }) {
         {proposal.status === "pending" && (
           <button
             onClick={() => {
-              localStorage.setItem("resumeEditBooking", JSON.stringify(proposal));
+              localStorage.setItem(
+                "resumeEditBooking",
+                JSON.stringify(proposal),
+              );
               sessionStorage.setItem("openTab", "new");
               window.location.href = "/student";
             }}

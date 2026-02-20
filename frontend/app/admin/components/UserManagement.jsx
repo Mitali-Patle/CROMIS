@@ -90,8 +90,7 @@ export default function UserManagement() {
       fetchUsers();
     } catch (error) {
       showNotification(error.message || "Failed to create user", "error");
-    }
-    finally {
+    } finally {
       setCreatingUser(false);
     }
   };

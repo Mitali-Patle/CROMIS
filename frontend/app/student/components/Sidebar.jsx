@@ -2,7 +2,16 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { X, Home, LayoutDashboard, FilePlus, FileText, FolderOpen, UserCircle, LogOut } from "lucide-react";
+import {
+  X,
+  Home,
+  LayoutDashboard,
+  FilePlus,
+  FileText,
+  FolderOpen,
+  UserCircle,
+  LogOut,
+} from "lucide-react";
 
 const Sidebar = ({ onNavClick, activeTab, isOpen, onToggle }) => {
   const router = useRouter();
@@ -46,8 +55,9 @@ const Sidebar = ({ onNavClick, activeTab, isOpen, onToggle }) => {
   }
 
   const sidebarClasses = isMobile
-    ? `fixed inset-0 z-50 bg-black text-white transition-transform duration-300 flex flex-col ${isOpen ? "translate-x-0" : "-translate-x-full"
-    }`
+    ? `fixed inset-0 z-50 bg-black text-white transition-transform duration-300 flex flex-col ${
+        isOpen ? "translate-x-0" : "-translate-x-full"
+      }`
     : `bg-black text-white h-screen transition-all duration-300 flex flex-col w-64`; // Always w-64 on desktop
 
   const showToggleButton = isMobile;
@@ -89,16 +99,18 @@ const Sidebar = ({ onNavClick, activeTab, isOpen, onToggle }) => {
               <button
                 key={item.key}
                 onClick={() => handleNavClick(item.key)}
-                className={`flex items-center w-full px-3 py-3 rounded-lg transition-all duration-200 group ${isActive
-                  ? "bg-white text-black shadow-lg"
-                  : "text-gray-400 hover:bg-gray-700 hover:text-white"
-                  }`}
+                className={`flex items-center w-full px-3 py-3 rounded-lg transition-all duration-200 group ${
+                  isActive
+                    ? "bg-white text-black shadow-lg"
+                    : "text-gray-400 hover:bg-gray-700 hover:text-white"
+                }`}
               >
                 <Icon
-                  className={`w-5 h-5 flex-shrink-0 transition-transform duration-200 ${isActive
-                    ? "text-black"
-                    : "text-gray-400 group-hover:text-white"
-                    } mr-3`}
+                  className={`w-5 h-5 flex-shrink-0 transition-transform duration-200 ${
+                    isActive
+                      ? "text-black"
+                      : "text-gray-400 group-hover:text-white"
+                  } mr-3`}
                 />
                 <span className="transition-opacity duration-200 whitespace-nowrap block opacity-100">
                   {item.label}
@@ -132,8 +144,9 @@ const Sidebar = ({ onNavClick, activeTab, isOpen, onToggle }) => {
                 <button
                   key={item.key}
                   onClick={() => handleNavClick(item.key)}
-                  className={`flex flex-col items-center px-2 py-1 rounded transition-all duration-200 ${isActive ? "text-white" : "text-gray-400 hover:text-white"
-                    }`}
+                  className={`flex flex-col items-center px-2 py-1 rounded transition-all duration-200 ${
+                    isActive ? "text-white" : "text-gray-400 hover:text-white"
+                  }`}
                 >
                   <Icon
                     className={`w-5 h-5 mb-1 ${isActive ? "text-white" : "text-gray-400"}`}

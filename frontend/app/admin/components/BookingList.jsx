@@ -27,9 +27,9 @@ const BookingList = ({
   const role =
     typeof document !== "undefined"
       ? document.cookie
-        .split("; ")
-        .find((r) => r.startsWith("role="))
-        ?.split("=")[1]
+          .split("; ")
+          .find((r) => r.startsWith("role="))
+          ?.split("=")[1]
       : null;
 
   const isAdmin = role === "admin";
@@ -160,7 +160,10 @@ const BookingList = ({
       }));
 
       setSavedIndicator((prev) => ({ ...prev, [bookingId]: true }));
-      setTimeout(() => setSavedIndicator((prev) => ({ ...prev, [bookingId]: false })), 3000);
+      setTimeout(
+        () => setSavedIndicator((prev) => ({ ...prev, [bookingId]: false })),
+        3000,
+      );
 
       setActiveCommentId(null);
       setCommentText("");
@@ -169,7 +172,6 @@ const BookingList = ({
       alert("Failed to save comment: " + (err.message || "Unknown error"));
     }
   };
-
 
   const getStatusOptions = () => [
     { value: "pending", label: "Pending" },
@@ -207,7 +209,9 @@ const BookingList = ({
 
               {booking.purpose && (
                 <div className="mt-2 bg-gray-900 border border-gray-700 rounded px-3 py-2">
-                  <p className="text-xs text-gray-500 font-semibold uppercase tracking-wide mb-0.5">Purpose</p>
+                  <p className="text-xs text-gray-500 font-semibold uppercase tracking-wide mb-0.5">
+                    Purpose
+                  </p>
                   <p className="text-sm text-gray-200">{booking.purpose}</p>
                 </div>
               )}
@@ -230,7 +234,9 @@ const BookingList = ({
                     className="text-blue-400 text-sm flex items-center gap-1 mt-2"
                   >
                     <MessageSquare className="w-4 h-4" />
-                    {comment ? "Edit Comment (visible to requester)" : "Add Comment (visible to requester)"}
+                    {comment
+                      ? "Edit Comment (visible to requester)"
+                      : "Add Comment (visible to requester)"}
                   </button>
 
                   {activeCommentId === id && (
@@ -363,7 +369,9 @@ const BookingList = ({
                             className="text-sm text-gray-300 truncate"
                             title={booking.purpose}
                           >
-                            {booking.purpose || <span className="text-gray-600 italic">—</span>}
+                            {booking.purpose || (
+                              <span className="text-gray-600 italic">—</span>
+                            )}
                           </p>
                         </td>
                         <td className="p-4">{booking.date}</td>
@@ -417,7 +425,9 @@ const BookingList = ({
                     className="text-sm text-gray-300 truncate"
                     title={booking.purpose}
                   >
-                    {booking.purpose || <span className="text-gray-600 italic">—</span>}
+                    {booking.purpose || (
+                      <span className="text-gray-600 italic">—</span>
+                    )}
                   </p>
                 </td>
                 <td className="p-4">{booking.date}</td>
@@ -454,12 +464,17 @@ const BookingList = ({
                   {isAdmin && (
                     <div className="space-y-1">
                       {comment && (
-                        <p className="text-xs text-blue-300 bg-blue-500/10 border border-blue-500/20 rounded px-2 py-1 max-w-[200px] truncate" title={comment}>
+                        <p
+                          className="text-xs text-blue-300 bg-blue-500/10 border border-blue-500/20 rounded px-2 py-1 max-w-[200px] truncate"
+                          title={comment}
+                        >
                           💬 {comment}
                         </p>
                       )}
                       {savedIndicator[id] && (
-                        <p className="text-xs text-green-400 font-semibold">✓ Saved</p>
+                        <p className="text-xs text-green-400 font-semibold">
+                          ✓ Saved
+                        </p>
                       )}
                       <button
                         onClick={() => {

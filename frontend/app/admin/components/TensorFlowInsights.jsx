@@ -274,20 +274,22 @@ const TensorFlowInsights = ({ data, roleData = [], peakData = [] }) => {
               Equitable Access
             </div>
             <div
-              className={`p-3 rounded-xl border ${insights.type === "warning"
-                ? "bg-orange-500/10 border-orange-500/20"
-                : insights.type === "caution"
-                  ? "bg-yellow-500/10 border-yellow-500/20"
-                  : "bg-blue-500/10 border-blue-500/20"
-                }`}
+              className={`p-3 rounded-xl border ${
+                insights.type === "warning"
+                  ? "bg-orange-500/10 border-orange-500/20"
+                  : insights.type === "caution"
+                    ? "bg-yellow-500/10 border-yellow-500/20"
+                    : "bg-blue-500/10 border-blue-500/20"
+              }`}
             >
               <p
-                className={`text-[10px] font-bold mb-1 uppercase tracking-tighter ${insights.type === "warning"
-                  ? "text-orange-400"
-                  : insights.type === "caution"
-                    ? "text-yellow-400"
-                    : "text-blue-400"
-                  }`}
+                className={`text-[10px] font-bold mb-1 uppercase tracking-tighter ${
+                  insights.type === "warning"
+                    ? "text-orange-400"
+                    : insights.type === "caution"
+                      ? "text-yellow-400"
+                      : "text-blue-400"
+                }`}
               >
                 {insights.type === "warning"
                   ? "Priority Allocation"
