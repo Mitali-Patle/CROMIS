@@ -15,6 +15,8 @@ import {
   FileText,
   Home,
   Users,
+  UserCircle,
+  LogOut,
 } from "lucide-react";
 
 const Sidebar = ({ onNavClick, activeTab, isOpen, onToggle }) => {
@@ -38,6 +40,7 @@ const Sidebar = ({ onNavClick, activeTab, isOpen, onToggle }) => {
     { key: "users", label: "User Management", icon: Users },
     { key: "analytics", label: "Analytics", icon: BarChart3 },
     { key: "reports", label: "Reports", icon: FileText },
+    { key: "profile", label: "Profile", icon: UserCircle },
   ];
 
   const handleNavClick = (key) => {
@@ -63,9 +66,8 @@ const Sidebar = ({ onNavClick, activeTab, isOpen, onToggle }) => {
 
   const isCollapsed = false; // Always open on desktop/laptop
   const sidebarClasses = isMobile
-    ? `fixed inset-0 z-50 bg-black text-white transition-transform duration-300 flex flex-col ${
-        isOpen ? "translate-x-0" : "-translate-x-full"
-      }`
+    ? `fixed inset-0 z-50 bg-black text-white transition-transform duration-300 flex flex-col ${isOpen ? "translate-x-0" : "-translate-x-full"
+    }`
     : `bg-black text-white h-screen transition-all duration-300 flex flex-col w-64`; // Always w-64 on desktop
 
   const showToggleButton = isMobile || false; // Only show toggle on mobile
@@ -107,18 +109,16 @@ const Sidebar = ({ onNavClick, activeTab, isOpen, onToggle }) => {
               <button
                 key={item.key}
                 onClick={() => handleNavClick(item.key)}
-                className={`flex items-center w-full px-3 py-3 rounded-lg transition-all duration-200 group ${
-                  isActive
-                    ? "bg-white text-black shadow-lg"
-                    : "text-gray-400 hover:bg-gray-700 hover:text-white"
-                }`}
+                className={`flex items-center w-full px-3 py-3 rounded-lg transition-all duration-200 group ${isActive
+                  ? "bg-white text-black shadow-lg"
+                  : "text-gray-400 hover:bg-gray-700 hover:text-white"
+                  }`}
               >
                 <Icon
-                  className={`w-5 h-5 flex-shrink-0 transition-transform duration-200 ${
-                    isActive
-                      ? "text-black"
-                      : "text-gray-400 group-hover:text-white"
-                  } mr-3`}
+                  className={`w-5 h-5 flex-shrink-0 transition-transform duration-200 ${isActive
+                    ? "text-black"
+                    : "text-gray-400 group-hover:text-white"
+                    } mr-3`}
                 />
                 <span className="transition-opacity duration-200 whitespace-nowrap block opacity-100">
                   {item.label}
@@ -127,6 +127,25 @@ const Sidebar = ({ onNavClick, activeTab, isOpen, onToggle }) => {
             );
           })}
         </nav>
+
+        {/* Logout Button */}
+        <div className="p-2 border-t border-gray-800 flex-shrink-0">
+          <button
+            onClick={() => {
+              document.cookie = "token=; Max-Age=0; path=/;";
+              document.cookie = "role=; Max-Age=0; path=/;";
+              localStorage.removeItem("token");
+              localStorage.removeItem("role");
+              router.push("/login");
+            }}
+            className="flex items-center w-full px-3 py-3 rounded-lg transition-all duration-200 group text-gray-400 hover:bg-gray-800 hover:text-white"
+          >
+            <LogOut className="w-5 h-5 flex-shrink-0 mr-3" />
+            <span className="transition-opacity duration-200 whitespace-nowrap block opacity-100">
+              Logout
+            </span>
+          </button>
+        </div>
       </div>
       {/* Mobile Navbar */}
       {isMobile && (
@@ -139,9 +158,8 @@ const Sidebar = ({ onNavClick, activeTab, isOpen, onToggle }) => {
                 <button
                   key={item.key}
                   onClick={() => handleNavClick(item.key)}
-                  className={`flex flex-col items-center px-2 py-1 rounded transition-all duration-200 ${
-                    isActive ? "text-white" : "text-gray-400 hover:text-white"
-                  }`}
+                  className={`flex flex-col items-center px-2 py-1 rounded transition-all duration-200 ${isActive ? "text-white" : "text-gray-400 hover:text-white"
+                    }`}
                 >
                   <Icon
                     className={`w-5 h-5 mb-1 ${isActive ? "text-white" : "text-gray-400"}`}

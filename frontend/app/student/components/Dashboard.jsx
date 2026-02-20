@@ -114,17 +114,17 @@ function ResourceCard({ resource, onBook }) {
 
         <div className="space-y-2 text-sm">
           <div className="flex items-center gap-2 text-gray-300">
-            <MapPin className="w-4 h-4 text-blue-400" />
+            <MapPin className="w-4 h-4 text-gray-400" />
             <span>{resource.location || "Location not specified"}</span>
           </div>
 
           <div className="flex items-center gap-2 text-gray-300">
-            <Users className="w-4 h-4 text-green-400" />
+            <Users className="w-4 h-4 text-gray-400" />
             <span>Capacity: {resource.capacity || "N/A"}</span>
           </div>
 
           <div className="flex items-center gap-2 text-gray-300">
-            <Clock className="w-4 h-4 text-yellow-400" />
+            <Clock className="w-4 h-4 text-gray-400" />
             <span>
               {resource.availableFrom || "08:00"} -{" "}
               {resource.availableTo || "20:00"}
@@ -133,7 +133,7 @@ function ResourceCard({ resource, onBook }) {
 
           {resource.type && (
             <div className="flex items-center gap-2 text-gray-300">
-              <Calendar className="w-4 h-4 text-purple-400" />
+              <Calendar className="w-4 h-4 text-gray-400" />
               <span className="capitalize">{resource.type}</span>
             </div>
           )}

@@ -28,11 +28,11 @@ export default function ProposalDetailsPage() {
   if (!proposal) return null;
 
   const statusColors = {
-    pending: "text-yellow-400",
-    approved: "text-green-400",
-    rejected: "text-red-400",
-    cancelled: "text-gray-400",
-    expired: "text-gray-500",
+    pending: "text-gray-300",
+    approved: "text-white font-bold",
+    rejected: "text-gray-400",
+    cancelled: "text-gray-500",
+    expired: "text-gray-600",
   };
 
   return (
@@ -71,7 +71,7 @@ export default function ProposalDetailsPage() {
 
         {proposal.rejectionReason && (
           <div>
-            <h3 className="font-semibold mb-1 text-red-400">
+            <h3 className="font-semibold mb-1">
               Rejection Reason
             </h3>
             <p className="text-sm">{proposal.rejectionReason}</p>

@@ -27,33 +27,33 @@ const BookingList = ({
   const role =
     typeof document !== "undefined"
       ? document.cookie
-          .split("; ")
-          .find((r) => r.startsWith("role="))
-          ?.split("=")[1]
+        .split("; ")
+        .find((r) => r.startsWith("role="))
+        ?.split("=")[1]
       : null;
 
   const isAdmin = role === "admin";
 
   const getStatusIcon = (status) => {
     if (status === "approved")
-      return <CheckCircle className="w-4 h-4 text-green-400" />;
+      return <CheckCircle className="w-4 h-4 text-white" />;
     if (status === "rejected")
-      return <XCircle className="w-4 h-4 text-red-600" />;
-    if (status === "cancelled")
       return <XCircle className="w-4 h-4 text-gray-400" />;
-    return <Clock className="w-4 h-4 text-yellow-400" />;
+    if (status === "cancelled")
+      return <XCircle className="w-4 h-4 text-gray-500" />;
+    return <Clock className="w-4 h-4 text-gray-300" />;
   };
 
   const getStatusColor = (status) => {
     switch (status) {
       case "approved":
-        return "text-green-600 bg-green-100";
+        return "text-white bg-gray-700";
       case "rejected":
-        return "text-red-600 bg-red-100";
+        return "text-gray-300 bg-gray-800";
       case "cancelled":
-        return "text-gray-600 bg-gray-100";
+        return "text-gray-400 bg-gray-900";
       default:
-        return "text-yellow-600 bg-yellow-100";
+        return "text-white bg-gray-800";
     }
   };
 
@@ -141,22 +141,35 @@ const BookingList = ({
     return { groups, singles };
   }, [bookings]);
 
+  const [savedIndicator, setSavedIndicator] = useState({});
+
   /* ======================
-     ADMIN COMMENT (Story 15)
+     ADMIN COMMENT
      ====================== */
   const saveAdminComment = async (bookingId) => {
-    await apiRequest(`/bookings/${bookingId}`, "PATCH", {
-      adminComment: commentText,
-    });
+    try {
+      const result = await apiRequest(`/bookings/${bookingId}`, "PATCH", {
+        adminComment: commentText,
+      });
 
-    setLocalComments((prev) => ({
-      ...prev,
-      [bookingId]: commentText,
-    }));
+      console.log("Comment saved:", result.adminComment); // debug
 
-    setActiveCommentId(null);
-    setCommentText("");
+      setLocalComments((prev) => ({
+        ...prev,
+        [bookingId]: commentText,
+      }));
+
+      setSavedIndicator((prev) => ({ ...prev, [bookingId]: true }));
+      setTimeout(() => setSavedIndicator((prev) => ({ ...prev, [bookingId]: false })), 3000);
+
+      setActiveCommentId(null);
+      setCommentText("");
+    } catch (err) {
+      console.error("Failed to save comment:", err);
+      alert("Failed to save comment: " + (err.message || "Unknown error"));
+    }
   };
+
 
   const getStatusOptions = () => [
     { value: "pending", label: "Pending" },
@@ -192,6 +205,13 @@ const BookingList = ({
                 {booking.date} | {booking.startTime} – {booking.endTime}
               </p>
 
+              {booking.purpose && (
+                <div className="mt-2 bg-gray-900 border border-gray-700 rounded px-3 py-2">
+                  <p className="text-xs text-gray-500 font-semibold uppercase tracking-wide mb-0.5">Purpose</p>
+                  <p className="text-sm text-gray-200">{booking.purpose}</p>
+                </div>
+              )}
+
               <span
                 className={`inline-block mt-2 px-2 py-1 rounded-full text-xs ${getStatusColor(
                   booking.status,
@@ -207,10 +227,10 @@ const BookingList = ({
                       setActiveCommentId(id);
                       setCommentText(comment);
                     }}
-                    className="text-blue-400 text-sm flex items-center gap-1"
+                    className="text-blue-400 text-sm flex items-center gap-1 mt-2"
                   >
                     <MessageSquare className="w-4 h-4" />
-                    Admin Comment
+                    {comment ? "Edit Comment (visible to requester)" : "Add Comment (visible to requester)"}
                   </button>
 
                   {activeCommentId === id && (
@@ -220,7 +240,7 @@ const BookingList = ({
                         value={commentText}
                         onChange={(e) => setCommentText(e.target.value)}
                         className="w-full bg-gray-800 border border-gray-700 rounded p-2 text-sm"
-                        placeholder="Internal admin note (not visible to users)"
+                        placeholder="Message visible to the student/faculty..."
                       />
                       <div className="flex gap-2">
                         <button
@@ -256,6 +276,7 @@ const BookingList = ({
             <th className="p-4 text-left text-gray-300">User</th>
             <th className="p-4 text-left text-gray-300">Role</th>
             <th className="p-4 text-left text-gray-300">Resource</th>
+            <th className="p-4 text-left text-gray-300">Purpose</th>
             <th className="p-4 text-left text-gray-300">Date</th>
             <th className="p-4 text-left text-gray-300">Time</th>
             <th className="p-4 text-left text-gray-300">Status</th>
@@ -275,7 +296,7 @@ const BookingList = ({
                 <React.Fragment key={groupId}>
                   {/* Group Header Row */}
                   <tr className="border-t-2 border-blue-500 bg-gray-800">
-                    <td colSpan="7" className="p-4">
+                    <td colSpan="8" className="p-4">
                       <div className="flex justify-between items-center">
                         <div>
                           <span className="text-blue-400 font-semibold">
@@ -337,6 +358,14 @@ const BookingList = ({
                           </span>
                         </td>
                         <td className="p-4">{booking.resource?.name}</td>
+                        <td className="p-4 max-w-[180px]">
+                          <p
+                            className="text-sm text-gray-300 truncate"
+                            title={booking.purpose}
+                          >
+                            {booking.purpose || <span className="text-gray-600 italic">—</span>}
+                          </p>
+                        </td>
                         <td className="p-4">{booking.date}</td>
                         <td className="p-4">
                           {booking.startTime} – {booking.endTime}
@@ -383,6 +412,14 @@ const BookingList = ({
                   </span>
                 </td>
                 <td className="p-4">{booking.resource?.name}</td>
+                <td className="p-4 max-w-[200px]">
+                  <p
+                    className="text-sm text-gray-300 truncate"
+                    title={booking.purpose}
+                  >
+                    {booking.purpose || <span className="text-gray-600 italic">—</span>}
+                  </p>
+                </td>
                 <td className="p-4">{booking.date}</td>
                 <td className="p-4">
                   {booking.startTime} – {booking.endTime}
@@ -415,18 +452,25 @@ const BookingList = ({
                   )}
 
                   {isAdmin && (
-                    <div>
+                    <div className="space-y-1">
+                      {comment && (
+                        <p className="text-xs text-blue-300 bg-blue-500/10 border border-blue-500/20 rounded px-2 py-1 max-w-[200px] truncate" title={comment}>
+                          💬 {comment}
+                        </p>
+                      )}
+                      {savedIndicator[id] && (
+                        <p className="text-xs text-green-400 font-semibold">✓ Saved</p>
+                      )}
                       <button
                         onClick={() => {
                           setActiveCommentId(id);
                           setCommentText(comment);
                         }}
-                        className="text-blue-400 text-sm flex items-center gap-1"
+                        className="text-blue-400 text-sm flex items-center gap-1 mt-1"
                       >
                         <MessageSquare className="w-4 h-4" />
-                        Admin Comment
+                        {comment ? "Edit Comment" : "Add Comment"}
                       </button>
-
                       {activeCommentId === id && (
                         <div className="mt-2 space-y-2">
                           <textarea
@@ -434,11 +478,12 @@ const BookingList = ({
                             value={commentText}
                             onChange={(e) => setCommentText(e.target.value)}
                             className="w-full bg-gray-800 border border-gray-700 rounded p-2 text-sm"
+                            placeholder="Message visible to the student/faculty..."
                           />
                           <div className="flex gap-2">
                             <button
                               onClick={() => saveAdminComment(id)}
-                              className="bg-white text-black px-3 py-1 rounded text-sm"
+                              className="bg-white text-black px-3 py-1 rounded text-sm font-medium"
                             >
                               Save
                             </button>
