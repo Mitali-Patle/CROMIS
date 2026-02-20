@@ -12,6 +12,7 @@ import ReportExporter from "./components/ReportExporter";
 import Dashboard from "./components/Dashboard";
 import UserManagement from "./components/UserManagement";
 import { apiRequest } from "@/lib/api";
+import Profile from "../components/Profile";
 
 export default function AdminPage() {
   const router = useRouter();
@@ -347,6 +348,10 @@ export default function AdminPage() {
             pendingBookings={pendingBookings}
           />
         );
+
+      case "profile":
+        return <Profile />;
+
       default:
         return null;
     }
@@ -365,7 +370,7 @@ export default function AdminPage() {
 
   if (error) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-black text-red-500">
+      <div className="flex items-center justify-center min-h-screen bg-black text-white">
         Error: {error}
       </div>
     );
@@ -375,7 +380,7 @@ export default function AdminPage() {
      UI
   ======================= */
   return (
-    <div className="bg-black text-white min-h-screen flex">
+    <div className="bg-black text-white h-screen overflow-hidden flex">
       <Sidebar
         activeTab={activeTab}
         onNavClick={setActiveTab}

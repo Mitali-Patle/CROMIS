@@ -159,9 +159,9 @@ const TensorFlowInsights = ({ data, roleData = [], peakData = [] }) => {
   return (
     <div className="bg-black/50 backdrop-blur-xl p-6 rounded-2xl border border-gray-700/50 shadow-2xl h-full flex flex-col">
       <div className="flex items-center gap-3 mb-5">
-        <div className="p-2 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-lg">
+        {/* <div className="p-2 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-lg">
           <Brain className="w-5 h-5 text-blue-400" />
-        </div>
+        </div> */}
         <div>
           <h3 className="text-lg font-semibold text-white">
             AI Command Center
@@ -274,22 +274,20 @@ const TensorFlowInsights = ({ data, roleData = [], peakData = [] }) => {
               Equitable Access
             </div>
             <div
-              className={`p-3 rounded-xl border ${
-                insights.type === "warning"
-                  ? "bg-orange-500/10 border-orange-500/20"
-                  : insights.type === "caution"
-                    ? "bg-yellow-500/10 border-yellow-500/20"
-                    : "bg-blue-500/10 border-blue-500/20"
-              }`}
+              className={`p-3 rounded-xl border ${insights.type === "warning"
+                ? "bg-orange-500/10 border-orange-500/20"
+                : insights.type === "caution"
+                  ? "bg-yellow-500/10 border-yellow-500/20"
+                  : "bg-blue-500/10 border-blue-500/20"
+                }`}
             >
               <p
-                className={`text-[10px] font-bold mb-1 uppercase tracking-tighter ${
-                  insights.type === "warning"
-                    ? "text-orange-400"
-                    : insights.type === "caution"
-                      ? "text-yellow-400"
-                      : "text-blue-400"
-                }`}
+                className={`text-[10px] font-bold mb-1 uppercase tracking-tighter ${insights.type === "warning"
+                  ? "text-orange-400"
+                  : insights.type === "caution"
+                    ? "text-yellow-400"
+                    : "text-blue-400"
+                  }`}
               >
                 {insights.type === "warning"
                   ? "Priority Allocation"
@@ -308,7 +306,7 @@ const TensorFlowInsights = ({ data, roleData = [], peakData = [] }) => {
           <div className="pt-1">
             <div className="h-1.5 w-full bg-gray-800 rounded-full overflow-hidden">
               <div
-                className="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-1000"
+                className="h-full bg-gradient-to-r from-red-500 to-red-500 transition-all duration-1000"
                 style={{ width: `${Math.min(100, insights.intensity * 50)}%` }}
               ></div>
             </div>

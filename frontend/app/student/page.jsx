@@ -1,18 +1,38 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Sidebar from "./components/Sidebar";
 import Header from "./components/Header";
 import Dashboard from "./components/Dashboard";
 import ProposalForm from "./components/ProposalForm";
 import MyProposals from "./components/MyProposals";
 import Drafts from "./components/Drafts";
+import Profile from "../components/Profile";
 
 export default function StudentPage() {
-  const [activeTab, setActiveTab] = useState("home");
+  const [activeTab, setActiveTab] = useState("overview");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
+    // Role guard — student only
+    const token = localStorage.getItem("token");
+    const role = localStorage.getItem("role");
+
+    if (!token) {
+      router.replace("/login");
+      return;
+    }
+    if (role === "faculty") {
+      router.replace("/faculty");
+      return;
+    }
+    if (role === "admin") {
+      router.replace("/admin");
+      return;
+    }
+
     const tab = sessionStorage.getItem("openTab");
     if (tab) {
       setActiveTab(tab);
@@ -22,7 +42,7 @@ export default function StudentPage() {
 
   const renderContent = () => {
     switch (activeTab) {
-      case "home":
+      case "overview":
         return <Dashboard onNavigate={setActiveTab} />;
       case "new":
         return <ProposalForm />;
@@ -30,13 +50,15 @@ export default function StudentPage() {
         return <MyProposals />;
       case "drafts":
         return <Drafts />;
+      case "profile":
+        return <Profile />;
       default:
         return <Dashboard onNavigate={setActiveTab} />;
     }
   };
 
   return (
-    <div className="flex bg-black text-white min-h-screen">
+    <div className="flex bg-black text-white h-screen overflow-hidden">
       <Sidebar
         activeTab={activeTab}
         onNavClick={setActiveTab}

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { X, Home, FilePlus, FileText, FolderOpen, LogOut } from "lucide-react";
+import { X, Home, LayoutDashboard, FilePlus, FileText, FolderOpen, UserCircle, LogOut } from "lucide-react";
 
 const Sidebar = ({ onNavClick, activeTab, isOpen, onToggle }) => {
   const router = useRouter();
@@ -16,18 +16,22 @@ const Sidebar = ({ onNavClick, activeTab, isOpen, onToggle }) => {
   }, []);
 
   const navItems = [
-    { key: "home", label: "Home", icon: Home },
+    { key: "home", label: "Home", icon: Home, external: true },
+    { key: "overview", label: "Overview", icon: LayoutDashboard },
     { key: "new", label: "New Proposal", icon: FilePlus },
     { key: "my", label: "My Proposals", icon: FileText },
     { key: "drafts", label: "Drafts", icon: FolderOpen },
+    { key: "profile", label: "Profile", icon: UserCircle },
   ];
 
   const handleNavClick = (key) => {
-    onNavClick(key);
-    // Auto-close sidebar on mobile after selection
-    if (isMobile) {
-      onToggle(false);
+    if (key === "home") {
+      router.push("/");
+      if (isMobile) onToggle(false);
+      return;
     }
+    onNavClick(key);
+    if (isMobile) onToggle(false);
   };
 
   const logout = () => {
@@ -42,9 +46,8 @@ const Sidebar = ({ onNavClick, activeTab, isOpen, onToggle }) => {
   }
 
   const sidebarClasses = isMobile
-    ? `fixed inset-0 z-50 bg-black text-white transition-transform duration-300 flex flex-col ${
-        isOpen ? "translate-x-0" : "-translate-x-full"
-      }`
+    ? `fixed inset-0 z-50 bg-black text-white transition-transform duration-300 flex flex-col ${isOpen ? "translate-x-0" : "-translate-x-full"
+    }`
     : `bg-black text-white h-screen transition-all duration-300 flex flex-col w-64`; // Always w-64 on desktop
 
   const showToggleButton = isMobile;
@@ -86,18 +89,16 @@ const Sidebar = ({ onNavClick, activeTab, isOpen, onToggle }) => {
               <button
                 key={item.key}
                 onClick={() => handleNavClick(item.key)}
-                className={`flex items-center w-full px-3 py-3 rounded-lg transition-all duration-200 group ${
-                  isActive
-                    ? "bg-white text-black shadow-lg"
-                    : "text-gray-400 hover:bg-gray-700 hover:text-white"
-                }`}
+                className={`flex items-center w-full px-3 py-3 rounded-lg transition-all duration-200 group ${isActive
+                  ? "bg-white text-black shadow-lg"
+                  : "text-gray-400 hover:bg-gray-700 hover:text-white"
+                  }`}
               >
                 <Icon
-                  className={`w-5 h-5 flex-shrink-0 transition-transform duration-200 ${
-                    isActive
-                      ? "text-black"
-                      : "text-gray-400 group-hover:text-white"
-                  } mr-3`}
+                  className={`w-5 h-5 flex-shrink-0 transition-transform duration-200 ${isActive
+                    ? "text-black"
+                    : "text-gray-400 group-hover:text-white"
+                    } mr-3`}
                 />
                 <span className="transition-opacity duration-200 whitespace-nowrap block opacity-100">
                   {item.label}
@@ -111,7 +112,7 @@ const Sidebar = ({ onNavClick, activeTab, isOpen, onToggle }) => {
         <div className="p-2 border-t border-gray-800 flex-shrink-0">
           <button
             onClick={logout}
-            className="flex items-center w-full px-3 py-3 rounded-lg transition-all duration-200 group text-red-400 hover:bg-red-500/10 hover:text-red-300"
+            className="flex items-center w-full px-3 py-3 rounded-lg transition-all duration-200 group text-gray-400 hover:bg-gray-800 hover:text-white"
           >
             <LogOut className="w-5 h-5 flex-shrink-0 mr-3" />
             <span className="transition-opacity duration-200 whitespace-nowrap block opacity-100">
@@ -131,9 +132,8 @@ const Sidebar = ({ onNavClick, activeTab, isOpen, onToggle }) => {
                 <button
                   key={item.key}
                   onClick={() => handleNavClick(item.key)}
-                  className={`flex flex-col items-center px-2 py-1 rounded transition-all duration-200 ${
-                    isActive ? "text-white" : "text-gray-400 hover:text-white"
-                  }`}
+                  className={`flex flex-col items-center px-2 py-1 rounded transition-all duration-200 ${isActive ? "text-white" : "text-gray-400 hover:text-white"
+                    }`}
                 >
                   <Icon
                     className={`w-5 h-5 mb-1 ${isActive ? "text-white" : "text-gray-400"}`}

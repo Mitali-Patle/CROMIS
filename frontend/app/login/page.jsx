@@ -50,6 +50,8 @@ export default function LoginPage() {
 
       if (res.user.role === "admin") {
         window.location.href = "/admin";
+      } else if (res.user.role === "faculty") {
+        window.location.href = "/faculty";
       } else {
         window.location.href = "/student";
       }
