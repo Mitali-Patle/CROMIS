@@ -146,6 +146,7 @@ export const getAllBookings = async (req, res) => {
     if (req.query.status) filter.status = req.query.status;
     if (req.query.resource) filter.resource = req.query.resource;
     if (req.query.requester) filter.requester = req.query.requester;
+    if (req.query.groupId) filter.groupId = req.query.groupId;
     const bookings = await BookingRequest.find(filter)
       .populate(["resource", "requester", "approvedBy", "rejectedBy"]) // Include approval refs for visibility
       .sort({ date: -1 });
@@ -705,11 +706,8 @@ export const batchUpdateBookings = async (req, res) => {
       }
     }
 
-=======
       { $set: updateData }
     );
-
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
     return res.json({
       message: `Successfully updated ${result.modifiedCount} bookings`,
       modifiedCount: result.modifiedCount,
@@ -722,7 +720,6 @@ export const batchUpdateBookings = async (req, res) => {
   }
 };
 
-<<<<<<< HEAD
 /**
  * Story 15: Track Resource Conflicts
  * Get all other proposals (pending/approved) that overlap with this one
@@ -763,5 +760,3 @@ export const getOverlappingProposals = async (req, res) => {
     return res.status(500).json({ error: "Server error" });
   }
 };
-=======
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692

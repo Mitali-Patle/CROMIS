@@ -27,12 +27,6 @@ const generateSlots = (start = "08:00", end = "20:00", step = 15) => {
 const overlaps = (start, end, booked) =>
   booked.some((b) => start < b.endTime && end > b.startTime);
 
-<<<<<<< HEAD
-=======
-
-
-
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
 /* ================= COMPONENT ================= */
 
 export default function ProposalForm() {
@@ -58,7 +52,6 @@ export default function ProposalForm() {
   /* ---------- Load Resources ---------- */
   useEffect(() => {
     apiRequest("/resources").then(setResources).catch(console.error);
-<<<<<<< HEAD
 
     // Check for preselected resource from dashboard
     const preselected = localStorage.getItem("preselectedResource");
@@ -66,8 +59,6 @@ export default function ProposalForm() {
       setForm((prev) => ({ ...prev, resource: preselected }));
       localStorage.removeItem("preselectedResource");
     }
-=======
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
   }, []);
 
   /* ---------- Resume Draft (Optional - kept for compatibility) ---------- */
@@ -128,29 +119,19 @@ export default function ProposalForm() {
         formData.append("date", form.date);
         // endpoint remains /bookings
       } else if (activeTab === "multi") {
-<<<<<<< HEAD
         if (!form.startDate || !form.endDate)
           return alert("Please select start and end dates.");
         if (form.startDate > form.endDate)
           return alert("Start date cannot be after end date.");
-=======
-        if (!form.startDate || !form.endDate) return alert("Please select start and end dates.");
-        if (form.startDate > form.endDate) return alert("Start date cannot be after end date.");
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
 
         endpoint += "/multi";
         formData.append("startDate", form.startDate);
         formData.append("endDate", form.endDate);
       } else if (activeTab === "recurring") {
-<<<<<<< HEAD
         if (!form.startDate || !form.endDate)
           return alert("Please select start and end dates.");
         if (form.startDate > form.endDate)
           return alert("Start date cannot be after end date.");
-=======
-        if (!form.startDate || !form.endDate) return alert("Please select start and end dates.");
-        if (form.startDate > form.endDate) return alert("Start date cannot be after end date.");
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
 
         // Route daily to /multi, weekly to /recurring
         if (form.recurrencePattern === "daily") {
@@ -185,13 +166,9 @@ export default function ProposalForm() {
         alert("Booking submitted successfully!");
       } else {
         const count = data.bookings?.length || 0;
-<<<<<<< HEAD
         alert(
           `Successfully created ${count} bookings with Group ID: ${data.groupId}`,
         );
-=======
-        alert(`Successfully created ${count} bookings with Group ID: ${data.groupId}`);
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
       }
 
       // Reset form
@@ -207,10 +184,6 @@ export default function ProposalForm() {
       });
       setFiles([]);
       setDraftId(null);
-<<<<<<< HEAD
-=======
-
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
     } catch (err) {
       alert(err.message || "Booking process failed");
     }
@@ -230,30 +203,17 @@ export default function ProposalForm() {
     <div className="max-w-xl mx-auto">
       {/* Container matching the dark design */}
       <div className="bg-black border border-gray-800 rounded-xl p-6 shadow-2xl">
-<<<<<<< HEAD
         {/* TABS */}
         <div className="flex bg-black rounded-lg p-1 mb-6">
-=======
-
-        {/* TABS */}
-        <div className="flex bg-gray-900 rounded-lg p-1 mb-6">
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
           {["single", "multi", "recurring"].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-<<<<<<< HEAD
               className={`flex-1 py-2 text-sm font-medium rounded-md transition-colors ${
                 activeTab === tab
                   ? "bg-gray-700 text-white shadow"
                   : "text-gray-400 hover:text-gray-200"
               }`}
-=======
-              className={`flex-1 py-2 text-sm font-medium rounded-md transition-colors ${activeTab === tab
-                ? "bg-gray-700 text-white shadow"
-                : "text-gray-400 hover:text-gray-200"
-                }`}
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
             >
               {tab === "single"
                 ? "Single"
@@ -272,21 +232,13 @@ export default function ProposalForm() {
               required
               value={form.resource}
               onChange={handleChange}
-<<<<<<< HEAD
               className="w-full bg-black border border-gray-700 text-gray-200 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-=======
-              className="w-full bg-gray-900 border border-gray-700 text-gray-200 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
             >
               <option value="">Select Resource</option>
               {resources.map((r) => (
                 <option key={r._id} value={r._id}>
-<<<<<<< HEAD
                   {r.name} - {r.availableFrom || "08:00"} to{" "}
                   {r.availableTo || "20:00"} (Capacity: {r.capacity || "N/A"})
-=======
-                  {r.name}
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
                 </option>
               ))}
             </select>
@@ -295,13 +247,9 @@ export default function ProposalForm() {
           {/* Date Fields Based on Tab */}
           {activeTab === "single" && (
             <div>
-<<<<<<< HEAD
               <label className="block text-xs text-gray-500 mb-1 ml-1">
                 Date
               </label>
-=======
-              <label className="block text-xs text-gray-500 mb-1 ml-1">Date</label>
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
               <input
                 type="date"
                 name="date"
@@ -309,11 +257,7 @@ export default function ProposalForm() {
                 min={new Date().toISOString().split("T")[0]}
                 value={form.date}
                 onChange={handleChange}
-<<<<<<< HEAD
                 className="w-full bg-black border border-gray-700 text-gray-200 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-=======
-                className="w-full bg-gray-900 border border-gray-700 text-gray-200 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
               />
             </div>
           )}
@@ -321,13 +265,9 @@ export default function ProposalForm() {
           {(activeTab === "multi" || activeTab === "recurring") && (
             <div className="grid grid-cols-2 gap-4">
               <div>
-<<<<<<< HEAD
                 <label className="block text-xs text-gray-500 mb-1 ml-1">
                   Start Date
                 </label>
-=======
-                <label className="block text-xs text-gray-500 mb-1 ml-1">Start Date</label>
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
                 <input
                   type="date"
                   name="startDate"
@@ -335,7 +275,6 @@ export default function ProposalForm() {
                   min={new Date().toISOString().split("T")[0]}
                   value={form.startDate}
                   onChange={handleChange}
-<<<<<<< HEAD
                   className="w-full bg-black border border-gray-700 text-gray-200 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 />
               </div>
@@ -343,13 +282,6 @@ export default function ProposalForm() {
                 <label className="block text-xs text-gray-500 mb-1 ml-1">
                   End Date
                 </label>
-=======
-                  className="w-full bg-gray-900 border border-gray-700 text-gray-200 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                />
-              </div>
-              <div>
-                <label className="block text-xs text-gray-500 mb-1 ml-1">End Date</label>
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
                 <input
                   type="date"
                   name="endDate"
@@ -357,11 +289,7 @@ export default function ProposalForm() {
                   min={form.startDate}
                   value={form.endDate}
                   onChange={handleChange}
-<<<<<<< HEAD
                   className="w-full bg-black border border-gray-700 text-gray-200 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-=======
-                  className="w-full bg-gray-900 border border-gray-700 text-gray-200 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
                 />
               </div>
             </div>
@@ -370,22 +298,14 @@ export default function ProposalForm() {
           {/* Recurrence Pattern (Only for Recurring Tab) */}
           {activeTab === "recurring" && (
             <div>
-<<<<<<< HEAD
               <label className="block text-xs text-gray-500 mb-1 ml-1">
                 Recurrence
               </label>
-=======
-              <label className="block text-xs text-gray-500 mb-1 ml-1">Recurrence</label>
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
               <select
                 name="recurrencePattern"
                 value={form.recurrencePattern}
                 onChange={handleChange}
-<<<<<<< HEAD
                 className="w-full bg-black border border-gray-700 text-gray-200 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-=======
-                className="w-full bg-gray-900 border border-gray-700 text-gray-200 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
               >
                 <option value="daily">Daily (Every Day)</option>
                 <option value="weekly">Weekly (Same Day of Week)</option>
@@ -396,23 +316,15 @@ export default function ProposalForm() {
           {/* Time Fields */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-<<<<<<< HEAD
               <label className="block text-xs text-gray-500 mb-1 ml-1">
                 Start Time
               </label>
-=======
-              <label className="block text-xs text-gray-500 mb-1 ml-1">Start Time</label>
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
               <select
                 name="startTime"
                 required
                 value={form.startTime}
                 onChange={handleChange}
-<<<<<<< HEAD
                 className="w-full bg-black border border-gray-700 text-gray-200 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-=======
-                className="w-full bg-gray-900 border border-gray-700 text-gray-200 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
               >
                 <option value="">--:--</option>
                 {startSlots.map((t) => (
@@ -423,23 +335,15 @@ export default function ProposalForm() {
               </select>
             </div>
             <div>
-<<<<<<< HEAD
               <label className="block text-xs text-gray-500 mb-1 ml-1">
                 End Time
               </label>
-=======
-              <label className="block text-xs text-gray-500 mb-1 ml-1">End Time</label>
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
               <select
                 name="endTime"
                 required
                 value={form.endTime}
                 onChange={handleChange}
-<<<<<<< HEAD
                 className="w-full bg-black border border-gray-700 text-gray-200 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-=======
-                className="w-full bg-gray-900 border border-gray-700 text-gray-200 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
               >
                 <option value="">--:--</option>
                 {endSlots
@@ -456,11 +360,7 @@ export default function ProposalForm() {
           {/* Purpose Template */}
           <PurposeTemplates
             onSelect={(text) => setForm((f) => ({ ...f, purpose: text }))}
-<<<<<<< HEAD
             className="w-full bg-black border border-gray-700 text-gray-200 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-=======
-            className="w-full bg-gray-900 border border-gray-700 text-gray-200 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
           />
 
           {/* Purpose Textarea */}
@@ -471,11 +371,7 @@ export default function ProposalForm() {
               minLength={10}
               value={form.purpose}
               onChange={handleChange}
-<<<<<<< HEAD
               className="w-full h-24 bg-black border border-gray-700 text-gray-200 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none placeholder-gray-500"
-=======
-              className="w-full h-24 bg-gray-900 border border-gray-700 text-gray-200 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none placeholder-gray-500"
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
               placeholder="Purpose"
             />
           </div>
@@ -490,20 +386,15 @@ export default function ProposalForm() {
                   type="file"
                   multiple
                   accept=".pdf,image/*"
-<<<<<<< HEAD
                   onChange={(e) =>
                     setFiles((prev) => [...prev, ...Array.from(e.target.files)])
                   }
-=======
-                  onChange={(e) => setFiles((prev) => [...prev, ...Array.from(e.target.files)])}
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
                   className="hidden"
                 />
               </label>
             </div>
 
             {files.length > 0 && (
-<<<<<<< HEAD
               <ul className="text-sm bg-black rounded p-2 space-y-1">
                 {files.map((file, i) => (
                   <li
@@ -516,15 +407,6 @@ export default function ProposalForm() {
                       onClick={() =>
                         setFiles(files.filter((_, idx) => idx !== i))
                       }
-=======
-              <ul className="text-sm bg-gray-900 rounded p-2 space-y-1">
-                {files.map((file, i) => (
-                  <li key={i} className="flex justify-between items-center text-gray-300">
-                    <span className="truncate max-w-[200px]">{file.name}</span>
-                    <button
-                      type="button"
-                      onClick={() => setFiles(files.filter((_, idx) => idx !== i))}
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
                       className="text-red-500 hover:text-red-400 text-xs"
                     >
                       Remove
@@ -535,24 +417,16 @@ export default function ProposalForm() {
             )}
           </div>
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
           <button
             type="submit"
             disabled={loading}
             className="w-full bg-white text-black font-bold py-3 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 flex justify-center items-center"
           >
-<<<<<<< HEAD
             {loading ? (
               <Loader2 className="animate-spin w-5 h-5" />
             ) : (
               "Submit Proposal"
             )}
-=======
-            {loading ? <Loader2 className="animate-spin w-5 h-5" /> : "Submit Proposal"}
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
           </button>
         </form>
 

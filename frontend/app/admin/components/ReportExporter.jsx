@@ -53,7 +53,6 @@ const ReportExporter = ({ analyticsData, bookings, pendingBookings }) => {
     document.body.removeChild(link);
   };
 
-<<<<<<< HEAD
   const formatHour = (h) => {
     const hour = parseInt(h, 10);
     const ampm = hour >= 12 ? "PM" : "AM";
@@ -75,15 +74,12 @@ const ReportExporter = ({ analyticsData, bookings, pendingBookings }) => {
     }
   };
 
-=======
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
   const handleExport = () => {
     setLoading(true);
     let csv = "";
     let filename = "";
 
     switch (exportType) {
-<<<<<<< HEAD
       case "daily": {
         // Use raw bookings for resource-level detail
         const sevenDaysAgo = new Date();
@@ -242,34 +238,6 @@ const ReportExporter = ({ analyticsData, bookings, pendingBookings }) => {
           })),
           ["Role", "Number of Bookings"],
         );
-=======
-      case "daily":
-        csv = generateCSV(analyticsData.daily, ["_id", "totalBookings"]);
-        filename = "daily-usage.csv";
-        break;
-      case "weekly":
-        csv = generateCSV(analyticsData.weekly, ["_id", "totalBookings"]);
-        filename = "weekly-usage.csv";
-        break;
-      case "monthly":
-        csv = generateCSV(analyticsData.weekly, ["_id", "totalBookings"]);
-        filename = "monthly-usage.csv";
-        break;
-      case "peak":
-        csv = generateCSV(analyticsData.peakHours, ["_id", "count"]);
-        filename = "peak-hours.csv";
-        break;
-      case "underused":
-        csv = generateCSV(analyticsData.underutilized, [
-          "name",
-          "type",
-          "totalBookings",
-        ]);
-        filename = "underused-resources.csv";
-        break;
-      case "roles":
-        csv = generateCSV(analyticsData.roleUsage, ["_id", "count"]);
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
         filename = "role-usage.csv";
         break;
       case "bookings":
@@ -311,11 +279,7 @@ const ReportExporter = ({ analyticsData, bookings, pendingBookings }) => {
   };
 
   return (
-<<<<<<< HEAD
     <div className="bg-black p-6 rounded-lg border border-gray-700">
-=======
-    <div className="bg-gray-900 p-6 rounded-lg border border-gray-700">
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
       <h3 className="text-lg font-medium mb-4 text-white">Export Reports</h3>
       {/* Custom Dropdown */}
       <div className="relative mb-4">
@@ -368,8 +332,4 @@ const ReportExporter = ({ analyticsData, bookings, pendingBookings }) => {
   );
 };
 
-<<<<<<< HEAD
 export default ReportExporter;
-=======
-export default ReportExporter;
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692

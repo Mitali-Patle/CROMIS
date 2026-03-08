@@ -1,10 +1,6 @@
 // /app/admin/components/AnalyticsChart.jsx
-<<<<<<< HEAD
 import React, { useRef, useState } from "react";
 import { toPng } from "html-to-image";
-=======
-import React from "react";
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
 import {
   LineChart,
   Line,
@@ -16,7 +12,6 @@ import {
   BarChart,
   Bar,
   Legend,
-<<<<<<< HEAD
   PieChart,
   Pie,
   Cell,
@@ -45,21 +40,10 @@ const AnalyticsChart = ({
   if (Array.isArray(data) && typeof data[0] === "number") {
     chartData = data.map((value, index) => ({
       name: `Period ${index + 1} `,
-=======
-} from "recharts";
-
-const AnalyticsChart = ({ data, type = "line", title = "Usage Trends" }) => {
-  // Handle both array of numbers or array of objects
-  let chartData = data;
-  if (typeof data[0] === "number") {
-    chartData = data.map((value, index) => ({
-      name: `Period ${index + 1}`,
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
       value,
     }));
   }
 
-<<<<<<< HEAD
   const handleExport = async () => {
     if (chartRef.current === null) return;
     try {
@@ -76,23 +60,16 @@ const AnalyticsChart = ({ data, type = "line", title = "Usage Trends" }) => {
     }
   };
 
-=======
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
   const renderLineChart = () => (
     <ResponsiveContainer width="100%" height={300}>
       <LineChart data={chartData}>
         <CartesianGrid stroke="#374151" strokeDasharray="3 3" />
-<<<<<<< HEAD
         <XAxis dataKey="name" stroke="#9CA3AF" interval="preserveStartEnd" />
-=======
-        <XAxis dataKey="name" stroke="#9CA3AF" />
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
         <YAxis stroke="#9CA3AF" />
         <Tooltip
           contentStyle={{
             backgroundColor: "#1F2937",
             border: "none",
-<<<<<<< HEAD
             borderRadius: "8px",
             color: "#FFF",
           }}
@@ -115,23 +92,11 @@ const AnalyticsChart = ({ data, type = "line", title = "Usage Trends" }) => {
           stroke="#10B981"
           strokeWidth={2}
           strokeDasharray="5 5"
-=======
-            color: "#FFF",
-          }}
-          formatter={(value, name) => [value, title]}
-        />
-        <Line
-          type="monotone"
-          dataKey="value"
-          stroke="#3B82F6"
-          strokeWidth={2}
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
         />
       </LineChart>
     </ResponsiveContainer>
   );
 
-<<<<<<< HEAD
   const renderBarChart = () => {
     // Detect which data keys are present (excluding 'name')
     const sampleKeys =
@@ -196,19 +161,10 @@ const AnalyticsChart = ({ data, type = "line", title = "Usage Trends" }) => {
             />
           ))}
         </Pie>
-=======
-  const renderBarChart = () => (
-    <ResponsiveContainer width="100%" height={300}>
-      <BarChart data={chartData}>
-        <CartesianGrid stroke="#374151" strokeDasharray="3 3" />
-        <XAxis dataKey="name" stroke="#9CA3AF" />
-        <YAxis stroke="#9CA3AF" />
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
         <Tooltip
           contentStyle={{
             backgroundColor: "#1F2937",
             border: "none",
-<<<<<<< HEAD
             borderRadius: "8px",
             color: "#FFF",
           }}
@@ -416,28 +372,8 @@ const AnalyticsChart = ({ data, type = "line", title = "Usage Trends" }) => {
         </div>
       </div>
       <div className="flex-grow">{renderContent()}</div>
-=======
-            color: "#FFF",
-          }}
-          formatter={(value, name) => [value, title]}
-        />
-        <Legend />
-        <Bar dataKey="value" fill="#3B82F6" />
-      </BarChart>
-    </ResponsiveContainer>
-  );
-
-  return (
-    <div className="bg-gray-900 p-6 rounded-lg border border-gray-700">
-      <h3 className="text-lg font-medium mb-4 text-white">{title}</h3>
-      {type === "bar" ? renderBarChart() : renderLineChart()}
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
     </div>
   );
 };
 
-<<<<<<< HEAD
 export default AnalyticsChart;
-=======
-export default AnalyticsChart;
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692

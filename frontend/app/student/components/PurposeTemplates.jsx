@@ -17,11 +17,7 @@ export default function PurposeTemplates({ onSelect }) {
   return (
     <select
       onChange={(e) => onSelect(e.target.value)}
-<<<<<<< HEAD
       className="w-full bg-black border border-gray-700 p-3 rounded"
-=======
-      className="w-full bg-gray-900 border border-gray-700 p-3 rounded"
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
     >
       <option value="">Select purpose template</option>
       {templates.map((t) => (

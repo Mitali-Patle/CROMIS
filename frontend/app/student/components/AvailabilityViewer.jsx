@@ -30,24 +30,14 @@ export default function AvailabilityViewer({
 
     const loadAvailability = async () => {
       setLoading(true);
-<<<<<<< HEAD
       const dates = endDate ? getDatesBetween(date, endDate) : [date];
-=======
-      const dates = endDate
-        ? getDatesBetween(date, endDate)
-        : [date];
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
 
       const results = [];
 
       for (const d of dates) {
         try {
           const res = await apiRequest(
-<<<<<<< HEAD
             `/bookings/booked-slots?resource=${resource}&date=${d}`,
-=======
-            `/bookings/booked-slots?resource=${resource}&date=${d}`
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
           );
           results.push({
             date: d,
@@ -59,11 +49,7 @@ export default function AvailabilityViewer({
       }
 
       setDaily(results);
-<<<<<<< HEAD
       onData && onData(results.flatMap((r) => r.slots));
-=======
-      onData && onData(results.flatMap(r => r.slots));
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
       setLoading(false);
     };
 
@@ -75,7 +61,6 @@ export default function AvailabilityViewer({
   }
 
   return (
-<<<<<<< HEAD
     <div className="border border-gray-700 rounded p-3 bg-black space-y-3">
       <h4 className="text-sm font-semibold text-gray-300">
         📅 Availability & Booked Slots
@@ -114,31 +99,6 @@ export default function AvailabilityViewer({
                 ))}
               </ul>
             </div>
-=======
-    <div className="border border-gray-700 rounded p-3 bg-gray-900 space-y-3">
-      <h4 className="text-sm font-semibold text-gray-300">
-        Availability (per day)
-      </h4>
-
-      {daily.length === 0 && (
-        <p className="text-xs text-gray-500">No data</p>
-      )}
-
-      {daily.map((d) => (
-        <div key={d.date} className="text-sm">
-          <p className="font-medium text-gray-300">{d.date}</p>
-
-          {d.slots.length === 0 ? (
-            <p className="text-xs text-green-400">No bookings</p>
-          ) : (
-            <ul className="text-xs text-red-400 space-y-1">
-              {d.slots.map((s, i) => (
-                <li key={i}>
-                  {s.startTime} – {s.endTime}
-                </li>
-              ))}
-            </ul>
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
           )}
         </div>
       ))}

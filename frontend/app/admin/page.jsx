@@ -10,14 +10,10 @@ import AnalyticsChart from "./components/AnalyticsChart";
 import TensorFlowInsights from "./components/TensorFlowInsights";
 import ReportExporter from "./components/ReportExporter";
 import Dashboard from "./components/Dashboard";
-<<<<<<< HEAD
 import UserManagement from "./components/UserManagement";
 import AuditLogList from "./components/AuditLogList";
 import { apiRequest } from "@/lib/api";
 import Profile from "../components/Profile";
-=======
-import { apiRequest } from "@/lib/api";
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
 
 export default function AdminPage() {
   const router = useRouter();
@@ -45,13 +41,10 @@ export default function AdminPage() {
     peakHours: [],
     underutilized: [],
     roleUsage: [],
-<<<<<<< HEAD
     heatmap: [],
     timeline: [],
     topResources: [],
     overallStatus: [],
-=======
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
   });
 
   const [loading, setLoading] = useState(true);
@@ -64,19 +57,11 @@ export default function AdminPage() {
     const r = localStorage.getItem("role");
 
     if (r !== "admin") {
-<<<<<<< HEAD
       router.replace("/login");
       return;
     }
 
     setRole(r);
-=======
-      router.replace("/login"); // or "/login"
-      return;
-    }
-
-    setRole(r); // ONLY admin reaches here
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
   }, [router]);
 
   /* =======================
@@ -97,21 +82,12 @@ export default function AdminPage() {
   const fetchSummaryData = async () => {
     const [resourcesRes, bookingsRes] = await Promise.all([
       apiRequest("/resources"),
-<<<<<<< HEAD
       apiRequest("/bookings"),
     ]);
 
     const pending = bookingsRes.filter((b) => b.status === "pending");
     const approved = bookingsRes.filter((b) => b.status === "approved");
     const rejected = bookingsRes.filter((b) => b.status === "rejected");
-=======
-      apiRequest("/bookings"), // 🔒 admin only
-    ]);
-
-    const pending = bookingsRes.filter(b => b.status === "pending");
-    const approved = bookingsRes.filter(b => b.status === "approved");
-    const rejected = bookingsRes.filter(b => b.status === "rejected");
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
 
     setSummaryData({
       totalResources: resourcesRes.length,
@@ -119,11 +95,7 @@ export default function AdminPage() {
       approvedRequests: approved.length,
       rejectedRequests: rejected.length,
       currentOccupancy: `${Math.round(
-<<<<<<< HEAD
         (approved.length / (resourcesRes.length * 10)) * 100,
-=======
-        (approved.length / (resourcesRes.length * 10)) * 100
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
       )}%`,
     });
 
@@ -132,7 +104,6 @@ export default function AdminPage() {
   };
 
   const fetchAnalytics = async () => {
-<<<<<<< HEAD
     const endpoints = [
       { key: "daily", url: "/analytics/daily" },
       { key: "weekly", url: "/analytics/weekly" },
@@ -156,41 +127,18 @@ export default function AdminPage() {
     });
 
     setAnalyticsData((prev) => ({ ...prev, ...newData }));
-=======
-    const [daily, weekly, peakHours, underutilized, roleUsage] =
-      await Promise.all([
-        apiRequest("/analytics/daily"),
-        apiRequest("/analytics/weekly"),
-        apiRequest("/analytics/peak-hours"),
-        apiRequest("/analytics/underutilized"),
-        apiRequest("/analytics/role-usage"),
-      ]);
-
-    setAnalyticsData({ daily, weekly, peakHours, underutilized, roleUsage });
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
   };
 
   /* =======================
      🚀 LOAD DATA (ONLY AFTER ROLE CONFIRMED)
   ======================= */
   useEffect(() => {
-<<<<<<< HEAD
     if (role !== "admin") return;
-=======
-    if (role !== "admin") return; // 🛑 HARD STOP
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
 
     const loadData = async () => {
       try {
         setLoading(true);
-<<<<<<< HEAD
         await Promise.all([fetchSummaryData(), fetchAnalytics()]);
-=======
-        await Promise.all([
-          fetchSummaryData(),
-          fetchAnalytics(),
-        ]);
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
       } catch (err) {
         setError(err.message);
       } finally {
@@ -220,7 +168,6 @@ export default function AdminPage() {
   const renderContent = () => {
     switch (activeTab) {
       case "dashboard":
-<<<<<<< HEAD
         return (
           <Dashboard
             summaryData={summaryData}
@@ -237,13 +184,6 @@ export default function AdminPage() {
             onRefresh={fetchSummaryData}
           />
         );
-=======
-        return <Dashboard summaryData={summaryData} pendingBookings={pendingBookings} />;
-      case "resources":
-        return <ResourceForm />;
-      case "bookings":
-        return <BookingList bookings={bookings} mode="history" onRefresh={fetchSummaryData} />;
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
       case "approvals":
         return (
           <BookingList
@@ -255,13 +195,9 @@ export default function AdminPage() {
           />
         );
       case "approved-singles":
-<<<<<<< HEAD
         const approvedSingles = bookings.filter(
           (b) => b.status === "approved" && !b.groupId,
         );
-=======
-        const approvedSingles = bookings.filter(b => b.status === "approved" && !b.groupId);
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
         return (
           <BookingList
             bookings={approvedSingles}
@@ -271,7 +207,6 @@ export default function AdminPage() {
         );
       case "analytics":
         return (
-<<<<<<< HEAD
           <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
               <AnalyticsChart
@@ -406,13 +341,6 @@ export default function AdminPage() {
       case "users":
         return <UserManagement />;
 
-=======
-          <AnalyticsChart
-            data={analyticsData.daily.map(d => d.totalBookings)}
-            title="Daily Utilization"
-          />
-        );
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
       case "reports":
         return (
           <ReportExporter
@@ -421,7 +349,6 @@ export default function AdminPage() {
             pendingBookings={pendingBookings}
           />
         );
-<<<<<<< HEAD
 
       case "audit":
         return <AuditLogList />;
@@ -429,8 +356,6 @@ export default function AdminPage() {
       case "profile":
         return <Profile />;
 
-=======
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
       default:
         return null;
     }
@@ -449,11 +374,7 @@ export default function AdminPage() {
 
   if (error) {
     return (
-<<<<<<< HEAD
       <div className="flex items-center justify-center min-h-screen bg-black text-white">
-=======
-      <div className="flex items-center justify-center min-h-screen bg-black text-red-500">
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
         Error: {error}
       </div>
     );
@@ -463,11 +384,7 @@ export default function AdminPage() {
      UI
   ======================= */
   return (
-<<<<<<< HEAD
     <div className="bg-black text-white h-screen overflow-hidden flex">
-=======
-    <div className="bg-black text-white min-h-screen flex">
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
       <Sidebar
         activeTab={activeTab}
         onNavClick={setActiveTab}
@@ -486,13 +403,7 @@ export default function AdminPage() {
           <h1 className="text-xl font-bold">Admin Dashboard</h1>
         </header>
 
-<<<<<<< HEAD
         <main className="flex-1 p-6 overflow-y-auto">{renderContent()}</main>
-=======
-        <main className="flex-1 p-6 overflow-y-auto">
-          {renderContent()}
-        </main>
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
       </div>
     </div>
   );
