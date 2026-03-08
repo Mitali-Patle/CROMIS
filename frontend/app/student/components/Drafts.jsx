@@ -18,10 +18,18 @@ export default function Drafts() {
   }, []);
 
   const resumeDraft = (draft) => {
+<<<<<<< HEAD
     localStorage.setItem("resumeDraft", JSON.stringify(draft));
     sessionStorage.setItem("openTab", "new");
     window.location.href = "/student";
   };
+=======
+  localStorage.setItem("resumeDraft", JSON.stringify(draft));
+  sessionStorage.setItem("openTab", "new");
+  window.location.href = "/student";
+};
+
+>>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
 
   const deleteDraft = async (id) => {
     if (!confirm("Delete this draft?")) return;
@@ -49,7 +57,11 @@ export default function Drafts() {
       {drafts.map((draft) => (
         <div
           key={draft._id}
+<<<<<<< HEAD
           className="border border-gray-700 bg-black rounded p-4 space-y-2"
+=======
+          className="border border-gray-700 bg-gray-900 rounded p-4 space-y-2"
+>>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
         >
           <p className="text-sm text-gray-400">
             Resource: {draft.resource?.name || "Not selected"}

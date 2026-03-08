@@ -52,10 +52,19 @@ export default function MyProposals() {
   // Apply filters + search
   const filteredProposals = useMemo(() => {
     return proposals.filter((p) => {
+<<<<<<< HEAD
       const matchesStatus = statusFilter === "all" || p.status === statusFilter;
 
       const matchesResource =
         resourceFilter === "all" || p.resource?._id === resourceFilter;
+=======
+      const matchesStatus =
+        statusFilter === "all" || p.status === statusFilter;
+
+      const matchesResource =
+        resourceFilter === "all" ||
+        p.resource?._id === resourceFilter;
+>>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
 
       const text = `${p.purpose} ${p.resource?.name}`.toLowerCase();
       const matchesSearch = text.includes(search.toLowerCase());
@@ -73,7 +82,11 @@ export default function MyProposals() {
       <h1 className="text-2xl font-bold">My Proposals</h1>
 
       {/* Filters */}
+<<<<<<< HEAD
       <div className="flex flex-wrap gap-3 bg-black border border-gray-700 p-4 rounded">
+=======
+      <div className="flex flex-wrap gap-3 bg-gray-900 border border-gray-700 p-4 rounded">
+>>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
         {/* Status */}
         <select
           value={statusFilter}
@@ -118,7 +131,15 @@ export default function MyProposals() {
       ) : (
         <div className="space-y-4">
           {filteredProposals.map((p) => (
+<<<<<<< HEAD
             <ProposalCard key={p._id} proposal={p} onCancel={cancelProposal} />
+=======
+            <ProposalCard
+              key={p._id}
+              proposal={p}
+              onCancel={cancelProposal}
+            />
+>>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
           ))}
         </div>
       )}

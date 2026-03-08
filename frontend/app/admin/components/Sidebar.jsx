@@ -13,11 +13,15 @@ import {
   Clock,
   BarChart3,
   FileText,
+<<<<<<< HEAD
   History,
   Home,
   Users,
   UserCircle,
   LogOut,
+=======
+  Home,
+>>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
 } from "lucide-react";
 
 const Sidebar = ({ onNavClick, activeTab, isOpen, onToggle }) => {
@@ -38,11 +42,16 @@ const Sidebar = ({ onNavClick, activeTab, isOpen, onToggle }) => {
     { key: "bookings", label: "Bookings", icon: Calendar },
     { key: "approvals", label: "Approvals", icon: Clock },
     { key: "approved-singles", label: "Approved", icon: CheckCircle },
+<<<<<<< HEAD
     { key: "users", label: "User Management", icon: Users },
     { key: "analytics", label: "Analytics", icon: BarChart3 },
     { key: "reports", label: "Reports", icon: FileText },
     { key: "audit", label: "Audit Trail", icon: History },
     { key: "profile", label: "Profile", icon: UserCircle },
+=======
+    { key: "analytics", label: "Analytics", icon: BarChart3 },
+    { key: "reports", label: "Reports", icon: FileText },
+>>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
   ];
 
   const handleNavClick = (key) => {
@@ -68,9 +77,14 @@ const Sidebar = ({ onNavClick, activeTab, isOpen, onToggle }) => {
 
   const isCollapsed = false; // Always open on desktop/laptop
   const sidebarClasses = isMobile
+<<<<<<< HEAD
     ? `fixed inset-0 z-50 bg-black text-white transition-transform duration-300 flex flex-col ${
         isOpen ? "translate-x-0" : "-translate-x-full"
       }`
+=======
+    ? `fixed inset-0 z-50 bg-black text-white transition-transform duration-300 flex flex-col ${isOpen ? "translate-x-0" : "-translate-x-full"
+    }`
+>>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
     : `bg-black text-white h-screen transition-all duration-300 flex flex-col w-64`; // Always w-64 on desktop
 
   const showToggleButton = isMobile || false; // Only show toggle on mobile
@@ -112,6 +126,7 @@ const Sidebar = ({ onNavClick, activeTab, isOpen, onToggle }) => {
               <button
                 key={item.key}
                 onClick={() => handleNavClick(item.key)}
+<<<<<<< HEAD
                 className={`flex items-center w-full px-3 py-3 rounded-lg transition-all duration-200 group ${
                   isActive
                     ? "bg-white text-black shadow-lg"
@@ -124,6 +139,18 @@ const Sidebar = ({ onNavClick, activeTab, isOpen, onToggle }) => {
                       ? "text-black"
                       : "text-gray-400 group-hover:text-white"
                   } mr-3`}
+=======
+                className={`flex items-center w-full px-3 py-3 rounded-lg transition-all duration-200 group ${isActive
+                  ? "bg-white text-black shadow-lg"
+                  : "text-gray-400 hover:bg-gray-700 hover:text-white"
+                  }`}
+              >
+                <Icon
+                  className={`w-5 h-5 flex-shrink-0 transition-transform duration-200 ${isActive
+                    ? "text-black"
+                    : "text-gray-400 group-hover:text-white"
+                    } mr-3`}
+>>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
                 />
                 <span className="transition-opacity duration-200 whitespace-nowrap block opacity-100">
                   {item.label}
@@ -132,6 +159,7 @@ const Sidebar = ({ onNavClick, activeTab, isOpen, onToggle }) => {
             );
           })}
         </nav>
+<<<<<<< HEAD
 
         {/* Logout Button */}
         <div className="p-2 border-t border-gray-800 flex-shrink-0">
@@ -151,6 +179,8 @@ const Sidebar = ({ onNavClick, activeTab, isOpen, onToggle }) => {
             </span>
           </button>
         </div>
+=======
+>>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
       </div>
       {/* Mobile Navbar */}
       {isMobile && (
@@ -163,9 +193,14 @@ const Sidebar = ({ onNavClick, activeTab, isOpen, onToggle }) => {
                 <button
                   key={item.key}
                   onClick={() => handleNavClick(item.key)}
+<<<<<<< HEAD
                   className={`flex flex-col items-center px-2 py-1 rounded transition-all duration-200 ${
                     isActive ? "text-white" : "text-gray-400 hover:text-white"
                   }`}
+=======
+                  className={`flex flex-col items-center px-2 py-1 rounded transition-all duration-200 ${isActive ? "text-white" : "text-gray-400 hover:text-white"
+                    }`}
+>>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
                 >
                   <Icon
                     className={`w-5 h-5 mb-1 ${isActive ? "text-white" : "text-gray-400"}`}
@@ -181,4 +216,8 @@ const Sidebar = ({ onNavClick, activeTab, isOpen, onToggle }) => {
   );
 };
 
+<<<<<<< HEAD
 export default Sidebar;
+=======
+export default Sidebar;
+>>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692

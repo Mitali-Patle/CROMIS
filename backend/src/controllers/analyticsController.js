@@ -3,6 +3,7 @@ import BookingRequest from "../models/BookingRequest.js";
 import Resource from "../models/Resource.js";
 
 /* ---------------------------------------------------
+<<<<<<< HEAD
    Helper: Calculate duration in hours
 --------------------------------------------------- */
 const getDurationHours = (startTime, endTime) => {
@@ -73,6 +74,66 @@ export const getDailyUtilization = async (req, res) => {
         },
       },
       { $sort: { _id: 1 } },
+=======
+   1. Daily Utilization (Fixed: Early filter + time validation)
+--------------------------------------------------- */
+export const getDailyUtilization = async (req, res) => {
+  try {
+    const result = await BookingRequest.aggregate([
+      // Early filter for active + valid time
+      {
+        $match: {
+          status: { $in: ["pending", "approved"] },
+          startTime: { $regex: /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/ },
+        },
+      },
+      // Build full start datetime safely
+      {
+        $addFields: {
+          startDateTime: {
+            $cond: {
+              if: {
+                $and: [
+                  { $ne: ["$startTime", null] },
+                  { $ne: ["$startTime", ""] },
+                ],
+              },
+              then: {
+                $dateFromParts: {
+                  year: { $year: "$date" },
+                  month: { $month: "$date" },
+                  day: { $dayOfMonth: "$date" },
+                  hour: {
+                    $toInt: {
+                      $arrayElemAt: [{ $split: ["$startTime", ":"] }, 0],
+                    },
+                  },
+                  minute: {
+                    $toInt: {
+                      $arrayElemAt: [{ $split: ["$startTime", ":"] }, 1],
+                    },
+                  },
+                  second: 0,
+                  millisecond: 0,
+                },
+              },
+              else: null,
+            },
+          },
+        },
+      },
+      { $match: { startDateTime: { $ne: null } } }, // Skip invalid dates
+      {
+        $group: {
+          _id: {
+            $dateToString: { format: "%Y-%m-%d", date: "$startDateTime" },
+          },
+          totalBookings: { $sum: 1 },
+        },
+      },
+      { $sort: { _id: 1 } },
+      { $project: { startDateTime: 0 } },
+>>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
     ]);
 
     res.json(result);
@@ -85,11 +146,16 @@ export const getDailyUtilization = async (req, res) => {
 };
 
 /* ---------------------------------------------------
+<<<<<<< HEAD
    2. Weekly Utilization (Trends + Summary)
+=======
+   2. Weekly Utilization (Fixed: Same as above)
+>>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
 --------------------------------------------------- */
 export const getWeeklyUtilization = async (req, res) => {
   try {
     const result = await BookingRequest.aggregate([
+<<<<<<< HEAD
       { $match: { status: "approved" } },
       {
         $addFields: {
@@ -139,6 +205,62 @@ export const getWeeklyUtilization = async (req, res) => {
         },
       },
       { $sort: { "_id.year": 1, "_id.week": 1 } },
+=======
+      // Early filter
+      {
+        $match: {
+          status: { $in: ["pending", "approved"] },
+          startTime: { $regex: /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/ },
+        },
+      },
+      // Safe datetime build
+      {
+        $addFields: {
+          startDateTime: {
+            $cond: {
+              if: {
+                $and: [
+                  { $ne: ["$startTime", null] },
+                  { $ne: ["$startTime", ""] },
+                ],
+              },
+              then: {
+                $dateFromParts: {
+                  year: { $year: "$date" },
+                  month: { $month: "$date" },
+                  day: { $dayOfMonth: "$date" },
+                  hour: {
+                    $toInt: {
+                      $arrayElemAt: [{ $split: ["$startTime", ":"] }, 0],
+                    },
+                  },
+                  minute: {
+                    $toInt: {
+                      $arrayElemAt: [{ $split: ["$startTime", ":"] }, 1],
+                    },
+                  },
+                  second: 0,
+                  millisecond: 0,
+                },
+              },
+              else: null,
+            },
+          },
+        },
+      },
+      { $match: { startDateTime: { $ne: null } } },
+      {
+        $group: {
+          _id: {
+            year: { $isoWeekYear: "$startDateTime" },
+            week: { $isoWeek: "$startDateTime" },
+          },
+          totalBookings: { $sum: 1 },
+        },
+      },
+      { $sort: { "_id.year": 1, "_id.week": 1 } },
+      { $project: { startDateTime: 0 } },
+>>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
     ]);
 
     res.json(result);
@@ -151,6 +273,7 @@ export const getWeeklyUtilization = async (req, res) => {
 };
 
 /* ---------------------------------------------------
+<<<<<<< HEAD
    3. Peak Hours (Last 90 Days)
 --------------------------------------------------- */
 export const getPeakHours = async (req, res) => {
@@ -176,11 +299,68 @@ export const getPeakHours = async (req, res) => {
       {
         $group: {
           _id: "$hour",
+=======
+   3. Peak Hours (Fixed: Same)
+--------------------------------------------------- */
+export const getPeakHours = async (req, res) => {
+  try {
+    const result = await BookingRequest.aggregate([
+      // Early filter
+      {
+        $match: {
+          status: { $in: ["pending", "approved"] },
+          startTime: { $regex: /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/ },
+        },
+      },
+      // Safe datetime
+      {
+        $addFields: {
+          startDateTime: {
+            $cond: {
+              if: {
+                $and: [
+                  { $ne: ["$startTime", null] },
+                  { $ne: ["$startTime", ""] },
+                ],
+              },
+              then: {
+                $dateFromParts: {
+                  year: { $year: "$date" },
+                  month: { $month: "$date" },
+                  day: { $dayOfMonth: "$date" },
+                  hour: {
+                    $toInt: {
+                      $arrayElemAt: [{ $split: ["$startTime", ":"] }, 0],
+                    },
+                  },
+                  minute: {
+                    $toInt: {
+                      $arrayElemAt: [{ $split: ["$startTime", ":"] }, 1],
+                    },
+                  },
+                  second: 0,
+                  millisecond: 0,
+                },
+              },
+              else: null,
+            },
+          },
+        },
+      },
+      { $match: { startDateTime: { $ne: null } } },
+      {
+        $group: {
+          _id: { $hour: "$startDateTime" },
+>>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
           count: { $sum: 1 },
         },
       },
       { $sort: { count: -1 } },
+<<<<<<< HEAD
       { $limit: 5 },
+=======
+      { $project: { startDateTime: 0 } },
+>>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
     ]);
 
     res.json(result);
@@ -191,6 +371,7 @@ export const getPeakHours = async (req, res) => {
 };
 
 /* ---------------------------------------------------
+<<<<<<< HEAD
    4. Underutilized Resources (Last 30 Days)
 --------------------------------------------------- */
 export const getUnderutilizedResources = async (req, res) => {
@@ -200,6 +381,14 @@ export const getUnderutilizedResources = async (req, res) => {
 
     const result = await Resource.aggregate([
       { $match: { isActive: true } },
+=======
+   4. Underutilized Resources (Already good, minor tweak for active)
+--------------------------------------------------- */
+export const getUnderutilizedResources = async (req, res) => {
+  try {
+    const result = await Resource.aggregate([
+      { $match: { isActive: true } }, // Only active resources
+>>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
       {
         $lookup: {
           from: "bookingrequests",
@@ -207,6 +396,7 @@ export const getUnderutilizedResources = async (req, res) => {
           pipeline: [
             {
               $match: {
+<<<<<<< HEAD
                 $expr: {
                   $and: [
                     { $eq: ["$resource", "$$resId"] },
@@ -218,10 +408,20 @@ export const getUnderutilizedResources = async (req, res) => {
             },
           ],
           as: "bookings",
+=======
+                $expr: { $eq: ["$resource", "$$resId"] },
+                status: { $in: ["pending", "approved"] }, // Only active bookings
+              },
+            },
+            { $count: "totalBookings" },
+          ],
+          as: "bookingData",
+>>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
         },
       },
       {
         $addFields: {
+<<<<<<< HEAD
           bookingCount: { $size: "$bookings" },
         },
       },
@@ -234,6 +434,15 @@ export const getUnderutilizedResources = async (req, res) => {
         },
       },
       { $sort: { bookingCount: 1 } },
+=======
+          totalBookings: {
+            $ifNull: [{ $arrayElemAt: ["$bookingData.totalBookings", 0] }, 0],
+          },
+        },
+      },
+      { $sort: { totalBookings: 1 } }, // Least used first
+      { $project: { bookingData: 0 } }, // Clean up
+>>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
     ]);
 
     res.json(result);
@@ -246,6 +455,7 @@ export const getUnderutilizedResources = async (req, res) => {
 };
 
 /* ---------------------------------------------------
+<<<<<<< HEAD
    5. Usage by Role (Last Month Trends)
 --------------------------------------------------- */
 export const getUsageByRole = async (req, res) => {
@@ -261,6 +471,14 @@ export const getUsageByRole = async (req, res) => {
           date: { $gte: startOfMonth },
         },
       },
+=======
+   5. Usage by Role (student vs faculty) (Fixed requester)
+--------------------------------------------------- */
+export const getUsageByRole = async (req, res) => {
+  try {
+    const result = await BookingRequest.aggregate([
+      { $match: { status: { $in: ["pending", "approved"] } } },
+>>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
       {
         $lookup: {
           from: "users",
@@ -271,6 +489,7 @@ export const getUsageByRole = async (req, res) => {
       },
       { $unwind: "$userInfo" },
       {
+<<<<<<< HEAD
         $match: {
           "userInfo.role": { $in: ["student", "faculty"] },
         },
@@ -289,6 +508,14 @@ export const getUsageByRole = async (req, res) => {
           uniqueResources: { $size: "$resources" },
         },
       },
+=======
+        $group: {
+          _id: "$userInfo.role",
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { count: -1 } },
+>>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
     ]);
 
     res.json(result);
@@ -299,16 +526,25 @@ export const getUsageByRole = async (req, res) => {
 };
 
 /* ---------------------------------------------------
+<<<<<<< HEAD
    6. Resource Heatmap (Global Resources x Hours)
 --------------------------------------------------- */
 export const getResourceHeatmap = async (req, res) => {
   try {
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+=======
+   6. Resource Heatmap (hour-wise usage) (Fixed: Same)
+--------------------------------------------------- */
+export const getResourceHeatmap = async (req, res) => {
+  try {
+    const resourceId = new mongoose.Types.ObjectId(req.params.resourceId);
+>>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
 
     const result = await BookingRequest.aggregate([
       {
         $match: {
+<<<<<<< HEAD
           status: "approved",
           date: { $gte: thirtyDaysAgo },
           startTime: { $regex: /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/ },
@@ -329,6 +565,57 @@ export const getResourceHeatmap = async (req, res) => {
         },
       },
       { $sort: { "_id.day": 1, "_id.hour": 1 } },
+=======
+          resource: resourceId,
+          status: { $in: ["pending", "approved"] },
+          startTime: { $regex: /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/ },
+        },
+      },
+      // Safe datetime build
+      {
+        $addFields: {
+          startDateTime: {
+            $cond: {
+              if: {
+                $and: [
+                  { $ne: ["$startTime", null] },
+                  { $ne: ["$startTime", ""] },
+                ],
+              },
+              then: {
+                $dateFromParts: {
+                  year: { $year: "$date" },
+                  month: { $month: "$date" },
+                  day: { $dayOfMonth: "$date" },
+                  hour: {
+                    $toInt: {
+                      $arrayElemAt: [{ $split: ["$startTime", ":"] }, 0],
+                    },
+                  },
+                  minute: {
+                    $toInt: {
+                      $arrayElemAt: [{ $split: ["$startTime", ":"] }, 1],
+                    },
+                  },
+                  second: 0,
+                  millisecond: 0,
+                },
+              },
+              else: null,
+            },
+          },
+        },
+      },
+      { $match: { startDateTime: { $ne: null } } },
+      {
+        $group: {
+          _id: { $hour: "$startDateTime" },
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { _id: 1 } },
+      { $project: { startDateTime: 0 } },
+>>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
     ]);
 
     res.json(result);
@@ -337,6 +624,7 @@ export const getResourceHeatmap = async (req, res) => {
     res.status(500).json({ message: "Heatmap error", error: err.message });
   }
 };
+<<<<<<< HEAD
 
 /* ---------------------------------------------------
    7. Resource Occupancy Timeline (Gantt - Next 14 Days)
@@ -458,3 +746,5 @@ export const getOverallStatus = async (req, res) => {
       .json({ message: "Overall status error", error: err.message });
   }
 };
+=======
+>>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 // /app/admin/components/TensorFlowInsights.jsx
 "use client";
 
@@ -17,10 +18,21 @@ import {
 } from "lucide-react";
 
 const TensorFlowInsights = ({ data, roleData = [], peakData = [] }) => {
+=======
+"use client";
+
+import React, { useState, useEffect } from "react";
+import * as tf from "@tensorflow/tfjs";
+import { Loader2 } from "lucide-react";
+
+
+const TensorFlowInsights = ({ data }) => {
+>>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
   const [prediction, setPrediction] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+<<<<<<< HEAD
   // Anomaly detection: flag if any data point is > 2 std devs from mean
   const anomalies = useMemo(() => {
     if (!data || data.length < 3) return [];
@@ -101,12 +113,19 @@ const TensorFlowInsights = ({ data, roleData = [], peakData = [] }) => {
     };
   }, [prediction, data, growth, peakData]);
 
+=======
+>>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
   useEffect(() => {
     let model, xs, ys, nextInput, predictionTensor;
 
     const runPrediction = async () => {
+<<<<<<< HEAD
       if (!data || data.length < 3) {
         setError("Need more data points for AI analysis.");
+=======
+      if (data.length < 2) {
+        setError("Need at least 2 data points for prediction.");
+>>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
         return;
       }
 
@@ -114,6 +133,7 @@ const TensorFlowInsights = ({ data, roleData = [], peakData = [] }) => {
       setError(null);
 
       try {
+<<<<<<< HEAD
         model = tf.sequential({
           layers: [
             tf.layers.dense({ inputShape: [1], units: 8, activation: "relu" }),
@@ -125,6 +145,21 @@ const TensorFlowInsights = ({ data, roleData = [], peakData = [] }) => {
           loss: "meanSquaredError",
         });
 
+=======
+        // Build simple linear model
+        model = tf.sequential({
+          layers: [
+            tf.layers.dense({
+              inputShape: [1],
+              units: 1,
+              activation: "linear",
+            }),
+          ],
+        });
+        model.compile({ optimizer: "sgd", loss: "meanSquaredError" });
+
+        // Prepare tensors
+>>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
         xs = tf.tensor2d(
           data.map((_, i) => [i]),
           [data.length, 1],
@@ -134,6 +169,7 @@ const TensorFlowInsights = ({ data, roleData = [], peakData = [] }) => {
           [data.length, 1],
         );
 
+<<<<<<< HEAD
         await model.fit(xs, ys, { epochs: 150, verbose: 0 });
 
         nextInput = tf.tensor2d([[data.length]], [1, 1]);
@@ -144,6 +180,21 @@ const TensorFlowInsights = ({ data, roleData = [], peakData = [] }) => {
         console.error("TensorFlow prediction error:", err);
         setError("Prediction failed.");
       } finally {
+=======
+        // Train model
+        await model.fit(xs, ys, { epochs: 100 }).then(() => {
+          // Predict next value
+          nextInput = tf.tensor2d([[data.length]], [1, 1]);
+          predictionTensor = model.predict(nextInput);
+          const predValue = predictionTensor.dataSync()[0];
+          setPrediction(Math.round(predValue * 100) / 100); // Round to 2 decimals
+        });
+      } catch (err) {
+        console.error("TensorFlow prediction error:", err);
+        setError("Prediction failed. Check data format.");
+      } finally {
+        // Cleanup tensors
+>>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
         if (xs) xs.dispose();
         if (ys) ys.dispose();
         if (nextInput) nextInput.dispose();
@@ -157,6 +208,7 @@ const TensorFlowInsights = ({ data, roleData = [], peakData = [] }) => {
   }, [data]);
 
   return (
+<<<<<<< HEAD
     <div className="bg-black/50 backdrop-blur-xl p-6 rounded-2xl border border-gray-700/50 shadow-2xl h-full flex flex-col">
       <div className="flex items-center gap-3 mb-5">
         {/* <div className="p-2 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-lg">
@@ -324,9 +376,43 @@ const TensorFlowInsights = ({ data, roleData = [], peakData = [] }) => {
             Insufficient data for AI analysis.
           </p>
         </div>
+=======
+    <div className="bg-gray-900 p-6 rounded-lg border border-gray-700">
+      <h3 className="text-lg font-medium mb-4 text-white">
+        AI Insights (TensorFlow.js)
+      </h3>
+      {loading ? (
+        <p className="text-gray-300 flex items-center gap-2">
+          <Loader2 className="w-4 h-4 animate-spin" />
+          Computing prediction...
+        </p>
+      ) : error ? (
+        <p className="text-red-400 text-sm">{error}</p>
+      ) : prediction ? (
+        <div className="space-y-4">
+          <p className="text-gray-300">
+            Trend Analysis: Linear regression on usage data.
+          </p>
+          <div className="bg-gray-800 p-4 rounded-lg">
+            <p className="text-sm text-gray-400 mb-2">
+              Next Period Prediction:
+            </p>
+            <p className="text-2xl font-bold text-blue-400">{prediction}</p>
+          </div>
+          <p className="text-xs text-gray-500">
+            Based on {data.length} data points. Check console for details.
+          </p>
+        </div>
+      ) : (
+        <p className="text-gray-300">No data available for prediction.</p>
+>>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
       )}
     </div>
   );
 };
 
+<<<<<<< HEAD
 export default TensorFlowInsights;
+=======
+export default TensorFlowInsights;
+>>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692

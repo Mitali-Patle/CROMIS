@@ -1,4 +1,10 @@
 node_modules/
 .env
+<<<<<<< HEAD
 uploads/
 *.mjs.tmp
+=======
+
+added some files and modified
+
+>>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692

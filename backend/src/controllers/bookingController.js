@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 import BookingRequest from "../models/BookingRequest.js";
 import Resource from "../models/Resource.js";
 import { logAction } from "./auditController.js";
+=======
+console.log("🔥 bookingController LOADED:", import.meta.url);
+import BookingRequest from "../models/BookingRequest.js";
+import Resource from "../models/Resource.js";
+>>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
 
 /**
  * Parse date string (YYYY-MM-DD) to UTC midnight Date
@@ -32,12 +38,27 @@ const hasOverlap = (existingStart, existingEnd, newStart, newEnd) => {
 export const createBookingRequest = async (req, res) => {
   try {
     const requesterId = req.user.id;
+<<<<<<< HEAD
     const { resource, date: dateStr, startTime, endTime, purpose } = req.body;
 
     // Handle file uploads (Multer adds req.files)
     const attachments = req.files
       ? req.files.map((f) => f.path)
       : req.body.attachments || [];
+=======
+    const {
+      resource,
+      date: dateStr,
+      startTime,
+      endTime,
+      purpose,
+    } = req.body;
+
+    // Handle file uploads (Multer adds req.files)
+    const attachments = req.files
+      ? req.files.map(f => f.path)
+      : (req.body.attachments || []);
+>>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
 
     if (!resource || !dateStr || !startTime || !endTime || !purpose) {
       return res.status(400).json({
@@ -141,7 +162,10 @@ export const getAllBookings = async (req, res) => {
 export const updateBookingRequest = async (req, res) => {
   try {
     const bookingId = req.params.id;
+<<<<<<< HEAD
     console.log("updateBookingRequest: Updating booking", bookingId);
+=======
+>>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
     let booking = await BookingRequest.findById(bookingId);
     if (!booking) return res.status(404).json({ error: "Booking not found" });
     const isOwner = String(booking.requester) === String(req.user.id);
@@ -325,15 +349,22 @@ export const updateBookingRequest = async (req, res) => {
           .json({ error: "Time slot outside resource availability" });
       }
     }
+<<<<<<< HEAD
+=======
+    // Removed restriction for non-pending edits – admins can always update, owners only if pending or no status change
+>>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
     if (booking.status !== "pending" && !isAdmin && !statusChanged) {
       return res
         .status(400)
         .json({ error: "Only pending bookings can be edited by non-admins" });
     }
+<<<<<<< HEAD
 
     // Capture state for audit log if admin changed something
     const prevState = booking.toObject();
 
+=======
+>>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
     await booking.save();
     await booking.populate([
       "resource",
@@ -341,6 +372,7 @@ export const updateBookingRequest = async (req, res) => {
       "approvedBy",
       "rejectedBy",
     ]); // Populate for consistency, including approval refs
+<<<<<<< HEAD
 
     if (isAdmin) {
       console.log("updateBookingRequest: Logging action...");
@@ -359,6 +391,11 @@ export const updateBookingRequest = async (req, res) => {
     return res.json(booking);
   } catch (err) {
     console.error("updateBookingRequest error:", err);
+=======
+    return res.json(booking);
+  } catch (err) {
+    console.error("updateBookingRequest:", err);
+>>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
     return res.status(500).json({ error: "Server error" });
   }
 };
@@ -381,6 +418,7 @@ export const cancelBookingRequest = async (req, res) => {
     booking.rejectedBy = null;
     booking.rejectedAt = null;
     booking.status = "cancelled";
+<<<<<<< HEAD
 
     const prevState = booking.toObject();
     await booking.save();
@@ -395,6 +433,9 @@ export const cancelBookingRequest = async (req, res) => {
       });
     }
 
+=======
+    await booking.save();
+>>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
     await booking.populate([
       "resource",
       "requester",
@@ -461,18 +502,28 @@ export const getBookedSlots = async (req, res) => {
  */
 export const getBookingById = async (req, res) => {
   try {
+<<<<<<< HEAD
     const booking = await BookingRequest.findById(req.params.id).populate([
       "resource",
       "requester",
       "approvedBy",
       "rejectedBy",
     ]);
+=======
+    const booking = await BookingRequest.findById(req.params.id)
+      .populate(["resource", "requester", "approvedBy", "rejectedBy"]);
+>>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
 
     if (!booking) {
       return res.status(404).json({ error: "Booking not found" });
     }
 
+<<<<<<< HEAD
     const isOwner = String(booking.requester?._id) === String(req.user.id);
+=======
+    const isOwner =
+      String(booking.requester?._id) === String(req.user.id);
+>>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
     const isAdmin = req.user.role === "admin";
 
     if (!isOwner && !isAdmin) {
@@ -531,10 +582,15 @@ export const getAdminComments = async (req, res) => {
   try {
     const { bookingId } = req.params;
 
+<<<<<<< HEAD
     const booking = await BookingRequest.findById(bookingId).populate(
       "comments.admin",
       "name email role",
     );
+=======
+    const booking = await BookingRequest.findById(bookingId)
+      .populate("comments.admin", "name email role");
+>>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
 
     if (!booking) {
       return res.status(404).json({ message: "Booking not found" });
@@ -547,6 +603,10 @@ export const getAdminComments = async (req, res) => {
   }
 };
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
 // ===============================
 // ADMIN: Batch Update Bookings by Group ID
 // ===============================
@@ -560,14 +620,19 @@ export const batchUpdateBookings = async (req, res) => {
 
     const validStatuses = ["approved", "rejected", "cancelled"];
     if (!validStatuses.includes(status)) {
+<<<<<<< HEAD
       return res.status(400).json({
         error: "Invalid status. Must be approved, rejected, or cancelled",
       });
+=======
+      return res.status(400).json({ error: "Invalid status. Must be approved, rejected, or cancelled" });
+>>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
     }
 
     // Find if the groupId exists at all
     const groupExists = await BookingRequest.exists({ groupId });
     if (!groupExists) {
+<<<<<<< HEAD
       return res
         .status(404)
         .json({ error: `No bookings found with groupId: ${groupId}` });
@@ -578,11 +643,22 @@ export const batchUpdateBookings = async (req, res) => {
       groupId,
       status: "pending",
     });
+=======
+      return res.status(404).json({ error: `No bookings found with groupId: ${groupId}` });
+    }
+
+    // Find all bookings with this groupId that are pending
+    const pendingInGroup = await BookingRequest.find({ groupId, status: "pending" });
+>>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
 
     if (pendingInGroup.length === 0) {
       return res.status(400).json({
         error: "No pending bookings found in this group",
+<<<<<<< HEAD
         message: "All bookings in this group may have already been processed.",
+=======
+        message: "All bookings in this group may have already been processed."
+>>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
       });
     }
 
@@ -604,6 +680,7 @@ export const batchUpdateBookings = async (req, res) => {
 
     const result = await BookingRequest.updateMany(
       { groupId, status: "pending" },
+<<<<<<< HEAD
       { $set: updateData },
     );
 
@@ -628,6 +705,11 @@ export const batchUpdateBookings = async (req, res) => {
       }
     }
 
+=======
+      { $set: updateData }
+    );
+
+>>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
     return res.json({
       message: `Successfully updated ${result.modifiedCount} bookings`,
       modifiedCount: result.modifiedCount,
@@ -640,6 +722,7 @@ export const batchUpdateBookings = async (req, res) => {
   }
 };
 
+<<<<<<< HEAD
 /**
  * Story 15: Track Resource Conflicts
  * Get all other proposals (pending/approved) that overlap with this one
@@ -680,3 +763,5 @@ export const getOverlappingProposals = async (req, res) => {
     return res.status(500).json({ error: "Server error" });
   }
 };
+=======
+>>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692

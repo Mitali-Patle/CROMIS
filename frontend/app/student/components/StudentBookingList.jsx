@@ -19,7 +19,11 @@ export default function StudentBookingList({ bookings }) {
   };
 
   return (
+<<<<<<< HEAD
     <table className="w-full bg-black border border-gray-700 rounded-lg">
+=======
+    <table className="w-full bg-gray-900 border border-gray-700 rounded-lg">
+>>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
       <thead className="bg-gray-800">
         <tr>
           <th className="p-3">Resource</th>

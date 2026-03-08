@@ -1,8 +1,19 @@
+<<<<<<< HEAD
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
 export const apiRequest = async (endpoint, method = "GET", body) => {
   const token =
     typeof window !== "undefined" ? localStorage.getItem("token") : null;
+=======
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+
+export const apiRequest = async (endpoint, method = "GET", body) => {
+  const token =
+    typeof window !== "undefined"
+      ? localStorage.getItem("token")
+      : null;
+>>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
 
   const headers = {
     "Content-Type": "application/json",

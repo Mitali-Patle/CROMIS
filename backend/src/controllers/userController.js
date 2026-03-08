@@ -1,4 +1,5 @@
 import User from "../models/User.js";
+<<<<<<< HEAD
 import bcrypt from "bcryptjs";
 
 // ======================================
@@ -47,6 +48,11 @@ export const createUser = async (req, res) => {
 
 // ======================================
 // 2. GET ALL USERS (ADMIN ONLY)
+=======
+
+// ======================================
+// 1. GET ALL USERS (ADMIN ONLY)
+>>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
 // ======================================
 export const getAllUsers = async (req, res) => {
   try {

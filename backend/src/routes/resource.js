@@ -42,7 +42,11 @@ router.get("/availability/check", async (req, res) => {
 
     const availability = resources.map((resource) => {
       const resourceBookings = bookings.filter(
+<<<<<<< HEAD
         (b) => b.resource.toString() === resource._id.toString(),
+=======
+        (b) => b.resource.toString() === resource._id.toString()
+>>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
       );
 
       return {
@@ -73,3 +77,10 @@ router.patch("/:id", auth, roleAuth(["admin"]), updateResource);
 router.delete("/:id", auth, roleAuth(["admin"]), deleteResource);
 
 export default router;
+<<<<<<< HEAD
+=======
+
+
+
+
+>>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692

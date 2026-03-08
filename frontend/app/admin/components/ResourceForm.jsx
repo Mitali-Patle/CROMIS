@@ -304,7 +304,11 @@ const ResourceForm = () => {
             {resources.map((resource) => (
               <div
                 key={resource._id}
+<<<<<<< HEAD
                 className="flex justify-between items-center p-4 bg-black rounded-lg border border-gray-700"
+=======
+                className="flex justify-between items-center p-4 bg-gray-900 rounded-lg border border-gray-700"
+>>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
               >
                 <div className="flex-1">
                   <h4 className="font-medium text-white">{resource.name}</h4>
@@ -345,4 +349,8 @@ const ResourceForm = () => {
   );
 };
 
+<<<<<<< HEAD
 export default ResourceForm;
+=======
+export default ResourceForm;
+>>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692

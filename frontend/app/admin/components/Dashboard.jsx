@@ -49,14 +49,22 @@ const Dashboard = ({ summaryData, pendingBookings }) => {
         {cards.map((card, index) => (
           <div
             key={index}
+<<<<<<< HEAD
             className="bg-black p-4 rounded-lg border border-gray-700"
+=======
+            className="bg-gray-900 p-4 rounded-lg border border-gray-700"
+>>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
           >
             <h3 className="text-sm text-gray-400 mb-2">{card.title}</h3>
             <p className="text-2xl font-bold text-white">{card.value}</p>
           </div>
         ))}
       </div>
+<<<<<<< HEAD
       <div className="bg-black p-6 rounded-lg border border-gray-700">
+=======
+      <div className="bg-gray-900 p-6 rounded-lg border border-gray-700">
+>>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
         <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
           <Clock className="w-4 h-4 text-gray-400" /> Pending Requests Trend
           (Last 7)
@@ -86,4 +94,8 @@ const Dashboard = ({ summaryData, pendingBookings }) => {
   );
 };
 
+<<<<<<< HEAD
 export default Dashboard;
+=======
+export default Dashboard;
+>>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692

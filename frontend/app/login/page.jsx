@@ -10,10 +10,17 @@ export default function LoginPage() {
     email: "",
     password: "",
   });
+<<<<<<< HEAD
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
+=======
+  
+  const handleChange = (e) => {
+  setFormData({ ...formData, [e.target.name]: e.target.value });
+};
+>>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
 
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -33,6 +40,7 @@ export default function LoginPage() {
   }, []);
 
   const handleSubmit = async (e) => {
+<<<<<<< HEAD
     e.preventDefault();
     setLoading(true);
 
@@ -61,6 +69,34 @@ export default function LoginPage() {
 
     setLoading(false);
   };
+=======
+  e.preventDefault();
+  setLoading(true);
+
+  try {
+    const res = await apiRequest("/auth/login", "POST", {
+      email: formData.email,
+      password: formData.password,
+    });
+
+    document.cookie = `token=${res.token}; path=/;`;
+    document.cookie = `role=${res.user.role}; path=/;`;
+
+    localStorage.setItem("token", res.token);
+    localStorage.setItem("role", res.user.role);
+
+    if (res.user.role === "admin") {
+      window.location.href = "/admin";
+    } else {
+      window.location.href = "/student";
+    }
+  } catch (err) {
+    alert(err.message);
+  }
+
+  setLoading(false);
+};
+>>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
 
   return (
     <div className="bg-black text-white min-h-screen">
