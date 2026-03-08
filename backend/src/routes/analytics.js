@@ -9,12 +9,9 @@ import {
   getUnderutilizedResources,
   getUsageByRole,
   getResourceHeatmap,
-<<<<<<< HEAD
   getResourceOccupancyTimeline,
   getTopResources,
   getOverallStatus,
-=======
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
 } from "../controllers/analyticsController.js";
 
 const router = Router();
@@ -30,7 +27,6 @@ router.get(
   getUnderutilizedResources,
 );
 router.get("/role-usage", auth, roleAuth(["admin"]), getUsageByRole);
-<<<<<<< HEAD
 router.get("/heatmap", auth, roleAuth(["admin"]), getResourceHeatmap);
 router.get(
   "/timeline",
@@ -40,13 +36,5 @@ router.get(
 );
 router.get("/top-resources", auth, roleAuth(["admin"]), getTopResources);
 router.get("/overall-status", auth, roleAuth(["admin"]), getOverallStatus);
-=======
-router.get(
-  "/heatmap/:resourceId",
-  auth,
-  roleAuth(["admin"]),
-  getResourceHeatmap,
-);
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
 
 export default router;

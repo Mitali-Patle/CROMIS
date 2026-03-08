@@ -35,17 +35,10 @@ const bookingRequestSchema = new mongoose.Schema(
       type: [String],
       default: [],
     },
-<<<<<<< HEAD
     groupId: {
       type: String,
       default: null,
     },
-=======
-     groupId: {
-  type: String,
-  default: null,
-},
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
 
     status: {
       type: String,
@@ -53,7 +46,6 @@ const bookingRequestSchema = new mongoose.Schema(
       default: "pending",
     },
     // 🔒 Internal Admin-Only Comments (NOT visible to students/faculty)
-<<<<<<< HEAD
     comments: [
       {
         text: {
@@ -73,27 +65,6 @@ const bookingRequestSchema = new mongoose.Schema(
         },
       },
     ],
-=======
-comments: [
-  {
-    text: {
-      type: String,
-      required: true,
-      maxlength: 1000,
-      trim: true,
-    },
-    admin: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
-    createdAt: {
-      type: Date,
-      default: Date.now,
-    },
-  },
-],
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
 
     // Approval fields
     approvedBy: {
@@ -114,15 +85,12 @@ comments: [
       type: String,
       default: "",
     },
-<<<<<<< HEAD
     // 💬 Admin comment visible to the student/faculty who submitted the booking
     adminComment: {
       type: String,
       default: "",
       trim: true,
     },
-=======
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
   },
   { timestamps: true },
 );

@@ -22,13 +22,8 @@ export const createMultiDayBooking = async (req, res) => {
 
     // Handle file uploads (Multer adds req.files)
     const attachments = req.files
-<<<<<<< HEAD
       ? req.files.map((f) => f.path)
       : req.body.attachments || [];
-=======
-      ? req.files.map(f => f.path)
-      : (req.body.attachments || []);
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
 
     const requester = req.user.id;
     const groupId = crypto.randomUUID();
@@ -98,7 +93,6 @@ export const createMultiDayBooking = async (req, res) => {
 -----------------------------------*/
 export const createRecurringBooking = async (req, res) => {
   try {
-<<<<<<< HEAD
     const {
       resource,
       startDate,
@@ -113,15 +107,6 @@ export const createRecurringBooking = async (req, res) => {
     const attachments = req.files
       ? req.files.map((f) => f.path)
       : req.body.attachments || [];
-=======
-    const { resource, startDate, endDate, startTime, endTime, purpose, recurrencePattern } =
-      req.body;
-
-    // Handle file uploads (Multer adds req.files)
-    const attachments = req.files
-      ? req.files.map(f => f.path)
-      : (req.body.attachments || []);
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
 
     const requester = req.user.id;
     const groupId = crypto.randomUUID();
@@ -131,13 +116,9 @@ export const createRecurringBooking = async (req, res) => {
 
     // Validate date range
     if (start > end) {
-<<<<<<< HEAD
       return res
         .status(400)
         .json({ error: "Start date must be before end date" });
-=======
-      return res.status(400).json({ error: "Start date must be before end date" });
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
     }
 
     const bookings = [];
