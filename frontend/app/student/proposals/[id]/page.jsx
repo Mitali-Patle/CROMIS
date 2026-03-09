@@ -28,11 +28,11 @@ export default function ProposalDetailsPage() {
   if (!proposal) return null;
 
   const statusColors = {
-    pending: "text-yellow-400",
-    approved: "text-green-400",
-    rejected: "text-red-400",
-    cancelled: "text-gray-400",
-    expired: "text-gray-500",
+    pending: "text-gray-300",
+    approved: "text-white font-bold",
+    rejected: "text-gray-400",
+    cancelled: "text-gray-500",
+    expired: "text-gray-600",
   };
 
   return (
@@ -44,21 +44,17 @@ export default function ProposalDetailsPage() {
         ← Back
       </button>
 
-      <div className="border border-gray-700 bg-gray-900 rounded p-6 space-y-4">
+      <div className="border border-gray-700 bg-black rounded p-6 space-y-4">
         <div className="flex justify-between items-start">
-          <h1 className="text-2xl font-bold">
-            {proposal.resource?.name}
-          </h1>
-          <span
-            className={`font-semibold ${statusColors[proposal.status]}`}
-          >
+          <h1 className="text-2xl font-bold">{proposal.resource?.name}</h1>
+          <span className={`font-semibold ${statusColors[proposal.status]}`}>
             {proposal.status.toUpperCase()}
           </span>
         </div>
 
         <p className="text-gray-400">
-          {proposal.date?.split("T")[0]} |{" "}
-          {proposal.startTime} – {proposal.endTime}
+          {proposal.date?.split("T")[0]} | {proposal.startTime} –{" "}
+          {proposal.endTime}
         </p>
 
         <div>
@@ -69,17 +65,13 @@ export default function ProposalDetailsPage() {
         {proposal.adminComment && (
           <div>
             <h3 className="font-semibold mb-1">Admin Comment</h3>
-            <p className="text-sm text-gray-300">
-              {proposal.adminComment}
-            </p>
+            <p className="text-sm text-gray-300">{proposal.adminComment}</p>
           </div>
         )}
 
         {proposal.rejectionReason && (
           <div>
-            <h3 className="font-semibold mb-1 text-red-400">
-              Rejection Reason
-            </h3>
+            <h3 className="font-semibold mb-1">Rejection Reason</h3>
             <p className="text-sm">{proposal.rejectionReason}</p>
           </div>
         )}
@@ -87,8 +79,7 @@ export default function ProposalDetailsPage() {
         <p className="text-xs text-gray-500">
           Created: {new Date(proposal.createdAt).toLocaleString()}
           <br />
-          Last updated:{" "}
-          {new Date(proposal.updatedAt).toLocaleString()}
+          Last updated: {new Date(proposal.updatedAt).toLocaleString()}
         </p>
       </div>
     </div>

@@ -7,7 +7,6 @@ const EXPIRATION_DAYS = 7;
  * Initialize Cron Jobs
  */
 export const initCronJobs = () => {
-<<<<<<< HEAD
   console.log("⏰ Initializing Cron Jobs...");
 
   // Run every day at midnight: 0 0 * * *
@@ -42,31 +41,29 @@ export const initCronJobs = () => {
       console.error("❌ Error running cron job:", err);
     }
   });
-=======
-    console.log("⏰ Initializing Cron Jobs...");
 
-    // Run every day at midnight: 0 0 * * *
-    cron.schedule("0 0 * * *", async () => {
-        console.log("Running Daily Cleanup: Expiring Stale Requests...");
+  // Run every day at midnight: 0 0 * * *
+  cron.schedule("0 0 * * *", async () => {
+    console.log("Running Daily Cleanup: Expiring Stale Requests...");
 
-        try {
-            const expirationDate = new Date();
-            expirationDate.setDate(expirationDate.getDate() - EXPIRATION_DAYS);
+    try {
+      const expirationDate = new Date();
+      expirationDate.setDate(expirationDate.getDate() - EXPIRATION_DAYS);
 
-            // Find pending bookings older than expiration date
-            const result = await BookingRequest.updateMany(
-                {
-                    status: "pending",
-                    createdAt: { $lt: expirationDate },
-                },
-                {
-                    $set: {
-                        status: "expired",
-                        rejectedAt: new Date(), // Mark time of expiration
-                        rejectionReason: "Auto-expired due to inactivity > 7 days",
-                    },
-                }
-            );
+      // Find pending bookings older than expiration date
+      const result = await BookingRequest.updateMany(
+        {
+          status: "pending",
+          createdAt: { $lt: expirationDate },
+        },
+        {
+          $set: {
+            status: "expired",
+            rejectedAt: new Date(), // Mark time of expiration
+            rejectionReason: "Auto-expired due to inactivity > 7 days",
+          },
+        },
+      );
 
             if (result.modifiedCount > 0) {
                 console.log(`✅ Expired ${result.modifiedCount} stale bookings.`);
@@ -77,5 +74,5 @@ export const initCronJobs = () => {
             console.error("❌ Error running cron job:", err);
         }
     });
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
+
 };

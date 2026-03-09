@@ -19,7 +19,7 @@ export default function StudentBookingList({ bookings }) {
   };
 
   return (
-    <table className="w-full bg-gray-900 border border-gray-700 rounded-lg">
+    <table className="w-full bg-black border border-gray-700 rounded-lg">
       <thead className="bg-gray-800">
         <tr>
           <th className="p-3">Resource</th>

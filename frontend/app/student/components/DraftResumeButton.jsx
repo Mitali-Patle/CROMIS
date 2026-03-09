@@ -9,10 +9,7 @@ export default function DraftResumeButton({ draft }) {
   };
 
   return (
-    <button
-      onClick={resume}
-      className="px-3 py-1 bg-blue-600 rounded text-sm"
-    >
+    <button onClick={resume} className="px-3 py-1 bg-blue-600 rounded text-sm">
       Resume
     </button>
   );

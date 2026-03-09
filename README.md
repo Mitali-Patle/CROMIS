@@ -223,7 +223,6 @@ podman run -p 3000:3000 ghcr.io/sudharsansaravanan/se-frontend:latest
 ### Devops Architecture:
 
 <img width="1408" height="768" alt="devops_pipeline_complete_white (1)" src="https://github.com/user-attachments/assets/bce27dae-d268-4c25-9905-e5db5d4bcadd" />
-<<<<<<< HEAD
 
 ### Use Case Diagram:
 <img width="913" height="779" alt="USECASE_SEP" src="https://github.com/user-attachments/assets/de50aaca-1371-45fc-8e24-d13bb04c0757" />
@@ -240,5 +239,3 @@ podman run -p 3000:3000 ghcr.io/sudharsansaravanan/se-frontend:latest
 ![class](https://github.com/user-attachments/assets/ffd61839-ff92-4f8c-83ed-f4476989a420)
 
 
-=======
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692

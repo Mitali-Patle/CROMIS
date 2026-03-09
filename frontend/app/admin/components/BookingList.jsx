@@ -238,6 +238,8 @@ const BookingList = ({
 
   const [savedIndicator, setSavedIndicator] = useState({});
 
+  const [savedIndicator, setSavedIndicator] = useState({});
+
   /* ======================
      ADMIN COMMENT
      ====================== */
