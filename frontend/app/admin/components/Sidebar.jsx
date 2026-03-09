@@ -13,6 +13,7 @@ import {
   Clock,
   BarChart3,
   FileText,
+  History,
   Home,
   Users,
   UserCircle,
@@ -40,6 +41,7 @@ const Sidebar = ({ onNavClick, activeTab, isOpen, onToggle }) => {
     { key: "users", label: "User Management", icon: Users },
     { key: "analytics", label: "Analytics", icon: BarChart3 },
     { key: "reports", label: "Reports", icon: FileText },
+    { key: "audit", label: "Audit Trail", icon: History },
     { key: "profile", label: "Profile", icon: UserCircle },
   ];
 

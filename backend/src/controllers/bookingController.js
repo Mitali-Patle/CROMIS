@@ -1,5 +1,6 @@
 import BookingRequest from "../models/BookingRequest.js";
 import Resource from "../models/Resource.js";
+import { logAction } from "./auditController.js";
 
 /**
  * Parse date string (YYYY-MM-DD) to UTC midnight Date
@@ -124,6 +125,7 @@ export const getAllBookings = async (req, res) => {
     if (req.query.status) filter.status = req.query.status;
     if (req.query.resource) filter.resource = req.query.resource;
     if (req.query.requester) filter.requester = req.query.requester;
+    if (req.query.groupId) filter.groupId = req.query.groupId;
     const bookings = await BookingRequest.find(filter)
       .populate(["resource", "requester", "approvedBy", "rejectedBy"]) // Include approval refs for visibility
       .sort({ date: -1 });
@@ -140,6 +142,7 @@ export const getAllBookings = async (req, res) => {
 export const updateBookingRequest = async (req, res) => {
   try {
     const bookingId = req.params.id;
+    console.log("updateBookingRequest: Updating booking", bookingId);
     let booking = await BookingRequest.findById(bookingId);
     if (!booking) return res.status(404).json({ error: "Booking not found" });
     const isOwner = String(booking.requester) === String(req.user.id);
@@ -323,12 +326,15 @@ export const updateBookingRequest = async (req, res) => {
           .json({ error: "Time slot outside resource availability" });
       }
     }
-    // Removed restriction for non-pending edits – admins can always update, owners only if pending or no status change
     if (booking.status !== "pending" && !isAdmin && !statusChanged) {
       return res
         .status(400)
         .json({ error: "Only pending bookings can be edited by non-admins" });
     }
+
+    // Capture state for audit log if admin changed something
+    const prevState = booking.toObject();
+
     await booking.save();
     await booking.populate([
       "resource",
@@ -336,9 +342,24 @@ export const updateBookingRequest = async (req, res) => {
       "approvedBy",
       "rejectedBy",
     ]); // Populate for consistency, including approval refs
+
+    if (isAdmin) {
+      console.log("updateBookingRequest: Logging action...");
+      await logAction({
+        adminId: req.user.id,
+        proposalId: booking._id,
+        action: statusChanged ? newStatus : "edit",
+        note: statusChanged && newStatus === "rejected" ? rejectionReason : "",
+        previousState: prevState,
+        newState: booking.toObject(),
+      });
+      console.log("updateBookingRequest: Action logged.");
+    }
+
+    console.log("updateBookingRequest: Success");
     return res.json(booking);
   } catch (err) {
-    console.error("updateBookingRequest:", err);
+    console.error("updateBookingRequest error:", err);
     return res.status(500).json({ error: "Server error" });
   }
 };
@@ -361,7 +382,20 @@ export const cancelBookingRequest = async (req, res) => {
     booking.rejectedBy = null;
     booking.rejectedAt = null;
     booking.status = "cancelled";
+
+    const prevState = booking.toObject();
     await booking.save();
+
+    if (req.user.role === "admin") {
+      await logAction({
+        adminId: req.user.id,
+        proposalId: booking._id,
+        action: "cancel",
+        previousState: prevState,
+        newState: booking.toObject(),
+      });
+    }
+
     await booking.populate([
       "resource",
       "requester",
@@ -571,9 +605,33 @@ export const batchUpdateBookings = async (req, res) => {
 
     const result = await BookingRequest.updateMany(
       { groupId, status: "pending" },
+
       { $set: updateData },
     );
 
+    // Audit Log for batch action
+    if (result.modifiedCount > 0) {
+      // Log the first one as representative or log summarized? 
+      // Story 10 says "logs approver". We'll log one generic batch action entry or entry for each.
+      // For simplicity and full audit, let's log the first one's ID but note it's a batch action.
+      // Better: find those bookings and log each or log the groupId action.
+      // Given AuditLog schema takes proposalId, let's log the first one found or adjust schema.
+      // Actually, Story 10 is about "accountability". A single log entry with groupId is better if we had that field.
+      // Let's log for each modified booking to be thorough.
+      const modifiedBookings = await BookingRequest.find({ groupId, status: status });
+      for (const b of modifiedBookings) {
+        await logAction({
+          adminId: req.user.id,
+          proposalId: b._id,
+          action: status,
+          note: `Batch ${status} for group: ${groupId}`,
+          newState: b.toObject(),
+        });
+      }
+    }
+
+      { $set: updateData }
+    ;
     return res.json({
       message: `Successfully updated ${result.modifiedCount} bookings`,
       modifiedCount: result.modifiedCount,
@@ -582,6 +640,47 @@ export const batchUpdateBookings = async (req, res) => {
     });
   } catch (err) {
     console.error("batchUpdateBookings:", err);
+    return res.status(500).json({ error: "Server error" });
+  }
+};
+
+/**
+ * Story 15: Track Resource Conflicts
+ * Get all other proposals (pending/approved) that overlap with this one
+ */
+export const getOverlappingProposals = async (req, res) => {
+  try {
+    const bookingId = req.params.id;
+    const booking = await BookingRequest.findById(bookingId);
+    if (!booking) return res.status(404).json({ error: "Booking not found" });
+
+    const dateStr = booking.date.toISOString().split("T")[0];
+    const uStart = toUTCDateTime(dateStr, booking.startTime);
+    const uEnd = toUTCDateTime(dateStr, booking.endTime);
+
+    const potentialConflicts = await BookingRequest.find({
+      resource: booking.resource,
+      date: booking.date,
+      status: { $in: ["pending", "approved"] },
+      _id: { $ne: booking._id },
+    }).populate("requester", "name email role");
+
+    const overlaps = [];
+    for (const conflict of potentialConflicts) {
+      const cDateStr = conflict.date.toISOString().split("T")[0];
+      const cStart = toUTCDateTime(cDateStr, conflict.startTime);
+      const cEnd = toUTCDateTime(cDateStr, conflict.endTime);
+      if (hasOverlap(cStart, cEnd, uStart, uEnd)) {
+        overlaps.push(conflict);
+      }
+    }
+
+    return res.json({
+      bookingId,
+      conflicts: overlaps,
+    });
+  } catch (err) {
+    console.error("getOverlappingProposals:", err);
     return res.status(500).json({ error: "Server error" });
   }
 };
