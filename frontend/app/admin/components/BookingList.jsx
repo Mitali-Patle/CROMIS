@@ -235,7 +235,6 @@ const BookingList = ({
 
     return { groups, singles };
   }, [bookings, filters]);
-
   const [savedIndicator, setSavedIndicator] = useState({});
 
   const [savedIndicator, setSavedIndicator] = useState({});
