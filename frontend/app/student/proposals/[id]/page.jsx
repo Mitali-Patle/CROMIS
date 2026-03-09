@@ -28,19 +28,11 @@ export default function ProposalDetailsPage() {
   if (!proposal) return null;
 
   const statusColors = {
-<<<<<<< HEAD
-    pending: "text-gray-300",
-    approved: "text-white font-bold",
-    rejected: "text-gray-400",
-    cancelled: "text-gray-500",
-    expired: "text-gray-600",
-=======
     pending: "text-yellow-400",
     approved: "text-green-400",
     rejected: "text-red-400",
     cancelled: "text-gray-400",
     expired: "text-gray-500",
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
   };
 
   return (
@@ -52,12 +44,6 @@ export default function ProposalDetailsPage() {
         ← Back
       </button>
 
-<<<<<<< HEAD
-      <div className="border border-gray-700 bg-black rounded p-6 space-y-4">
-        <div className="flex justify-between items-start">
-          <h1 className="text-2xl font-bold">{proposal.resource?.name}</h1>
-          <span className={`font-semibold ${statusColors[proposal.status]}`}>
-=======
       <div className="border border-gray-700 bg-gray-900 rounded p-6 space-y-4">
         <div className="flex justify-between items-start">
           <h1 className="text-2xl font-bold">
@@ -66,19 +52,13 @@ export default function ProposalDetailsPage() {
           <span
             className={`font-semibold ${statusColors[proposal.status]}`}
           >
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
             {proposal.status.toUpperCase()}
           </span>
         </div>
 
         <p className="text-gray-400">
-<<<<<<< HEAD
-          {proposal.date?.split("T")[0]} | {proposal.startTime} –{" "}
-          {proposal.endTime}
-=======
           {proposal.date?.split("T")[0]} |{" "}
           {proposal.startTime} – {proposal.endTime}
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
         </p>
 
         <div>
@@ -89,25 +69,17 @@ export default function ProposalDetailsPage() {
         {proposal.adminComment && (
           <div>
             <h3 className="font-semibold mb-1">Admin Comment</h3>
-<<<<<<< HEAD
-            <p className="text-sm text-gray-300">{proposal.adminComment}</p>
-=======
             <p className="text-sm text-gray-300">
               {proposal.adminComment}
             </p>
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
           </div>
         )}
 
         {proposal.rejectionReason && (
           <div>
-<<<<<<< HEAD
-            <h3 className="font-semibold mb-1">Rejection Reason</h3>
-=======
             <h3 className="font-semibold mb-1 text-red-400">
               Rejection Reason
             </h3>
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
             <p className="text-sm">{proposal.rejectionReason}</p>
           </div>
         )}
@@ -115,12 +87,8 @@ export default function ProposalDetailsPage() {
         <p className="text-xs text-gray-500">
           Created: {new Date(proposal.createdAt).toLocaleString()}
           <br />
-<<<<<<< HEAD
-          Last updated: {new Date(proposal.updatedAt).toLocaleString()}
-=======
           Last updated:{" "}
           {new Date(proposal.updatedAt).toLocaleString()}
->>>>>>> 0f2863ee724e31c51240088c1d7b59dfa5009692
         </p>
       </div>
     </div>
