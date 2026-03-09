@@ -7,6 +7,7 @@ import {
   getResourceById,
   updateResource,
   deleteResource,
+  getResourceHistory,
 } from "../controllers/resourceController.js";
 import auth from "../middleware/auth.js";
 import roleAuth from "../middleware/roleAuth.js";
@@ -67,9 +68,31 @@ router.get("/availability/check", async (req, res) => {
 router.get("/", getAllResources);
 router.get("/:id", getResourceById);
 
+// Story 15: Booking history for a resource
+router.get("/:id/history", auth, getResourceHistory);
+
+import { resourceUpload } from "../utils/upload.js";
+
+const uploadFields = resourceUpload.fields([
+  { name: "image", maxCount: 1 },
+  { name: "documents", maxCount: 5 },
+]);
+
 /* ------------------- ADMIN ROUTES ------------------- */
-router.post("/", auth, roleAuth(["admin"]), createResource);
-router.patch("/:id", auth, roleAuth(["admin"]), updateResource);
+router.post(
+  "/",
+  auth,
+  roleAuth(["admin"]),
+  uploadFields,
+  createResource,
+);
+router.patch(
+  "/:id",
+  auth,
+  roleAuth(["admin"]),
+  uploadFields,
+  updateResource,
+);
 router.delete("/:id", auth, roleAuth(["admin"]), deleteResource);
 
 export default router;

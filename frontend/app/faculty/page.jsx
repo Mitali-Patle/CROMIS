@@ -9,10 +9,13 @@ import ProposalForm from "./components/ProposalForm";
 import MyProposals from "./components/MyProposals";
 import Drafts from "./components/Drafts";
 import Profile from "../components/Profile";
+import ResourceCalendar from "../student/components/ResourceCalendar";
+import ResourceDetail from "../student/components/ResourceDetail";
 
 export default function FacultyPage() {
   const [activeTab, setActiveTab] = useState("overview");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [selectedResourceId, setSelectedResourceId] = useState(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -41,6 +44,16 @@ export default function FacultyPage() {
   }, []);
 
   const renderContent = () => {
+    // Story 7: If a resource is selected, show its detail page
+    if (selectedResourceId) {
+      return (
+        <ResourceDetail
+          resourceId={selectedResourceId}
+          onBack={() => setSelectedResourceId(null)}
+        />
+      );
+    }
+
     switch (activeTab) {
       case "overview":
         return <Dashboard onNavigate={setActiveTab} />;
@@ -52,6 +65,8 @@ export default function FacultyPage() {
         return <Drafts />;
       case "profile":
         return <Profile />;
+      case "calendar":
+        return <ResourceCalendar onResourceClick={setSelectedResourceId} />;
       default:
         return <Dashboard onNavigate={setActiveTab} />;
     }
@@ -61,7 +76,10 @@ export default function FacultyPage() {
     <div className="flex bg-black text-white h-screen overflow-hidden">
       <Sidebar
         activeTab={activeTab}
-        onNavClick={setActiveTab}
+        onNavClick={(tab) => {
+          setActiveTab(tab);
+          setSelectedResourceId(null); // Clear detail view on nav
+        }}
         isOpen={sidebarOpen}
         onToggle={setSidebarOpen}
       />

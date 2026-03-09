@@ -15,7 +15,7 @@ export default function Header({ onMenuClick }) {
           <Menu className="w-6 h-6" />
         </button>
         <h1 className="text-lg font-semibold">Student Dashboard</h1>
-      </div>
-    </header>
+      </div >
+    </header >
   );
 }

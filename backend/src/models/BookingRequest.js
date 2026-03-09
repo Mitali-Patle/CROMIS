@@ -31,6 +31,8 @@ const bookingRequestSchema = new mongoose.Schema(
       required: true,
       match: /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/, // Validates HH:MM format
     },
+    // Story 11: Quantity-based equipment tracking
+    quantity: { type: Number, default: 1, min: 1 },
     attachments: {
       type: [String],
       default: [],

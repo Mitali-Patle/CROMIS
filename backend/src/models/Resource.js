@@ -12,6 +12,8 @@ const resourceSchema = new mongoose.Schema(
     },
 
     location: { type: String, required: true },
+    building: { type: String, trim: true },  // Story 9: split location
+    room: { type: String, trim: true },      // Story 9: split location
 
     capacity: { type: Number, default: 1 },
 
@@ -21,6 +23,21 @@ const resourceSchema = new mongoose.Schema(
     availableTo: { type: String }, // Example: "18:00"
 
     tags: [String],
+
+    imageUrl: { type: String }, // Stores the path to the uploaded image
+
+    // Story 8: Upload Documents / Blueprints
+    documents: [{ type: String }],
+
+    // Story 10: Resource Instructions / Guidelines
+    instructions: { type: String, maxlength: 2000, trim: true },
+
+    // Story 12: Temporarily Disable (Maintenance Mode)
+    maintenanceReason: { type: String, trim: true },
+    maintenanceEndDate: { type: Date },
+
+    // Story 14: Resource Ownership (Admin-only internal note)
+    ownerNotes: { type: String, maxlength: 100, trim: true },
 
     isActive: { type: Boolean, default: true },
   },

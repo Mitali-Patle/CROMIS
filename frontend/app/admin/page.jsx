@@ -89,14 +89,18 @@ export default function AdminPage() {
     const approved = bookingsRes.filter((b) => b.status === "approved");
     const rejected = bookingsRes.filter((b) => b.status === "rejected");
 
+    const totalRes = resourcesRes.total !== undefined
+      ? resourcesRes.total
+      : (Array.isArray(resourcesRes) ? resourcesRes.length : 0);
+
     setSummaryData({
-      totalResources: resourcesRes.length,
+      totalResources: totalRes,
       pendingProposals: pending.length,
       approvedRequests: approved.length,
       rejectedRequests: rejected.length,
-      currentOccupancy: `${Math.round(
-        (approved.length / (resourcesRes.length * 10)) * 100,
-      )}%`,
+      currentOccupancy: `${totalRes > 0 ? Math.round(
+        (approved.length / (totalRes * 10)) * 100,
+      ) : 0}%`,
     });
 
     setPendingBookings(pending);

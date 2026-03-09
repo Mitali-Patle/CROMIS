@@ -1,4 +1,5 @@
 import Resource from "../models/Resource.js";
+import BookingRequest from "../models/BookingRequest.js";
 
 /**
  * Admin creates a new resource
@@ -9,30 +10,57 @@ export const createResource = async (req, res) => {
       name,
       type,
       location,
+      building,
+      room,
       capacity,
       description,
       tags = [],
       availableFrom,
       availableTo,
+      instructions,
+      maintenanceReason,
+      maintenanceEndDate,
+      ownerNotes,
     } = req.body;
 
-    if (!name || !type || !location) {
+    // Auto-compute location from building+room if provided
+    const computedLocation =
+      building && room ? `${building}, ${room}` : location;
+
+    if (!name || !type || !computedLocation) {
       return res
         .status(400)
         .json({ error: "name, type, and location are required" });
     }
 
-    const resource = new Resource({
+    const resourceData = {
       name,
       type,
-      location,
+      location: computedLocation,
+      building,
+      room,
       capacity,
       description,
       tags,
       availableFrom,
       availableTo,
-      isActive: true, // matches schema
-    });
+      instructions,
+      maintenanceReason,
+      maintenanceEndDate,
+      ownerNotes,
+      isActive: true,
+    };
+
+    if (req.files?.image?.[0]) {
+      resourceData.imageUrl = `/uploads/${req.files.image[0].filename}`;
+    }
+    if (req.files?.documents?.length) {
+      resourceData.documents = req.files.documents.map(
+        (f) => `/uploads/${f.filename}`,
+      );
+    }
+
+    const resource = new Resource(resourceData);
 
     await resource.save();
     return res.status(201).json(resource);
@@ -47,13 +75,36 @@ export const createResource = async (req, res) => {
  */
 export const getAllResources = async (req, res) => {
   try {
-    const filter = { isActive: true }; // matches schema
+    const filter = { isActive: true };
 
+    // Text search across name, type, location
+    if (req.query.q) {
+      const regex = { $regex: req.query.q, $options: "i" };
+      filter.$or = [{ name: regex }, { type: regex }, { location: regex }];
+    }
     if (req.query.type) filter.type = req.query.type;
-    if (req.query.q) filter.name = { $regex: req.query.q, $options: "i" };
+    if (req.query.tags) {
+      filter.tags = { $in: req.query.tags.split(",").map((t) => t.trim()) };
+    }
+    if (req.query.minCapacity || req.query.maxCapacity) {
+      filter.capacity = {};
+      if (req.query.minCapacity)
+        filter.capacity.$gte = Number(req.query.minCapacity);
+      if (req.query.maxCapacity)
+        filter.capacity.$lte = Number(req.query.maxCapacity);
+    }
 
-    const resources = await Resource.find(filter).sort({ name: 1 }).lean();
-    return res.json(resources);
+    // Pagination
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.min(50, Math.max(1, parseInt(req.query.limit) || 50));
+    const skip = (page - 1) * limit;
+
+    const [resources, total] = await Promise.all([
+      Resource.find(filter).sort({ name: 1 }).skip(skip).limit(limit).lean(),
+      Resource.countDocuments(filter),
+    ]);
+
+    return res.json({ resources, total, page, limit });
   } catch (err) {
     console.error("getAllResources:", err);
     return res.status(500).json({ error: "Server error" });
@@ -83,17 +134,41 @@ export const updateResource = async (req, res) => {
       "name",
       "type",
       "location",
+      "building",
+      "room",
       "capacity",
       "description",
       "tags",
       "availableFrom",
       "availableTo",
       "isActive",
+      "imageUrl",
+      "instructions",
+      "maintenanceReason",
+      "maintenanceEndDate",
+      "ownerNotes",
     ];
 
     const update = {};
     for (const key of allowedFields) {
       if (req.body[key] !== undefined) update[key] = req.body[key];
+    }
+
+    // Auto-compute location if building+room are set
+    if (update.building && update.room) {
+      update.location = `${update.building}, ${update.room}`;
+    }
+
+    if (req.files?.image?.[0]) {
+      update.imageUrl = `/uploads/${req.files.image[0].filename}`;
+    }
+    if (req.files?.documents?.length) {
+      // Append new documents to existing ones
+      const existing = (await Resource.findById(req.params.id).lean())?.documents || [];
+      update.documents = [
+        ...existing,
+        ...req.files.documents.map((f) => `/uploads/${f.filename}`),
+      ];
     }
 
     const updated = await Resource.findByIdAndUpdate(req.params.id, update, {
@@ -116,7 +191,7 @@ export const deleteResource = async (req, res) => {
   try {
     const updated = await Resource.findByIdAndUpdate(
       req.params.id,
-      { isActive: false }, // schema-consistent
+      { isActive: false },
       { new: true },
     ).lean();
 
@@ -125,6 +200,22 @@ export const deleteResource = async (req, res) => {
     return res.json({ message: "Resource deactivated" });
   } catch (err) {
     console.error("deleteResource:", err);
+    return res.status(500).json({ error: "Server error" });
+  }
+};
+
+/**
+ * Story 15: Get booking history for a specific resource
+ */
+export const getResourceHistory = async (req, res) => {
+  try {
+    const bookings = await BookingRequest.find({ resource: req.params.id })
+      .populate("requester", "name email")
+      .sort({ date: -1 })
+      .lean();
+    return res.json(bookings);
+  } catch (err) {
+    console.error("getResourceHistory:", err);
     return res.status(500).json({ error: "Server error" });
   }
 };

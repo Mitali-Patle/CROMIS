@@ -30,7 +30,8 @@ export default function Dashboard({ onNavigate }) {
           drafts: drafts.length,
         });
 
-        setResources(resourcesData);
+        // Handle both old array format and new paginated object format { resources: [...] } for Story 6
+        setResources(Array.isArray(resourcesData) ? resourcesData : (resourcesData.resources || []));
       } catch (err) {
         console.error("Failed to load dashboard data:", err);
       } finally {

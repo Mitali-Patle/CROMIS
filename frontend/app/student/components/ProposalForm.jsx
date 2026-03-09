@@ -51,7 +51,9 @@ export default function ProposalForm() {
 
   /* ---------- Load Resources ---------- */
   useEffect(() => {
-    apiRequest("/resources").then(setResources).catch(console.error);
+    apiRequest("/resources")
+      .then((data) => setResources(Array.isArray(data) ? data : data.resources || []))
+      .catch(console.error);
 
     // Check for preselected resource from dashboard
     const preselected = localStorage.getItem("preselectedResource");
@@ -209,11 +211,10 @@ export default function ProposalForm() {
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`flex-1 py-2 text-sm font-medium rounded-md transition-colors ${
-                activeTab === tab
+              className={`flex-1 py-2 text-sm font-medium rounded-md transition-colors ${activeTab === tab
                   ? "bg-gray-700 text-white shadow"
                   : "text-gray-400 hover:text-gray-200"
-              }`}
+                }`}
             >
               {tab === "single"
                 ? "Single"
