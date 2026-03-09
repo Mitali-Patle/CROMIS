@@ -13,6 +13,7 @@ import {
   getBookingById,
   addAdminComment,
   batchUpdateBookings,
+  getOverlappingProposals,
 } from "../controllers/bookingController.js";
 
 import {
@@ -50,6 +51,7 @@ router.get("/my", auth, getUserBookings);
    SINGLE BOOKING (DETAILS)
    =============================== */
 router.get("/:id", auth, getBookingById);
+router.get("/:id/conflicts", auth, roleAuth(["admin"]), getOverlappingProposals);
 
 /* ===============================
    ADMIN BOOKINGS

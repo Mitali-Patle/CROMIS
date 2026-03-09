@@ -11,8 +11,8 @@ app.use(cookieParser());
 
 app.use(
   cors({
-    origin: ["http://localhost:3000", "https://cromis.vercel.app"],
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    origin: true, // Reflect request origin
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     credentials: true,
   }),
 );

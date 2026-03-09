@@ -11,6 +11,7 @@ import TensorFlowInsights from "./components/TensorFlowInsights";
 import ReportExporter from "./components/ReportExporter";
 import Dashboard from "./components/Dashboard";
 import UserManagement from "./components/UserManagement";
+import AuditLogList from "./components/AuditLogList";
 import { apiRequest } from "@/lib/api";
 import Profile from "../components/Profile";
 
@@ -348,6 +349,9 @@ export default function AdminPage() {
             pendingBookings={pendingBookings}
           />
         );
+
+      case "audit":
+        return <AuditLogList />;
 
       case "profile":
         return <Profile />;

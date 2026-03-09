@@ -6,6 +6,7 @@ import analyticsRoutes from "./analytics.js";
 import userRoutes from "./users.js";
 import purposeTemplateRoutes from "./purposeTemplates.js";
 import draftRoutes from "./drafts.js";
+import auditRoutes from "./audit.js";
 
 const router = Router();
 
@@ -20,5 +21,6 @@ router.use("/analytics", analyticsRoutes);
 router.use("/users", userRoutes);
 router.use("/purpose-templates", purposeTemplateRoutes);
 router.use("/drafts", draftRoutes);
+router.use("/audit", auditRoutes);
 
 export default router;

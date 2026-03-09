@@ -12,7 +12,13 @@ const PORT = process.env.PORT || 5000;
 app.use("/uploads", express.static(path.resolve("uploads")));
 
 // Connect DB
-connectDB();
+connectDB().then(() => {
+  // Story 12: Initial check and then every 24 hours
+  import("./src/utils/cronJobs.js").then(({ autoExpireRequests }) => {
+    autoExpireRequests().catch(err => console.error("Initial auto-expiry failed:", err));
+    setInterval(autoExpireRequests, 24 * 60 * 60 * 1000);
+  });
+});
 
 // Start server
 app.listen(PORT, () => {
